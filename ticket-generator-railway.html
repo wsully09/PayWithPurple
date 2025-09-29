@@ -151,10 +151,12 @@
         <h1 class="title">Generate Ticket</h1>
         
         <div class="config-section">
-            <label class="config-label" for="backendUrl">Railway Backend URL:</label>
-            <input type="text" id="backendUrl" class="config-input" placeholder="https://your-app.railway.app" value="">
+            <label class="config-label">Railway Backend URL:</label>
+            <div style="color: rgba(255, 255, 255, 0.8); font-size: 14px; margin-bottom: 10px;">
+                https://paywithpurple-production.up.railway.app
+            </div>
             <small style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
-                Enter your Railway app URL here (e.g., https://paywithpurple-production.railway.app)
+                Backend is configured and ready to generate tickets!
             </small>
         </div>
         
@@ -169,14 +171,9 @@
     </div>
 
     <script>
-        // Get Railway backend URL from input
+        // Hardcoded Railway backend URL
         function getBackendUrl() {
-            const url = document.getElementById('backendUrl').value.trim();
-            if (!url) {
-                alert('Please enter your Railway backend URL first!');
-                return null;
-            }
-            return url.endsWith('/') ? url.slice(0, -1) : url;
+            return 'https://paywithpurple-production.up.railway.app';
         }
 
         async function generateTicket() {
@@ -210,6 +207,9 @@
                     
                     // Store the current ticket URL for copying
                     window.currentTicketUrl = data.url;
+                    
+                    // Automatically open the ticket in a new tab
+                    window.open(data.url, '_blank');
                 } else {
                     throw new Error(data.error || 'Failed to create ticket');
                 }
@@ -254,17 +254,10 @@
             }
         }
 
-        // Generate a ticket on page load (if URL is configured)
+        // Generate a ticket on page load
         window.addEventListener('load', function() {
-            const savedUrl = localStorage.getItem('railwayBackendUrl');
-            if (savedUrl) {
-                document.getElementById('backendUrl').value = savedUrl;
-            }
-        });
-
-        // Save URL when changed
-        document.getElementById('backendUrl').addEventListener('input', function() {
-            localStorage.setItem('railwayBackendUrl', this.value);
+            // Auto-generate a ticket when page loads
+            generateTicket();
         });
     </script>
 </body>
