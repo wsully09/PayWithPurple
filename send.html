@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .send-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .send-btn:hover {
+            background-color: #0056b3;
+        }
+        .send-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.loading {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SMS Sender</h1>
+        <p>Click the button below to send a test SMS to 9179006733</p>
+        <button id="sendBtn" class="send-btn">Send SMS</button>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('sendBtn').addEventListener('click', async function() {
+            const btn = this;
+            const status = document.getElementById('status');
+            
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            status.className = 'status loading';
+            status.textContent = 'Sending SMS...';
+            status.style.display = 'block';
+            
+            try {
+                // Alternative fetch approach (may have CORS issues):
+                // fetch('https://textbelt.com/text', {
+                //     method: 'post',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({
+                //         phone: '9179006733',
+                //         message: 'Hello world',
+                //         key: '45debba6c3c5d9cad3f4c8ca12acb0b88b985490KTZaeiFqRnvU5RonIZArQHyVA',
+                //     }),
+                // }).then(response => {
+                //     return response.json();
+                // }).then(data => {
+                //     console.log(data);
+                // });
+                
+                // Send SMS using Textbelt API with form approach to bypass CORS
+                // Create a form and submit it to bypass CORS
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'https://textbelt.com/text';
+                form.target = 'hiddenFrame';
+                
+                const phoneInput = document.createElement('input');
+                phoneInput.type = 'hidden';
+                phoneInput.name = 'phone';
+                phoneInput.value = '9179006733';
+                
+                const messageInput = document.createElement('input');
+                messageInput.type = 'hidden';
+                messageInput.name = 'message';
+                messageInput.value = 'second test';
+                
+                const keyInput = document.createElement('input');
+                keyInput.type = 'hidden';
+                keyInput.name = 'key';
+                keyInput.value = '45debba6c3c5d9cad3f4c8ca12acb0b88b985490KTZaeiFqRnvU5RonIZArQHyVA';
+                
+                form.appendChild(phoneInput);
+                form.appendChild(messageInput);
+                form.appendChild(keyInput);
+                
+                // Create hidden iframe to handle response
+                const iframe = document.createElement('iframe');
+                iframe.name = 'hiddenFrame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                // Handle response
+                iframe.onload = function() {
+                    try {
+                        const responseText = iframe.contentDocument.body.textContent;
+                        const result = JSON.parse(responseText);
+                        
+                        if (result.success) {
+                            status.className = 'status success';
+                            status.textContent = `SMS sent successfully! Text ID: ${result.textId}`;
+                        } else {
+                            status.className = 'status error';
+                            status.textContent = `Error: ${result.error}`;
+                        }
+                    } catch (e) {
+                        status.className = 'status success';
+                        status.textContent = 'SMS request submitted (response format may vary)';
+                    }
+                    
+                    // Clean up
+                    document.body.removeChild(iframe);
+                    btn.disabled = false;
+                    btn.textContent = 'Send SMS';
+                };
+                
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+                
+                return; // Exit early since we're handling response in iframe.onload
+                
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = `Error: ${error.message}`;
+                btn.disabled = false;
+                btn.textContent = 'Send SMS';
+            }
+        });
+    </script>
+</body>
+</html>

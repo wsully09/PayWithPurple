@@ -1,0 +1,12 @@
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/tickets"
+  to = "/.netlify/functions/create-ticket"
+  status = 200
+
+[[redirects]]
+  from = "/ticket/*"
+  to = "/ticket.html"
+  status = 200

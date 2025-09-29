@@ -1,0 +1,1118 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purple</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+    
+
+
+    <style>
+        :root {
+            --purple: #5e3b83;
+            --blue: #143268;
+            --white: #ffffff;
+        }
+
+        ::selection {
+            background-color: var(--purple);
+            color: white;
+        }
+
+        ::-moz-selection {
+            background-color: var(--purple);
+            color: white;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+         
+            font-family: "Inter", sans-serif;
+  
+            display: flex;
+            justify-content: center;
+            align-items: center;
+           
+
+        }
+
+        .container {
+           
+            max-width: 400px;
+            width: 100%;
+            
+            /*border: 1px solid black;*/
+            max-height: 700px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+           
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .bottom-button {
+            background-color: var(--blue);
+            color: var(--white);
+            border: none;
+            padding: 12px 0px;
+            width: 300px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 50px;
+            transition: opacity 0.2s, transform 0.1s;
+            text-decoration: none;
+            opacity: 0.9;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            margin-bottom: 50px;
+            
+        }
+
+        .bottom-button:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
+
+        .bottom-button:active {
+            transform: translateY(0);
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 95%;
+            background-color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease-out;
+        }
+
+        .overlay.show {
+            transform: translateY(0);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .close-button::before,
+        .close-button::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background-color: #4b4b4b;
+            border-radius: 1px;
+        }
+
+        .close-button::before {
+            transform: rotate(45deg);
+        }
+
+        .close-button::after {
+            transform: rotate(-45deg);
+        }
+
+        .overlay-header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .app-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+
+        .app-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .purple-logo {
+            background-color: var(--purple);
+        }
+
+        .logo-icon {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .overlay-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .features-container {
+            background-color: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .feature-section {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .feature-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            margin-top: 2px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+            margin: 0 0 5px 0;
+        }
+
+        .feature-description {
+            font-size: 12px;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .overlay-footer {
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .legal-text {
+            font-size: 10px;
+            color: #999;
+            margin: 0 0 15px 0;
+            line-height: 1.4;
+        }
+
+        .privacy-link {
+            color: #999;
+            text-decoration: underline;
+        }
+
+        .continue-button {
+            width: 100%;
+            background-color: var(--purple);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-bottom: 20px;
+            user-select: none;
+        }
+
+        .continue-button:hover {
+            opacity: 0.9;
+        }
+
+        .instructions-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 95%;
+            background-color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease-out;
+        }
+
+        .instructions-overlay.show {
+            transform: translateY(0);
+        }
+
+        .instructions-header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .instructions-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+        }
+
+        .instructions-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .steps-container {
+            background-color: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            padding-right: 30px;
+            margin: 0 auto 30px auto;
+            max-width: 330px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            background-color: var(--purple);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 15px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+            margin: 0 0 5px 0;
+        }
+
+        .step-description {
+            font-size: 12px;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .instructions-footer {
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .launch-button {
+            width: 100%;
+            background-color: var(--purple);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .launch-button:hover {
+            opacity: 0.9;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .back-button:hover {
+            color: #000;
+        }
+
+        .back-arrow-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .back-arrow-button::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 2px;
+            background-color: #4b4b4b;
+            border-radius: 1px;
+            transform: rotate(-45deg);
+            transform-origin: left center;
+        }
+
+        .back-arrow-button::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 2px;
+            background-color: #4b4b4b;
+            border-radius: 1px;
+            transform: rotate(45deg);
+            transform-origin: left center;
+        }
+
+        .phone-entry-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 95%;
+            background-color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease-out;
+        }
+
+        .phone-entry-overlay.show {
+            transform: translateY(0);
+        }
+
+        .phone-entry-header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .phone-entry-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+        }
+
+        .phone-entry-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .phone-form-container {
+            background-color: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .phone-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: "Inter", sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .phone-input:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 2px rgba(94, 59, 131, 0.1);
+        }
+
+        .phone-input:invalid {
+            border-color: #e5e5e5;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .phone-entry-footer {
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .submit-phone-button {
+            width: 100%;
+            background-color: var(--purple);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .submit-phone-button:hover {
+            opacity: 0.9;
+        }
+
+        .submit-phone-button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .verification-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 95%;
+            background-color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease-out;
+        }
+
+        .verification-overlay.show {
+            transform: translateY(0);
+        }
+
+        .verification-header {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
+
+        .verification-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+        }
+
+        .verification-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .verification-form-container {
+            background-color: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .verification-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: "Inter", sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .verification-input:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 2px rgba(94, 59, 131, 0.1);
+        }
+
+        .verification-footer {
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .verify-button {
+            width: 100%;
+            background-color: var(--purple);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .verify-button:hover {
+            opacity: 0.9;
+        }
+
+        .verify-button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+     
+    </style>
+    </head>
+    <body>
+    
+        <div class="container">
+            
+            <button class="bottom-button" onclick="toggleOverlay()">Pay With Venmo</button>
+            <div class="overlay" id="overlay">
+                <button class="close-button" onclick="toggleOverlay()"></button>
+                
+                <div class="overlay-header">
+                    <div class="app-logos">
+                        <div class="app-logo purple-logo">
+                            <div class="logo-icon">P</div>
+                        </div>
+                    </div>
+                    <h2 class="overlay-title">Duncan Off-Campus uses <br><a href="https://paywithpurple.com" target="_blank" style="color: black">Purple</a> to collect Venmo payments</h2>
+                </div>
+
+                <div class="features-container">
+                    <div class="feature-section">
+                        <div class="feature-content">
+                            <h3 class="feature-title">Collect Venmos in bulk</h3>
+                            <p class="feature-description">Easily collect payments from multiple people</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-section">
+                        <div class="feature-content">
+                            <h3 class="feature-title">Verify people paid</h3>
+                            <p class="feature-description">Automatically checks payments are received</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-section">
+                        <div class="feature-content">
+                            <h3 class="feature-title">All without any fees</h3>
+                            <p class="feature-description">Both parties avoid all typical transaction fees</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overlay-footer">
+                    <p class="legal-text">By continuing, you agree to Purple's <a href="#" class="privacy-link">Privacy Policy</a>.</p>
+                    <button class="continue-button" onclick="showInstructions()">Continue</button>
+                </div>
+            </div>
+
+            <div class="instructions-overlay" id="instructionsOverlay">
+                <button class="back-arrow-button" onclick="hideInstructions()"></button>
+                <button class="close-button" onclick="closeAllOverlays()"></button>
+                
+                <div class="instructions-header">
+                    <div class="app-logos">
+                        <div class="app-logo purple-logo">
+                            <div class="logo-icon">P</div>
+                        </div>
+                    </div>
+                    <h2 class="instructions-title">How it works</h2>
+                </div>
+
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Enter your phone number</h3>
+                            <p class="step-description">This is how we will text you your ticket.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Click to launch Venmo</h3>
+                            <p class="step-description">We'll open the Venmo app for you</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Do not modify the pre-populated Venmo amount or note</h3>
+                            <p class="step-description">Keep the auto-filled fields as they are</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3 class="step-title">Receive your ticket via text</h3>
+                            <p class="step-description">We'll send you your ticket once we confirm your Venmo payment</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instructions-footer">
+                    <button class="launch-button" onclick="showPhoneEntry()">Continue</button>
+                </div>
+            </div>
+
+            <div class="phone-entry-overlay" id="phoneEntryOverlay">
+                <button class="back-arrow-button" onclick="hidePhoneEntry()"></button>
+                <button class="close-button" onclick="closeAllOverlays()"></button>
+                
+                <div class="phone-entry-header">
+                    <div class="app-logos">
+                        <div class="app-logo purple-logo">
+                            <div class="logo-icon">P</div>
+                        </div>
+                    </div>
+                    <h2 class="phone-entry-title">Enter your phone number</h2>
+                    <p class="phone-entry-subtitle">We'll send you a verification code, <br>and then later your ticket.</p>
+                </div>
+
+                <div class="phone-form-container">
+                    <form id="phoneForm" onsubmit="handlePhoneSubmit(event)">
+                        <div class="input-group">
+                            <label for="phoneNumber" class="input-label">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                id="phoneNumber" 
+                                name="phoneNumber" 
+                                class="phone-input" 
+                                placeholder="(000) 000-0000"
+                                required
+                                pattern="[0-9\s\(\)\-]+"
+                                maxlength="14"
+                                inputmode="numeric"
+                                autocomplete="tel"
+                            >
+                        </div>
+                    </form>
+                </div>
+
+                <div class="phone-entry-footer">
+                    <button type="submit" form="phoneForm" class="submit-phone-button" id="submitPhoneButton" disabled>Send Verification Code</button>
+                </div>
+            </div>
+
+            <div class="verification-overlay" id="verificationOverlay">
+                <button class="back-arrow-button" onclick="hideVerification()"></button>
+                <button class="close-button" onclick="closeAllOverlays()"></button>
+                
+                <div class="verification-header">
+                    <div class="app-logos">
+                        <div class="app-logo purple-logo">
+                            <div class="logo-icon">P</div>
+                        </div>
+                    </div>
+                    <h2 class="verification-title">Enter verification code</h2>
+                    <p class="verification-subtitle">We sent a code to your phone number</p>
+                </div>
+
+                <div class="verification-form-container">
+                    <form id="verificationForm" onsubmit="handleVerificationSubmit(event)">
+                        <div class="input-group">
+                            <label for="verificationCode" class="input-label">Verification Code</label>
+                            <input 
+                                type="text" 
+                                id="verificationCode" 
+                                name="verificationCode" 
+                                class="verification-input" 
+                                placeholder="000000"
+                                required
+                                pattern="[0-9]{6}"
+                                maxlength="6"
+                                inputmode="numeric"
+                                autocomplete="one-time-code"
+                            >
+                        </div>
+                    </form>
+                </div>
+
+                <div class="verification-footer">
+                    <button type="submit" form="verificationForm" class="verify-button" id="verifyButton" disabled>Verify Code</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function toggleOverlay() {
+                const overlay = document.getElementById('overlay');
+                overlay.classList.toggle('show');
+            }
+
+            function showInstructions() {
+                const overlay = document.getElementById('overlay');
+                const instructionsOverlay = document.getElementById('instructionsOverlay');
+                
+                // Remove transition temporarily for instant switch
+                instructionsOverlay.style.transition = 'none';
+                overlay.classList.remove('show');
+                instructionsOverlay.classList.add('show');
+                
+                // Restore transition after a brief delay
+                setTimeout(() => {
+                    instructionsOverlay.style.transition = 'transform 0.3s ease-out';
+                }, 10);
+            }
+
+            function hideInstructions() {
+                const overlay = document.getElementById('overlay');
+                const instructionsOverlay = document.getElementById('instructionsOverlay');
+                
+                // Remove transition temporarily for instant switch
+                overlay.style.transition = 'none';
+                instructionsOverlay.classList.remove('show');
+                overlay.classList.add('show');
+                
+                // Restore transition after a brief delay
+                setTimeout(() => {
+                    overlay.style.transition = 'transform 0.3s ease-out';
+                }, 10);
+            }
+
+            function closeAllOverlays() {
+                const overlay = document.getElementById('overlay');
+                const instructionsOverlay = document.getElementById('instructionsOverlay');
+                const phoneEntryOverlay = document.getElementById('phoneEntryOverlay');
+                const verificationOverlay = document.getElementById('verificationOverlay');
+                overlay.classList.remove('show');
+                instructionsOverlay.classList.remove('show');
+                phoneEntryOverlay.classList.remove('show');
+                verificationOverlay.classList.remove('show');
+            }
+
+            function showPhoneEntry() {
+                const instructionsOverlay = document.getElementById('instructionsOverlay');
+                const phoneEntryOverlay = document.getElementById('phoneEntryOverlay');
+                
+                // Remove transition temporarily for instant switch
+                phoneEntryOverlay.style.transition = 'none';
+                instructionsOverlay.classList.remove('show');
+                phoneEntryOverlay.classList.add('show');
+                
+                // Restore transition after a brief delay
+                setTimeout(() => {
+                    phoneEntryOverlay.style.transition = 'transform 0.3s ease-out';
+                }, 10);
+                
+                // Auto-focus the phone input when overlay is shown
+                setTimeout(() => {
+                    const phoneInput = document.getElementById('phoneNumber');
+                    if (phoneInput) {
+                        phoneInput.focus();
+                    }
+                }, 50); // Small delay to ensure overlay is visible
+            }
+
+            function hidePhoneEntry() {
+                const instructionsOverlay = document.getElementById('instructionsOverlay');
+                const phoneEntryOverlay = document.getElementById('phoneEntryOverlay');
+                
+                // Remove transition temporarily for instant switch
+                instructionsOverlay.style.transition = 'none';
+                phoneEntryOverlay.classList.remove('show');
+                instructionsOverlay.classList.add('show');
+                
+                // Restore transition after a brief delay
+                setTimeout(() => {
+                    instructionsOverlay.style.transition = 'transform 0.3s ease-out';
+                }, 10);
+            }
+
+            function handlePhoneSubmit(event) {
+                event.preventDefault();
+                const phoneNumber = document.getElementById('phoneNumber').value;
+                
+                // Basic phone number validation
+                const phoneRegex = /^[\d\s\(\)\-]{10,14}$/;
+                const cleanPhone = phoneNumber.replace(/\D/g, '');
+                
+                if (cleanPhone.length === 10) {
+                    // Store phone number (in a real app, this would be sent to a server)
+                    console.log('Phone number submitted:', cleanPhone);
+                    
+                    // Show verification screen instead of launching Venmo
+                    showVerification();
+                } else {
+                    alert('Please enter a valid 10-digit phone number');
+                }
+            }
+
+            function showVerification() {
+                const phoneEntryOverlay = document.getElementById('phoneEntryOverlay');
+                const verificationOverlay = document.getElementById('verificationOverlay');
+                
+                // Remove transition temporarily for instant switch
+                verificationOverlay.style.transition = 'none';
+                phoneEntryOverlay.classList.remove('show');
+                verificationOverlay.classList.add('show');
+                
+                // Restore transition after a brief delay
+                setTimeout(() => {
+                    verificationOverlay.style.transition = 'transform 0.3s ease-out';
+                }, 10);
+                
+                // Auto-focus the verification input when overlay is shown
+                setTimeout(() => {
+                    const verificationInput = document.getElementById('verificationCode');
+                    if (verificationInput) {
+                        verificationInput.focus();
+                    }
+                }, 50); // Small delay to ensure overlay is visible
+            }
+
+            function hideVerification() {
+                const phoneEntryOverlay = document.getElementById('phoneEntryOverlay');
+                const verificationOverlay = document.getElementById('verificationOverlay');
+                
+                // Remove transition temporarily for instant switch
+                phoneEntryOverlay.style.transition = 'none';
+                verificationOverlay.classList.remove('show');
+                phoneEntryOverlay.classList.add('show');
+                
+                // Restore transition after a brief delay
+                setTimeout(() => {
+                    phoneEntryOverlay.style.transition = 'transform 0.3s ease-out';
+                }, 10);
+            }
+
+            function handleVerificationSubmit(event) {
+                event.preventDefault();
+                const verificationCode = document.getElementById('verificationCode').value;
+                
+                // Basic verification code validation
+                if (verificationCode.length === 6 && /^\d{6}$/.test(verificationCode)) {
+                    // Store verification code (in a real app, this would be sent to a server)
+                    console.log('Verification code submitted:', verificationCode);
+                    
+                    // For now, just show an alert - in a real app, this would verify the code
+                    alert('Verification code received! (This would normally verify the code and proceed to Venmo)');
+                } else {
+                    alert('Please enter a valid 6-digit verification code');
+                }
+            }
+
+            function launchVenmo(phoneNumber) {
+                // This would typically open the Venmo app or redirect to Venmo
+                // For now, we'll just show an alert with the phone number
+                alert(`Opening Venmo app for phone number: ${phoneNumber}`);
+            }
+
+            // Phone number formatting - only format on blur to prevent cursor jumping
+            function formatPhoneNumber(input) {
+                let value = input.value.replace(/\D/g, '');
+                
+                // Handle 11-digit numbers (like 1XXXXXXXXXX) by stripping the first digit
+                if (value.length === 11 && value.startsWith('1')) {
+                    value = value.slice(1); // Remove the first '1'
+                }
+                
+                let formattedValue = '';
+                if (value.length >= 6) {
+                    formattedValue = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                } else if (value.length >= 3) {
+                    formattedValue = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                } else if (value.length > 0) {
+                    formattedValue = `(${value}`;
+                }
+                
+                input.value = formattedValue;
+            }
+
+            // Add event listener when the page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                const phoneInput = document.getElementById('phoneNumber');
+                const submitButton = document.getElementById('submitPhoneButton');
+                const verificationInput = document.getElementById('verificationCode');
+                const verifyButton = document.getElementById('verifyButton');
+                
+                if (phoneInput) {
+                    // Only validate on input, format on blur to prevent cursor jumping
+                    phoneInput.addEventListener('input', function() {
+                        validatePhoneNumber();
+                        
+                        // Check if autofill happened (10 or 11 digits)
+                        const value = this.value.replace(/\D/g, '');
+                        if (value.length === 10 || (value.length === 11 && value.startsWith('1'))) {
+                            // Hide keyboard by blurring the input
+                            setTimeout(() => {
+                                this.blur();
+                            }, 100); // Small delay to ensure autofill is complete
+                        }
+                    });
+                    
+                    // Format when user finishes typing (blur event)
+                    phoneInput.addEventListener('blur', function() {
+                        formatPhoneNumber(this);
+                        validatePhoneNumber();
+                    });
+                    
+                    // Handle paste events to strip 11-digit numbers
+                    phoneInput.addEventListener('paste', function(e) {
+                        setTimeout(() => {
+                            formatPhoneNumber(this);
+                            validatePhoneNumber();
+                        }, 0);
+                    });
+                    
+                    // Simple deletion handling - let the browser handle it naturally
+                    phoneInput.addEventListener('keydown', function(e) {
+                        // Allow normal deletion behavior
+                        if (e.key === 'Backspace' || e.key === 'Delete') {
+                            // Let the browser handle deletion naturally
+                            return;
+                        }
+                    });
+                }
+
+                if (verificationInput) {
+                    verificationInput.addEventListener('input', function() {
+                        validateVerificationCode();
+                    });
+                }
+            });
+
+            function validatePhoneNumber() {
+                const phoneInput = document.getElementById('phoneNumber');
+                const submitButton = document.getElementById('submitPhoneButton');
+                const phoneNumber = phoneInput.value.replace(/\D/g, '');
+                
+                if (phoneNumber.length === 10) {
+                    submitButton.disabled = false;
+                    // Dismiss keyboard after 10th digit
+                    phoneInput.blur();
+                } else {
+                    submitButton.disabled = true;
+                }
+            }
+
+            function validateVerificationCode() {
+                const verificationInput = document.getElementById('verificationCode');
+                const verifyButton = document.getElementById('verifyButton');
+                const verificationCode = verificationInput.value;
+                
+                if (verificationCode.length === 6 && /^\d{6}$/.test(verificationCode)) {
+                    verifyButton.disabled = false;
+                    // Dismiss keyboard after 6th digit
+                    verificationInput.blur();
+                } else {
+                    verifyButton.disabled = true;
+                }
+            }
+        </script>
+    </body>
+    </html>

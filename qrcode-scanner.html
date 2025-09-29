@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .scanner-section {
+            margin-bottom: 30px;
+        }
+
+        #video-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        #qr-video {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-content {
+            font-size: 18px;
+            color: #333;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        .result-content.success {
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        .result-content.error {
+            color: #dc3545;
+        }
+
+        .status {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .file-input-wrapper {
+            margin-top: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            background: #6c757d;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            display: none;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .scan-region-highlight {
+            border: 3px solid #667eea !important;
+            border-radius: 15px !important;
+        }
+
+        .code-outline-highlight {
+            stroke: #667eea !important;
+            stroke-width: 3 !important;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 QR Code Scanner</h1>
+        
+        <div class="scanner-section">
+            <div id="video-container">
+                <video id="qr-video"></video>
+            </div>
+            
+            <div class="controls">
+                <button id="start-button">Start Camera</button>
+                <button id="stop-button" disabled>Stop Camera</button>
+            </div>
+            
+            <div class="status" id="status">Starting camera automatically...</div>
+            <div class="loading" id="loading">Starting camera...</div>
+        </div>
+
+        <div class="file-input-wrapper">
+            <label for="file-input" class="file-label">📁 Scan from File</label>
+            <input type="file" id="file-input" class="file-input" accept="image/*">
+        </div>
+
+        <div class="result-section">
+            <div class="result-content" id="result">No QR code detected yet</div>
+        </div>
+    </div>
+
+    <!-- Include QR Scanner Library -->
+    <script src="qr-scanner-master/qr-scanner.umd.min.js"></script>
+    <script>
+        // Get DOM elements
+        const video = document.getElementById('qr-video');
+        const videoContainer = document.getElementById('video-container');
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
+        const fileInput = document.getElementById('file-input');
+        const result = document.getElementById('result');
+        const status = document.getElementById('status');
+        const loading = document.getElementById('loading');
+
+        let scanner = null;
+        let isScanning = false;
+
+        // Initialize scanner
+        function initScanner() {
+            scanner = new QrScanner(video, (result) => {
+                displayResult(result.data, 'success');
+                status.textContent = `QR code detected at ${new Date().toLocaleTimeString()}`;
+                
+                // Automatically stop camera after detection
+                stopScanning();
+            }, {
+                onDecodeError: (error) => {
+                    // Don't show decode errors to avoid spam
+                },
+                highlightScanRegion: true,
+                highlightCodeOutline: true,
+                returnDetailedScanResult: true
+            });
+        }
+
+        // Display scan result
+        function displayResult(data, type = 'success') {
+            result.textContent = data;
+            result.className = `result-content ${type}`;
+            
+            // Show result prominently on screen
+            result.style.fontSize = '24px';
+            result.style.fontWeight = 'bold';
+            result.style.padding = '30px';
+            result.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+            result.style.border = `3px solid ${type === 'success' ? '#28a745' : '#dc3545'}`;
+            result.style.borderRadius = '15px';
+        }
+
+        // Start scanning
+        async function startScanning() {
+            if (isScanning) return;
+            
+            try {
+                loading.style.display = 'block';
+                status.textContent = 'Starting camera...';
+                
+                if (!scanner) {
+                    initScanner();
+                }
+                
+                await scanner.start();
+                video.style.display = 'block';
+                isScanning = true;
+                
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                status.textContent = 'Camera active - point at a QR code';
+                loading.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error starting scanner:', error);
+                status.textContent = 'Error: Could not access camera. Make sure you have granted permission.';
+                loading.style.display = 'none';
+                displayResult('Camera access denied or not available', 'error');
+            }
+        }
+
+        // Stop scanning
+        function stopScanning() {
+            if (!isScanning) return;
+            
+            scanner.stop();
+            video.style.display = 'none';
+            isScanning = false;
+            
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            status.textContent = 'Camera stopped - QR code detected!';
+        }
+
+        // Handle file input
+        fileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                status.textContent = 'Scanning image...';
+                loading.style.display = 'block';
+                
+                const result = await QrScanner.scanImage(file, { 
+                    returnDetailedScanResult: true 
+                });
+                
+                displayResult(result.data, 'success');
+                status.textContent = `QR code found in image at ${new Date().toLocaleTimeString()}`;
+                loading.style.display = 'none';
+                
+            } catch (error) {
+                displayResult('No QR code found in the selected image', 'error');
+                status.textContent = 'No QR code detected in image';
+                loading.style.display = 'none';
+            }
+        });
+
+        // Event listeners
+        startButton.addEventListener('click', startScanning);
+        stopButton.addEventListener('click', stopScanning);
+
+        // Check camera availability on load and start camera automatically
+        window.addEventListener('load', async () => {
+            try {
+                const hasCamera = await QrScanner.hasCamera();
+                if (!hasCamera) {
+                    status.textContent = 'No camera detected on this device';
+                    startButton.disabled = true;
+                    displayResult('No camera available on this device', 'error');
+                } else {
+                    // Auto-start camera when page loads
+                    await startScanning();
+                }
+            } catch (error) {
+                console.error('Error checking camera:', error);
+            }
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (scanner && isScanning) {
+                scanner.stop();
+            }
+        });
+    </script>
+</body>
+</html>

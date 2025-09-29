@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background-color: #0e140b;
+            position: relative;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('noise-light.png');
+            background-repeat: repeat;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            color: white;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .ticket-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .ticket-id {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .ticket-status {
+            font-size: 18px;
+            color: #4CAF50;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .ticket-details {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #ffffff, #f8f8f8);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            color: #333;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+    
+    <div class="container">
+        <div class="ticket-card" id="ticketCard">
+            <div class="ticket-id" id="ticketId">Loading...</div>
+            <div class="ticket-status" id="ticketStatus">Validating ticket...</div>
+            <div class="ticket-details" id="ticketDetails">
+                <p><strong>Event:</strong> Fall Formal</p>
+                <p><strong>Date:</strong> November 15, 2024</p>
+                <p><strong>Time:</strong> 7:00 PM - 11:00 PM</p>
+                <p><strong>Location:</strong> Duncan Hall</p>
+            </div>
+            <a href="/" class="back-button">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Extract ticket ID from URL
+        function getTicketIdFromUrl() {
+            const path = window.location.pathname;
+            const pathParts = path.split('/');
+            return pathParts[pathParts.length - 1];
+        }
+
+        // Validate ticket ID (basic validation)
+        function validateTicketId(ticketId) {
+            // Check if it's a 6-digit number
+            return /^\d{6}$/.test(ticketId);
+        }
+
+        // Generate ticket details based on ID
+        function generateTicketDetails(ticketId) {
+            // This is where you could add logic to:
+            // - Check against a database
+            // - Validate with a backend API
+            // - Generate ticket details based on ID
+            
+            // For demo purposes, we'll just show the ticket ID
+            return {
+                id: ticketId,
+                valid: true,
+                event: "Fall Formal",
+                date: "November 15, 2024",
+                time: "7:00 PM - 11:00 PM",
+                location: "Duncan Hall"
+            };
+        }
+
+        // Initialize the ticket page
+        function initTicketPage() {
+            const ticketId = getTicketIdFromUrl();
+            
+            if (!ticketId || !validateTicketId(ticketId)) {
+                showError("Invalid ticket ID");
+                return;
+            }
+
+            const ticketDetails = generateTicketDetails(ticketId);
+            
+            if (ticketDetails.valid) {
+                showValidTicket(ticketDetails);
+            } else {
+                showError("Ticket not found or invalid");
+            }
+        }
+
+        function showValidTicket(details) {
+            document.getElementById('ticketId').textContent = `Ticket #${details.id}`;
+            document.getElementById('ticketStatus').textContent = "✓ Valid Ticket";
+            document.getElementById('ticketStatus').style.color = "#4CAF50";
+        }
+
+        function showError(message) {
+            document.getElementById('ticketId').textContent = "Invalid Ticket";
+            document.getElementById('ticketStatus').textContent = message;
+            document.getElementById('ticketStatus').style.color = "#ff6b6b";
+            document.getElementById('ticketDetails').innerHTML = `
+                <p>This ticket ID is not valid or has expired.</p>
+                <p>Please contact support if you believe this is an error.</p>
+            `;
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initTicketPage);
+    </script>
+</body>
+</html>
