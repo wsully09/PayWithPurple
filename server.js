@@ -36,10 +36,15 @@ app.post('/api/tickets', (req, res) => {
         
         tickets.set(ticketId, ticketData);
         
+        // Get the actual domain from the request
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'paywithpurple-production.up.railway.app';
+        const baseUrl = `${protocol}://${host}`;
+        
         res.json({
             success: true,
             ticket: ticketData,
-            url: `http://localhost:${PORT}/ticket/${ticketId}`
+            url: `${baseUrl}/ticket/${ticketId}`
         });
     } catch (error) {
         res.status(500).json({
