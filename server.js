@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
+const QRCode = require('qrcode');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -140,6 +141,16 @@ app.get('/ticket/:id', async (req, res) => {
                 </html>
             `);
         }
+
+        // Generate QR code for the ticket number
+        const qrCodeDataURL = await QRCode.toDataURL(ticketId, { 
+            width: 200,
+            margin: 2,
+            color: {
+                dark: '#FFFFFF',
+                light: 'transparent'
+            }
+        });
     
     // Serve the ticket.html page with ticket data
     res.send(`
@@ -148,7 +159,7 @@ app.get('/ticket/:id', async (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Ticket #${ticketId}</title>
+            <title>Fall Formal Ticket #${ticketId}</title>
             <style>
                 * {
                     margin: 0;
@@ -157,15 +168,16 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 body {
-                    height: 100vh;
+                    min-height: 100vh;
                     background-color: #0e140b;
                     position: relative;
-                    overflow: hidden;
+                    overflow-x: hidden;
                     font-family: Arial, sans-serif;
+                    padding: 20px;
                 }
 
                 .noise-overlay {
-                    position: absolute;
+                    position: fixed;
                     top: 0;
                     left: 0;
                     width: 100%;
@@ -178,37 +190,67 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .container {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    text-align: center;
+                    position: relative;
                     z-index: 10;
                     color: white;
                     max-width: 500px;
-                    width: 90%;
+                    width: 100%;
+                    margin: 0 auto;
                 }
 
                 .ticket-card {
                     background: rgba(255, 255, 255, 0.1);
                     border-radius: 16px;
-                    padding: 40px 30px;
+                    padding: 30px;
                     border: 1px solid rgba(255, 255, 255, 0.2);
                     backdrop-filter: blur(10px);
+                    margin-bottom: 20px;
+                }
+
+                .event-title {
+                    font-size: 32px;
+                    font-weight: 700;
+                    margin-bottom: 10px;
+                    color: #fff;
+                    text-align: center;
                 }
 
                 .ticket-id {
-                    font-size: 28px;
-                    font-weight: 700;
+                    font-size: 24px;
+                    font-weight: 600;
                     margin-bottom: 20px;
-                    color: #fff;
+                    color: #4CAF50;
+                    text-align: center;
                 }
 
-                .ticket-status {
-                    font-size: 18px;
-                    color: #4CAF50;
-                    margin-bottom: 30px;
+                .attendee-name {
+                    font-size: 20px;
                     font-weight: 600;
+                    margin-bottom: 20px;
+                    color: #fff;
+                    text-align: center;
+                }
+
+                .ticket-type {
+                    font-size: 18px;
+                    color: #ffd700;
+                    margin-bottom: 20px;
+                    text-align: center;
+                    font-weight: 600;
+                }
+
+                .qr-section {
+                    text-align: center;
+                    margin: 30px 0;
+                }
+
+                .qr-code {
+                    width: 200px;
+                    height: 200px;
+                    margin: 0 auto 20px;
+                    border-radius: 12px;
+                    background: transparent;
+                    padding: 10px;
                 }
 
                 .ticket-details {
@@ -217,6 +259,29 @@ app.get('/ticket/:id', async (req, res) => {
                     line-height: 1.6;
                     margin-bottom: 30px;
                     text-align: left;
+                }
+
+                .share-section {
+                    margin-top: 20px;
+                }
+
+                .share-button {
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    border: none;
+                    color: white;
+                    padding: 15px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+
+                .share-button:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
                 }
 
                 .back-button {
@@ -231,11 +296,38 @@ app.get('/ticket/:id', async (req, res) => {
                     transition: all 0.3s ease;
                     text-decoration: none;
                     display: inline-block;
+                    width: 100%;
+                    text-align: center;
                 }
 
                 .back-button:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                }
+
+                .copy-feedback {
+                    background: #4CAF50;
+                    color: white;
+                    padding: 10px;
+                    border-radius: 8px;
+                    margin-top: 10px;
+                    text-align: center;
+                    display: none;
+                }
+
+                @media (max-width: 768px) {
+                    .container {
+                        padding: 10px;
+                    }
+                    
+                    .ticket-card {
+                        padding: 20px;
+                    }
+                    
+                    .qr-code {
+                        width: 150px;
+                        height: 150px;
+                    }
                 }
             </style>
         </head>
@@ -244,20 +336,86 @@ app.get('/ticket/:id', async (req, res) => {
             
             <div class="container">
                 <div class="ticket-card">
+                    <div class="event-title">Fall Formal</div>
                     <div class="ticket-id">Ticket #${ticket.ticket_number}</div>
-                    <div class="ticket-status">✓ Valid Ticket</div>
+                    <div class="attendee-name">${ticket.name || 'Guest'}</div>
+                    <div class="ticket-type">Type: ${ticket.ticket_type === 'couple' ? 'Couple (2x)' : 'Single (1x)'}</div>
+                    
+                    <div class="qr-section">
+                        <div class="qr-code">
+                            <img src="${qrCodeDataURL}" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                    </div>
+                    
                     <div class="ticket-details">
-                        <p><strong>Event:</strong> ${ticket.event || 'Fall Formal'}</p>
                         <p><strong>Date:</strong> ${ticket.date || 'November 15, 2024'}</p>
                         <p><strong>Time:</strong> ${ticket.time || '7:00 PM - 11:00 PM'}</p>
                         <p><strong>Location:</strong> ${ticket.location || 'Duncan Hall'}</p>
                         <p><strong>Price:</strong> ${ticket.price || '$12'}</p>
                         <p><strong>Status:</strong> ${ticket.payment_approved || 'pending'}</p>
-                        <p><strong>Created:</strong> ${ticket.created_at ? new Date(ticket.created_at).toLocaleDateString() : 'Unknown'}</p>
                     </div>
+                    
+                    <div class="share-section">
+                        ${ticket.ticket_type === 'couple' ? `
+                            <button class="share-button" onclick="shareTicket()">Share Ticket With Date</button>
+                        ` : ''}
+                        <div class="copy-feedback" id="copyFeedback">Ticket Link Copied!</div>
+                    </div>
+                    
                     <a href="/" class="back-button">Back to Home</a>
                 </div>
             </div>
+
+            <script>
+                function shareTicket() {
+                    const ticketUrl = window.location.href;
+                    
+                    // Check if it's a mobile device
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                        // Mobile sharing
+                        if (navigator.share) {
+                            navigator.share({
+                                title: 'Fall Formal Ticket',
+                                text: 'Check out my Fall Formal ticket!',
+                                url: ticketUrl
+                            }).catch(err => {
+                                console.log('Error sharing:', err);
+                                copyToClipboard(ticketUrl);
+                            });
+                        } else {
+                            copyToClipboard(ticketUrl);
+                        }
+                    } else {
+                        // Desktop - copy to clipboard
+                        copyToClipboard(ticketUrl);
+                    }
+                }
+                
+                function copyToClipboard(text) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        const feedback = document.getElementById('copyFeedback');
+                        feedback.style.display = 'block';
+                        setTimeout(() => {
+                            feedback.style.display = 'none';
+                        }, 2000);
+                    }).catch(err => {
+                        console.log('Error copying to clipboard:', err);
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        
+                        const feedback = document.getElementById('copyFeedback');
+                        feedback.style.display = 'block';
+                        setTimeout(() => {
+                            feedback.style.display = 'none';
+                        }, 2000);
+                    });
+                }
+            </script>
         </body>
         </html>
     `);
