@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+     <!-- Favicon Configuration -->
+    
+     <link rel="icon" type="image/png" sizes="32x32" href="https://www.gstatic.com/images/branding/searchlogo/ico/favicon.ico">
+     <link rel="icon" type="image/png" sizes="16x16" href="https://www.gstatic.com/images/branding/searchlogo/ico/favicon.ico">
+     <link rel="apple-touch-icon" sizes="180x180" href="https://www.gstatic.com/images/branding/searchlogo/ico/favicon.ico">
+     <link rel="icon" type="image/png" sizes="192x192" href="https://www.gstatic.com/images/branding/searchlogo/ico/favicon.ico">
+     <link rel="icon" type="image/png" sizes="512x512" href="https://www.gstatic.com/images/branding/searchlogo/ico/favicon.ico">
+     
+
+    <style>
+        :root {
+            --blue: #000000; /*#143268;*/
+            --white: #fff;
+            --background: white; /*#e8dfd0;*/
+            --light-gray: #bcbcbc;
+            --black: black;
+            --light-blue: #568cba;
+        }
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            background-color: var(--background);
+            font-family: Arial, Helvetica, sans-serif;
+            /* Hide main content until age verification and shutdown check are complete */
+            visibility: visible;
+        }
+        
+        /* Hide main content until age verification and shutdown check pass */
+        .main-container {
+            visibility: hidden;
+        }
+        
+        /* Show main content after age verification and shutdown check pass */
+        body.age-verified.shutdown-check-passed .main-container {
+            visibility: visible;
+        }
+        
+        /* Show main content after age verification (shutdown check disabled) */
+        body.age-verified .main-container {
+            visibility: visible;
+        }
+        
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        
+        .pricing-banner {
+            width: 100%;
+            background-color: var(--blue);
+            color: var(--white);
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: none; /* Hidden by default */
+        }
+        
+        .pricing-banner.show {
+            display: block;
+        }
+        .items {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .item {
+            width: 100%;
+            border: 1px solid var(--black);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            align-items: center;
+            padding: 15px;
+            padding-right: 20px;
+            box-sizing: border-box;
+       
+        }
+        .image-box {
+            width: 70px;
+            height: 70px;
+            margin-right: 30px;
+      
+         
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .image-box img {
+            width: auto;
+            height: 100%;
+            object-fit: cover;
+         
+        }
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+
+        }
+        .item-info-upper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 5px;
+
+        }
+        .item-name {
+            font-size: 19px;
+            font-weight: bold;
+           
+        }
+        
+        .item-name.sold-out {
+            text-decoration: line-through;
+        }
+        .item-price {
+            font-size: 13px;
+            font-style: italic;
+
+        }
+        
+        .item-price.sold-out {
+            color: white;
+        }
+        .item-info-lower {
+            display: flex;
+            flex-direction: row;
+            align-items: space-between;
+            justify-content: space-between;
+            width: 100%;
+          
+        }
+        .item-quantity {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            
+        }
+        .item-quantity-button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: var(--black);
+            border: 1px solid var(--black);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            transition: transform 0.1s;
+        }
+
+        .item-quantity-button:active {
+            transform: scale(0.9);
+        }
+
+        .item-quantity-button.disabled {
+            color: var(--light-gray);
+            border-color: var(--light-gray);
+            cursor: default;
+        }
+
+        .minus-button {
+            color: var(--light-gray);
+            border-color: var(--light-gray);
+        }
+
+        .minus-button.active {
+            color: var(--black);
+            border-color: var(--black);
+        }
+
+        .minus-button.disabled {
+            color: var(--light-gray);
+            border-color: var(--light-gray);
+            cursor: default;
+        }
+
+        .plus-button.disabled {
+            color: var(--light-gray);
+            border-color: var(--light-gray);
+            cursor: default;
+        }
+
+        .minus-line {
+            width: 10px;
+            height: 2px;
+            background-color: currentColor;
+            border-radius: 1px;
+        }
+
+        .plus-line-horizontal {
+            width: 13px;
+            height: 2px;
+            background-color: currentColor;
+            border-radius: 2px;
+            position: absolute;
+        }
+
+        .plus-line-vertical {
+            width: 2px;
+            height: 13px;
+            background-color: currentColor;
+            border-radius: 2px;
+            position: absolute;
+        }
+        .item-quantity-number {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .item-total-price {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+
+        
+        .order-summary {
+            width: 100%;
+            border: 1px solid var(--black);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+         
+           
+        }
+        
+        .order-total {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .payment-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        .payment-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .venmo-button {
+            background-color: var(--blue);
+            color: white;
+        }
+        
+      
+        .cash-button {
+            background-color: transparent;
+            color: var(--black);
+            border: 1px solid var(--black);
+        }
+        
+        /* Venmo Popup Styles */
+        .venmo-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+           
+            z-index: 1000;
+        }
+
+        .venmo-popup {
+            background-color: var(--background);
+            color: var(--black);
+            padding: 33px;
+            border-radius: 8px;
+            width: 320px;
+            height: auto;
+            margin-top: calc(50vh - 180px);
+            margin-bottom: auto;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.4;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .venmo-popup-text {
+           
+        }
+      
+
+        .venmo-popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .venmo-popup-button {
+            background-color: var(--blue);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            margin-top: 25px;
+        }
+
+        .venmo-popup-button:hover {
+            opacity: 0.9;
+        }
+
+        .venmo-popup-button:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .venmo-popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #999;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+
+        .venmo-popup-close:hover {
+            opacity: 0.7;
+        }
+
+        .venmo-popup-close:active {
+            opacity: 0.5;
+        }
+
+        .venmo-popup-below-note {
+            font-style: italic;
+            font-size: 12px;
+            color: var(--black);
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Cash Popup Styles */
+        .cash-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .cash-popup {
+            background-color: var(--background);
+            color: var(--black);
+            padding: 33px;
+            border-radius: 8px;
+            width: 340px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.4;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .cash-popup-text {
+        }
+
+        .cash-popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .cash-popup-button {
+            background-color: var(--blue);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            margin-top: 25px;
+        }
+
+        .cash-popup-button:hover {
+            opacity: 0.9;
+        }
+
+        .cash-popup-button:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .cash-popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #999;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+
+        .cash-popup-close:hover {
+            opacity: 0.7;
+        }
+
+        .cash-popup-close:active {
+            opacity: 0.5;
+        }
+
+        /* Cash Confirmation Styles */
+        .cash-confirmation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+          
+        }
+
+        .cash-confirmation-container {
+          
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+       
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--blue);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: var(--white);
+        }
+
+        .cash-confirmation h1 {
+            color: var(--black);
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .cash-confirmation .message {
+            color: var(--black);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .cash-confirmation .order-info {
+            background: var(--background);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .cash-confirmation .order-info h3 {
+            color: var(--blue);
+            margin-bottom: 20px;
+            font-size: 23px;
+        }
+
+        .cash-confirmation .order-info p {
+            color: var(--black);
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        .cash-confirmation .cash-note {
+            background: var(--blue);
+            color: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 0.95em;
+            max-width: 290px;
+        }
+
+        .cash-confirmation .back-btn {
+            background: var(--blue);
+            color: var(--white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .cash-confirmation .back-btn:hover {
+            background: #0f2a4a;
+        }
+
+        /* Venmo Confirmation Styles */
+        .venmo-confirmation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        
+        }
+
+        .venmo-confirmation-container {
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .venmo-confirmation h1 {
+            color: var(--black);
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .venmo-confirmation .message {
+            color: var(--black);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .venmo-confirmation .order-info {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .venmo-confirmation .order-info h3 {
+            color: var(--blue);
+            margin-bottom: 20px;
+            font-size: 23px;
+        }
+
+        .venmo-confirmation .order-info p {
+            color: var(--black);
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        .venmo-confirmation .payment-status {
+            background: var(--blue);
+            color: var(--white);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            width: fit-content;
+          
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @keyframes paddingPulse {
+            0% {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+            50% {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+            100% {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+        }
+
+        .venmo-confirmation .payment-status {
+            animation: paddingPulse 2s ease-in-out infinite;
+        }
+
+        .venmo-confirmation .payment-status.paid {
+            background: var(--blue);
+            color: var(--white);
+        }
+
+        .venmo-confirmation .venmo-link-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .venmo-confirmation .venmo-link {
+            color: var(--blue);
+          
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        /* Age Verification Popup Styles */
+        .age-verification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .age-verification-overlay.show {
+            display: flex;
+        }
+
+        .age-verification-popup {
+            background-color: var(--background);
+            color: var(--black);
+            padding: 40px;
+            border-radius: 15px;
+            width: 320px;
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.5;
+            box-sizing: border-box;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .age-verification-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: var(--blue);
+        }
+
+        .age-verification-question {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .age-verification-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .age-verification-button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .age-yes-button {
+            background-color: var(--blue);
+            color: var(--white);
+        }
+
+
+        .age-no-button {
+            background-color: var(--white);
+            border: 1px solid var(--black);
+            color: var(--black);
+        }
+
+
+    </style>
+</head>
+<body>
+   <div class="main-container">
+      <div class="pricing-banner" id="pricingBanner">
+        <!-- Banner message will be set dynamically -->
+      </div>
+      <div class="items" id="itemsContainer">
+        <!-- Items will be dynamically loaded here -->
+      </div>
+
+
+      
+      <div class="order-summary">
+          <div class="order-total" id="orderTotal">Total: $0.00</div>
+          <div class="payment-buttons">
+              <button class="payment-button venmo-button" id="venmoButton">PAY WITH VENMO</button>
+           <!--   <div style="text-align: center; font-size: 12px; color: #666; line-height: 1.4; font-style: italic">
+                  Don't have Venmo or want to pay cash? Find someone <br>who has Venmo and have them order for you.
+              </div>-->
+            <button class="payment-button cash-button" id="cashButton">PAY WITH CASH</button>
+          </div>
+      </div>
+      <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #666; line-height: 1.4; font-style: italic">
+          No refunds will be given unless inventory <br>runs out before the event is over.
+      </div>
+      <div style="width: 100%; height: 1000px;"></div>
+   </div>
+
+   <!-- Venmo Popup -->
+   <div class="venmo-popup-overlay" id="venmoPopupOverlay">
+       <div class="venmo-popup">
+           <button class="venmo-popup-close" id="venmoPopupClose">&times;</button>
+           <div class="venmo-popup-title">IMPORTANT NOTE</div>
+           <div class="venmo-popup-text">Click "Pay Without Confirming" or enter <span id="last4DigitsDisplay"></span> as the last 4 digits of the phone number</div>
+           <button class="venmo-popup-button" id="venmoPopupButton">GOT IT. TAKE ME TO VENMO</button>
+       </div>
+   </div>
+
+   <!-- Cash Popup -->
+   <div class="cash-popup-overlay" id="cashPopupOverlay">
+       <div class="cash-popup">
+           <button class="cash-popup-close" id="cashPopupClose">&times;</button>
+           <div class="cash-popup-title">PAYING WITH CASH</div>
+           <div class="cash-popup-text">Please have your cash ready when you go to collect your order.</div>
+           <button class="cash-popup-button" id="cashPopupButton">GOT IT. SUBMIT MY ORDER</button>
+       </div>
+   </div>
+
+   <!-- Cash Payment Confirmation -->
+   <div class="cash-confirmation" id="cashConfirmation" style="display: none;">
+       <div class="cash-confirmation-container">
+           <div class="success-icon">✓</div>
+           
+           <h1 id="cashOrderTitle">Order Confirmed</h1>
+           
+           <div class="cash-note" id="cashNote">
+               <strong>Cash Payment:</strong> Please have your cash ready when you collect your order.
+           </div>
+           
+           <div class="message">
+               Your order has been submitted. <br> Please proceed to collect your order.
+           </div>
+           
+           <div class="order-info">
+               <h3>Order Details</h3>
+               <div id="orderItems"></div>
+           </div>
+       </div>
+   </div>
+
+   <!-- Venmo Payment Confirmation -->
+   <div class="venmo-confirmation" id="venmoConfirmation" style="display: none;">
+       <div class="venmo-confirmation-container">
+           <div class="success-icon">✓</div>
+           
+           <h1 id="venmoOrderTitle">Order Confirmed</h1>
+           
+           <div class="message">
+               Your order has been submitted. <br> Please proceed to collect your order.
+           </div>
+           
+           <div class="payment-status" id="venmoPaymentStatus">
+               <div class="status-message">Waiting for Venmo</div>
+           </div>
+           
+           <div class="venmo-link-container" id="venmoLinkContainer" style="display: none;">
+               <a href="#" class="venmo-link" id="venmoLink">Take me to Venmo</a>
+           </div>
+           
+           <div class="order-info">
+               <h3>Order Details</h3>
+               <div id="venmoOrderItems"></div>
+           </div>
+       </div>
+   </div>
+
+   <!-- Age Verification Popup -->
+   <div class="age-verification-overlay" id="ageVerificationOverlay">
+       <div class="age-verification-popup">
+           <div class="age-verification-title">Are you 21 or older?</div>
+           <div class="age-verification-buttons">
+               <button class="age-verification-button age-yes-button" id="ageYesButton">Yes</button>
+               <button class="age-verification-button age-no-button" id="ageNoButton">No</button>
+           </div>
+       </div>
+   </div>
+
+
+   <script>
+        // Supabase configuration
+        //const SUPABASE_URL = 'https://mtqhkfpakdcevdgfqenk.supabase.co';
+        //const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10cWhrZnBha2RjZXZkZ2ZxZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NDUwNDcsImV4cCI6MjA2NDAyMTA0N30.3LiedRkX5VY1oK_9NEJ8-KRNqbYHZOgtq9sw43vL0lg';
+        
+        const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhenNya2N2ZWN5bXVqZm1yemV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTIwNzAzNCwiZXhwIjoyMDcwNzgzMDM0fQ.oP2KHilItRH1EZ53-eOY_Ihcyt0Kn-paa1U-jAZnUgo";
+   
+
+        // Age verification toggle - set to "no" to disable age verification
+        const ENABLE_AGE_VERIFICATION = "yes";
+
+        // Redirect URLs for shutdown scenarios
+        const INITIAL_SHUTDOWN_REDIRECT_URL = "https://www.in.gov/atc/isep/alcohol-enforcement/rules-and-laws/#:~:text=Minors%20(those%20under,parents%20or%20guardians."; // URL to redirect to on initial page load shutdown
+        const INTERVAL_SHUTDOWN_REDIRECT_URL = "https://google.com"; // URL to redirect to on 15-second check shutdown
+
+        // Venmo configuration
+        let SEND_TO_VENMO = ""; // Default value, will be updated from database
+        let LAST_4_DIGITS = ""; // Default value, will be updated from database
+        
+        // Create a single Supabase client instance
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Shutdown check - runs immediately and then every 15 seconds
+        (async function() {
+            try {
+                // Function to check shutdown status
+                async function checkShutdownStatus(isInitialCheck = true) {
+                    try {
+                        const { data, error } = await supabase
+                            .from('duncan_compound_overview')
+                            .select('value')
+                            .eq('thing', 'shutdown2')
+                            .single();
+                        
+                        if (error) {
+                            console.error('Error checking shutdown status:', error);
+                            // Hide age verification popup if it's visible
+                            const ageVerificationOverlay = document.getElementById('ageVerificationOverlay');
+                            if (ageVerificationOverlay) {
+                                ageVerificationOverlay.style.display = 'none';
+                            }
+                            // If there's an error, redirect using appropriate URL based on check type
+                            const redirectUrl = isInitialCheck ? INITIAL_SHUTDOWN_REDIRECT_URL : INTERVAL_SHUTDOWN_REDIRECT_URL;
+                            window.location.href = redirectUrl;
+                            return;
+                        }
+                        
+                        // If shutdown value is "true", hide content and redirect using appropriate URL
+                        if (data && data.value === 'true') {
+                            // Hide age verification popup if it's visible
+                            const ageVerificationOverlay = document.getElementById('ageVerificationOverlay');
+                            if (ageVerificationOverlay) {
+                                ageVerificationOverlay.style.display = 'none';
+                            }
+                            document.body.style.visibility = 'hidden';
+                            const redirectUrl = isInitialCheck ? INITIAL_SHUTDOWN_REDIRECT_URL : INTERVAL_SHUTDOWN_REDIRECT_URL;
+                            window.location.href = redirectUrl;
+                            return;
+                        }
+                        
+                        // If we get here, shutdown is not "true", so show content
+                        document.body.classList.add('shutdown-check-passed');
+                        
+                        // Check if age verification is enabled
+                        const currentAgeVerificationSetting = window.ENABLE_AGE_VERIFICATION || ENABLE_AGE_VERIFICATION;
+                        if (currentAgeVerificationSetting === "no") {
+                            // Age verification is disabled, show main content directly
+                            document.body.classList.add('age-verified');
+                            const mainContainer = document.querySelector('.main-container');
+                            if (mainContainer) {
+                                mainContainer.style.visibility = 'visible';
+                            }
+                        } else {
+                            // Age verification is enabled, check if it's complete
+                            if (document.body.classList.contains('age-verified')) {
+                                // Show the main content
+                                const mainContainer = document.querySelector('.main-container');
+                                if (mainContainer) {
+                                    mainContainer.style.visibility = 'visible';
+                                }
+                            } else {
+                                // Show age verification popup
+                                const ageVerificationOverlay = document.getElementById('ageVerificationOverlay');
+                                if (ageVerificationOverlay) {
+                                    ageVerificationOverlay.classList.add('show');
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error in shutdown check:', error);
+                        // Hide age verification popup if it's visible
+                        const ageVerificationOverlay = document.getElementById('ageVerificationOverlay');
+                        if (ageVerificationOverlay) {
+                            ageVerificationOverlay.style.display = 'none';
+                        }
+                        // If there's any error, redirect using appropriate URL based on check type
+                        const redirectUrl = isInitialCheck ? INITIAL_SHUTDOWN_REDIRECT_URL : INTERVAL_SHUTDOWN_REDIRECT_URL;
+                        window.location.href = redirectUrl;
+                    }
+                }
+                
+                // Run initial check
+                await checkShutdownStatus();
+                
+                // Set up interval to check every 15 seconds
+                setInterval(() => checkShutdownStatus(false), 15000);
+                
+            } catch (error) {
+                console.error('Error initializing shutdown check:', error);
+                // Hide age verification popup if it's visible
+                const ageVerificationOverlay = document.getElementById('ageVerificationOverlay');
+                if (ageVerificationOverlay) {
+                    ageVerificationOverlay.style.display = 'none';
+                }
+                // If there's any error, redirect using initial shutdown URL
+                window.location.href = INITIAL_SHUTDOWN_REDIRECT_URL;
+            }
+        })();
+        
+        let items = [];
+        let cart = {};
+        let pricingMode = 'regular'; // Track pricing mode: 'regular', 'unit_cost', 'duncan_price'
+
+        // Function to show pricing banner
+        function showPricingBanner() {
+            const banner = document.getElementById('pricingBanner');
+            if (!banner) return;
+            
+            // Check if we're in duncan_price mode due to query parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const typeParam = urlParams.get('type');
+            const isDuncanQueryParam = typeParam === 'dh124865';
+            
+            switch (pricingMode) {
+                case 'unit_cost':
+                    banner.textContent = 'Prices Below Are The Drink Unit Costs';
+                    banner.classList.add('show');
+                    break;
+                case 'duncan_price':
+                    // Only show banner if it's from query parameter, not from early pricing
+                    if (isDuncanQueryParam) {
+                        banner.textContent = 'Prices Below Include Duncan Discount';
+                        banner.classList.add('show');
+                    } else {
+                        // Early pricing mode - don't show banner
+                        banner.classList.remove('show');
+                    }
+                    break;
+                case 'regular':
+                default:
+                    banner.classList.remove('show');
+                    break;
+            }
+        }
+
+        // Function to check for type parameter and set pricing mode
+        async function checkPricingMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const typeParam = urlParams.get('type');
+            
+            // Set pricing mode based on type parameter
+            if (typeParam === 'uc58271') {
+                pricingMode = 'unit_cost';
+            } else if (typeParam === 'dh124865') {
+                pricingMode = 'duncan_price';
+            } else {
+                // No query parameters - check early pricing status
+                try {
+                    const { data, error } = await supabase
+                        .from('duncan_compound_overview')
+                        .select('value')
+                        .eq('thing', 'early_pricing')
+                        .single();
+                    
+                    if (error) {
+                        console.error('Error fetching early pricing status:', error);
+                        pricingMode = 'regular'; // Default to regular pricing on error
+                    } else {
+                        // If early pricing is enabled, use duncan_price as default
+                        pricingMode = (data?.value === 'true') ? 'duncan_price' : 'regular';
+                    }
+                } catch (error) {
+                    console.error('Error in checkPricingMode:', error);
+                    pricingMode = 'regular'; // Default to regular pricing on error
+                }
+            }
+            
+            // Show the appropriate banner
+            showPricingBanner();
+            
+            // Remove the type parameter from URL without reloading as soon as it's read
+            // Use multiple methods to ensure URL is cleaned on all devices, especially mobile
+            const newUrl = window.location.pathname;
+            
+            // Method 1: Replace state
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Method 2: Force URL update for mobile browsers
+            setTimeout(() => {
+                window.history.replaceState({}, document.title, newUrl);
+            }, 0);
+            
+            // Method 3: Additional mobile-specific URL cleaning
+            if (window.location.search) {
+                const cleanUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        }
+
+        // Function to get Venmo name from Supabase
+        async function getVenmoName() {
+            try {
+                const { data, error } = await supabase
+                    .from('duncan_compound_overview')
+                    .select('value')
+                    .eq('thing', 'venmo_name')
+                    .single();
+                
+                if (error) {
+                    console.error('Error fetching Venmo name:', error);
+                    return; // Keep default value
+                }
+                
+                if (data && data.value) {
+                    SEND_TO_VENMO = data.value;
+                    //console.log('Venmo name updated from database:', SEND_TO_VENMO);
+                }
+            } catch (error) {
+                console.error('Error in getVenmoName:', error);
+            }
+        }
+
+        // Function to get last 4 digits from Supabase
+        async function getLast4Digits() {
+            try {
+                const { data, error } = await supabase
+                    .from('duncan_compound_overview')
+                    .select('value')
+                    .eq('thing', 'last_4_digits')
+                    .single();
+                
+                if (error) {
+                    console.error('Error fetching last 4 digits:', error);
+                    return; // Keep default value
+                }
+                
+                if (data && data.value) {
+                    LAST_4_DIGITS = data.value;
+                    //console.log('Last 4 digits updated from database:', LAST_4_DIGITS);
+                    // Update the display in the popup
+                    updateLast4DigitsDisplay();
+                }
+            } catch (error) {
+                console.error('Error in getLast4Digits:', error);
+            }
+        }
+
+        // Function to update the last 4 digits display
+        function updateLast4DigitsDisplay() {
+            const last4DigitsDisplay = document.getElementById('last4DigitsDisplay');
+            if (last4DigitsDisplay) {
+                last4DigitsDisplay.textContent = LAST_4_DIGITS;
+            }
+        }
+
+        // Helper function to format price - hide .00 if present
+        function formatPrice(price) {
+            // Ensure we have a valid number
+            const numPrice = parseFloat(price);
+            if (isNaN(numPrice)) {
+                return '0';
+            }
+            const formatted = numPrice.toFixed(2);
+            return formatted.endsWith('.00') ? formatted.slice(0, -3) : formatted;
+        }
+
+        // Helper function to get the correct price based on pricing mode
+        function getItemPrice(item) {
+            let price;
+            switch (pricingMode) {
+                case 'unit_cost':
+                    price = item.unit_cost || item.regular_price; // Use unit_cost if available, fallback to regular_price
+                    break;
+                case 'duncan_price':
+                    price = item.duncan_price || item.regular_price; // Use duncan_price if available, fallback to regular_price
+                    break;
+                case 'regular':
+                default:
+                    price = item.regular_price; // Use regular_price
+                    break;
+            }
+            
+            // Ensure we have a valid number, fallback to 0 if not
+            return price && !isNaN(price) ? parseFloat(price) : 0;
+        }
+
+
+
+        // Load items from Supabase
+        async function loadItems() {
+            try {
+                const { data, error } = await supabase
+                    .from('duncan_compound_items')
+                    .select('*')
+                    .eq('on_website', 'yes')
+                    .order('display_order', { ascending: true });
+                
+                if (error) {
+                    console.error('Error loading items:', error);
+                    return;
+                }
+                
+                items = data;
+                renderItems();
+            } catch (error) {
+                console.error('Error in loadItems:', error);
+            }
+        }
+
+        // Render items in the DOM
+        function renderItems() {
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            
+            // Sort items: available items first (by display_order), then sold out items (by display_order)
+            const sortedItems = [...items].sort((a, b) => {
+                const aSoldOut = a.in_stock === 'no' || a.left_in_stock === 0;
+                const bSoldOut = b.in_stock === 'no' || b.left_in_stock === 0;
+                
+                // If one is sold out and the other isn't, put sold out at bottom
+                if (aSoldOut && !bSoldOut) return 1;
+                if (!aSoldOut && bSoldOut) return -1;
+                
+                // If both have same sold out status, sort by display_order
+                return a.display_order - b.display_order;
+            });
+            
+            sortedItems.forEach(item => {
+                const itemElement = createItemElement(item);
+                container.appendChild(itemElement);
+                
+                // Initialize cart entry for this item
+                // Check if item is sold out (either in_stock = 'no' or left_in_stock = 0)
+                const isSoldOut = item.in_stock === 'no' || item.left_in_stock === 0;
+                // Use the minimum of left_in_stock and max_quantity for the max quantity selector
+                const effectiveMaxQuantity = isSoldOut ? 0 : Math.min(item.left_in_stock, item.max_quantity || item.left_in_stock);
+                // Use the correct price based on pricing mode
+                const cartPrice = getItemPrice(item);
+                cart[item.item] = {
+                    quantity: 0,
+                    price: cartPrice,
+                    maxQuantity: effectiveMaxQuantity
+                };
+            });
+            
+            updateOrderTotal();
+        }
+
+        // Create item element
+        function createItemElement(item) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+            itemDiv.dataset.itemName = item.item;
+            
+            // Check if item is sold out (either in_stock = 'no' or left_in_stock = 0)
+            const isSoldOut = item.in_stock === 'no' || item.left_in_stock === 0;
+            const minusButtonClass = isSoldOut ? 'item-quantity-button minus-button disabled' : 'item-quantity-button minus-button';
+            const plusButtonClass = isSoldOut ? 'item-quantity-button plus-button disabled' : 'item-quantity-button plus-button';
+            const totalPriceText = isSoldOut ? 'SOLD OUT' : '$0';
+            const itemNameClass = isSoldOut ? 'item-name sold-out' : 'item-name';
+            const itemPriceClass = isSoldOut ? 'item-price sold-out' : 'item-price';
+            
+            // Use the correct price based on pricing mode
+            const displayPrice = getItemPrice(item);
+            
+            itemDiv.innerHTML = `
+                <div class="image-box">
+                    ${item.drink_image ? `<img src="${item.drink_image}" alt="${item.item}">` : ''}
+                </div>
+                <div class="item-info">
+                    <div class="item-info-upper">
+                        <div class="${itemNameClass}">${item.item}</div>
+                        <div class="${itemPriceClass}">$${formatPrice(displayPrice)}</div>
+                    </div>
+                    <div class="item-info-lower">
+                        <div class="item-quantity">
+                            <button class="${minusButtonClass}" data-item="${item.item}">
+                                <div class="minus-line"></div>
+                            </button>
+                            <div class="item-quantity-number" data-item="${item.item}">0</div>
+                            <button class="${plusButtonClass}" data-item="${item.item}">
+                                <div class="plus-line-horizontal"></div>
+                                <div class="plus-line-vertical"></div>
+                            </button>
+                        </div>
+                        <div class="item-total-price" data-item="${item.item}">${totalPriceText}</div>
+                    </div>
+                </div>
+            `;
+            
+            return itemDiv;
+        }
+
+        // Update quantity for an item
+        function updateQuantity(itemName, newQuantity) {
+            const cartItem = cart[itemName];
+            if (!cartItem) return;
+            
+            // Ensure quantity is within bounds
+            newQuantity = Math.max(0, Math.min(newQuantity, cartItem.maxQuantity));
+            
+            cartItem.quantity = newQuantity;
+            
+            // Update display
+            const quantityDisplay = document.querySelector(`[data-item="${itemName}"].item-quantity-number`);
+            const totalPriceDisplay = document.querySelector(`[data-item="${itemName}"].item-total-price`);
+            const minusButton = document.querySelector(`[data-item="${itemName}"].minus-button`);
+            const plusButton = document.querySelector(`[data-item="${itemName}"].plus-button`);
+            const itemNameElement = document.querySelector(`[data-item-name="${itemName}"] .item-name`);
+            
+            if (quantityDisplay) quantityDisplay.textContent = newQuantity;
+            if (totalPriceDisplay) {
+                if (cartItem.maxQuantity === 0) {
+                    totalPriceDisplay.textContent = 'SOLD OUT';
+                } else {
+                    const total = newQuantity * cartItem.price;
+                    totalPriceDisplay.textContent = `$${formatPrice(total)}`;
+                }
+            }
+            
+            // Update item name styling for sold out items
+            if (itemNameElement) {
+                if (cartItem.maxQuantity === 0) {
+                    itemNameElement.classList.add('sold-out');
+                } else {
+                    itemNameElement.classList.remove('sold-out');
+                }
+            }
+            
+            // Update item price styling for sold out items
+            const itemPriceElement = document.querySelector(`[data-item-name="${itemName}"] .item-price`);
+            if (itemPriceElement) {
+                if (cartItem.maxQuantity === 0) {
+                    itemPriceElement.classList.add('sold-out');
+                } else {
+                    itemPriceElement.classList.remove('sold-out');
+                }
+            }
+            
+            // Update button states
+            if (minusButton) {
+                if (newQuantity <= 0 || cartItem.maxQuantity === 0) {
+                    minusButton.classList.add('disabled');
+                    minusButton.classList.remove('active');
+                } else {
+                    minusButton.classList.remove('disabled');
+                    minusButton.classList.add('active');
+                }
+            }
+            
+            if (plusButton) {
+                if (newQuantity >= cartItem.maxQuantity || cartItem.maxQuantity === 0) {
+                    plusButton.classList.add('disabled');
+                } else {
+                    plusButton.classList.remove('disabled');
+                }
+            }
+            
+            updateOrderTotal();
+        }
+
+        // Update order total and payment button states
+        function updateOrderTotal() {
+            let total = 0;
+            Object.values(cart).forEach(item => {
+                total += item.quantity * item.price;
+            });
+            
+            const orderTotalElement = document.getElementById('orderTotal');
+            if (orderTotalElement) {
+                orderTotalElement.textContent = `Total: $${formatPrice(total)}`;
+            }
+            
+            // Update payment button states
+            const venmoButton = document.getElementById('venmoButton');
+            const cashButton = document.getElementById('cashButton');
+            
+            if (total > 0) {
+                // Enable buttons when there are items in cart
+                if (venmoButton) {
+                    venmoButton.disabled = false;
+                    venmoButton.style.opacity = '1';
+                    venmoButton.style.cursor = 'pointer';
+                }
+                if (cashButton) {
+                    cashButton.disabled = false;
+                    cashButton.style.opacity = '1';
+                    cashButton.style.cursor = 'pointer';
+                }
+            } else {
+                // Disable buttons when cart is empty
+                if (venmoButton) {
+                    venmoButton.disabled = true;
+                    venmoButton.style.opacity = '0.5';
+                    venmoButton.style.cursor = 'default';
+                }
+                if (cashButton) {
+                    cashButton.disabled = true;
+                    cashButton.style.opacity = '0.5';
+                    cashButton.style.cursor = 'default';
+                }
+            }
+        }
+
+        // Add event listeners
+        function addEventListeners() {
+            // Use a flag to prevent double events
+            let isProcessing = false;
+
+            const handleQuantityChange = (e, isPlus) => {
+                if (isProcessing) return;
+                isProcessing = true;
+                
+                const button = e.target.closest('.minus-button, .plus-button');
+                if (!button) {
+                    isProcessing = false;
+                    return;
+                }
+                
+                const itemName = button.dataset.item;
+                const currentQuantity = cart[itemName]?.quantity || 0;
+                
+                if (isPlus) {
+                    updateQuantity(itemName, currentQuantity + 1);
+                } else {
+                    updateQuantity(itemName, currentQuantity - 1);
+                }
+                
+                // Reset flag after a short delay
+                setTimeout(() => {
+                    isProcessing = false;
+                }, 100);
+            };
+
+            // Click event listener
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.minus-button')) {
+                    handleQuantityChange(e, false);
+                } else if (e.target.closest('.plus-button')) {
+                    handleQuantityChange(e, true);
+                }
+            });
+
+            // Venmo button click handler
+            const venmoButton = document.getElementById('venmoButton');
+            if (venmoButton) {
+                venmoButton.addEventListener('click', (e) => {
+                    if (!venmoButton.disabled) {
+                        showVenmoPopup();
+                    }
+                });
+            }
+
+            // Cash button click handler
+            const cashButton = document.getElementById('cashButton');
+            if (cashButton) {
+                cashButton.addEventListener('click', (e) => {
+                    if (!cashButton.disabled) {
+                        showCashPopup();
+                    }
+                });
+            }
+
+            // Venmo popup close handler
+            const venmoPopupButton = document.getElementById('venmoPopupButton');
+            if (venmoPopupButton) {
+                venmoPopupButton.addEventListener('click', hideVenmoPopup);
+            }
+
+            // Close popup when clicking overlay
+            const venmoPopupOverlay = document.getElementById('venmoPopupOverlay');
+            if (venmoPopupOverlay) {
+                venmoPopupOverlay.addEventListener('click', (e) => {
+                    if (e.target === venmoPopupOverlay) {
+                        closeVenmoPopup();
+                    }
+                });
+            }
+
+            // Close popup when clicking X button
+            const venmoPopupClose = document.getElementById('venmoPopupClose');
+            if (venmoPopupClose) {
+                venmoPopupClose.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    closeVenmoPopup();
+                });
+            }
+
+            // Close cash popup when clicking X button
+            const cashPopupClose = document.getElementById('cashPopupClose');
+            if (cashPopupClose) {
+                cashPopupClose.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    closeCashPopup();
+                });
+            }
+
+            // Cash popup close handler
+            const cashPopupButton = document.getElementById('cashPopupButton');
+            if (cashPopupButton) {
+                cashPopupButton.addEventListener('click', hideCashPopup);
+            }
+
+            // Close cash popup when clicking overlay
+            const cashPopupOverlay = document.getElementById('cashPopupOverlay');
+            if (cashPopupOverlay) {
+                cashPopupOverlay.addEventListener('click', (e) => {
+                    if (e.target === cashPopupOverlay) {
+                        closeCashPopup();
+                    }
+                });
+            }
+
+            // Age verification handlers
+            const ageYesButton = document.getElementById('ageYesButton');
+            const ageNoButton = document.getElementById('ageNoButton');
+            const ageVerificationOverlay = document.getElementById('ageVerificationOverlay');
+
+            if (ageYesButton) {
+                ageYesButton.addEventListener('click', () => {
+                    ageVerificationOverlay.style.display = 'none';
+                    document.body.classList.add('age-verified'); // Add class to show content
+                    // Check if shutdown check has already passed
+                    if (document.body.classList.contains('shutdown-check-passed')) {
+                        // Show the main content
+                        const mainContainer = document.querySelector('.main-container');
+                        if (mainContainer) {
+                            mainContainer.style.visibility = 'visible';
+                        }
+                    }
+                });
+            }
+
+            if (ageNoButton) {
+                ageNoButton.addEventListener('click', () => {
+                    ageVerificationOverlay.style.display = 'none';
+                    window.location.href = INITIAL_SHUTDOWN_REDIRECT_URL; // Redirect to initial shutdown URL for age verification failure
+                });
+            }
+
+            // Check if returning from Venmo
+            checkIfReturningFromVenmo();
+
+        }
+
+        // Show Venmo popup
+        function showVenmoPopup() {
+            const popup = document.getElementById('venmoPopupOverlay');
+            if (popup) {
+                popup.style.display = 'flex';
+            }
+        }
+
+        // Show Cash popup
+        function showCashPopup() {
+            const popup = document.getElementById('cashPopupOverlay');
+            if (popup) {
+                popup.style.display = 'flex';
+            }
+        }
+
+        // Close Venmo popup without submitting order
+        function closeVenmoPopup() {
+            const popup = document.getElementById('venmoPopupOverlay');
+            if (popup) {
+                popup.style.display = 'none';
+            }
+        }
+
+        // Close Cash popup without submitting order
+        function closeCashPopup() {
+            const popup = document.getElementById('cashPopupOverlay');
+            if (popup) {
+                popup.style.display = 'none';
+            }
+        }
+
+        // Check inventory before submitting order
+        async function checkInventoryBeforeOrder() {
+            try {
+                // Get current inventory from database
+                const { data: inventoryData, error: inventoryError } = await supabase
+                    .from('duncan_compound_items')
+                    .select('item, left_in_stock, in_stock, max_quantity')
+                    .in('item', Object.keys(cart).filter(itemName => cart[itemName].quantity > 0));
+                
+                if (inventoryError) {
+                    console.error('Error checking inventory:', inventoryError);
+                    return { valid: false, message: 'Error checking inventory. Please try again.' };
+                }
+                
+                const inventoryMap = {};
+                inventoryData.forEach(item => {
+                    inventoryMap[item.item] = {
+                        left_in_stock: item.left_in_stock,
+                        in_stock: item.in_stock,
+                        max_quantity: item.max_quantity
+                    };
+                });
+                
+                // Check each item in cart and adjust quantities
+                const soldOutItems = [];
+                const adjustedItems = [];
+                
+                Object.entries(cart).forEach(([itemName, cartItem]) => {
+                    if (cartItem.quantity > 0) {
+                        const inventory = inventoryMap[itemName];
+                        if (!inventory) {
+                            // Item not found in database, treat as sold out
+                            soldOutItems.push(itemName);
+                        } else if (inventory.in_stock !== 'yes' || inventory.left_in_stock === 0) {
+                            // Item is sold out (either in_stock = 'no' or left_in_stock = 0)
+                            soldOutItems.push(itemName);
+                        } else if (inventory.left_in_stock < cartItem.quantity) {
+                            // Adjust quantity to available stock
+                            const originalQuantity = cartItem.quantity;
+                            cartItem.quantity = inventory.left_in_stock;
+                            // Use the minimum of left_in_stock and max_quantity
+                            cartItem.maxQuantity = Math.min(inventory.left_in_stock, inventory.max_quantity || inventory.left_in_stock);
+                            adjustedItems.push({
+                                name: itemName,
+                                originalQuantity: originalQuantity,
+                                newQuantity: inventory.left_in_stock
+                            });
+                        } else {
+                            // Update maxQuantity to the minimum of current left_in_stock and max_quantity
+                            cartItem.maxQuantity = Math.min(inventory.left_in_stock, inventory.max_quantity || inventory.left_in_stock);
+                        }
+                    }
+                });
+                
+                // Update quantities for sold out items
+                soldOutItems.forEach(itemName => {
+                    cart[itemName].quantity = 0;
+                    cart[itemName].maxQuantity = 0;
+                });
+                
+                // Update maxQuantity for all items based on current left_in_stock and max_quantity
+                Object.entries(cart).forEach(([itemName, cartItem]) => {
+                    if (cartItem.quantity > 0) {
+                        const inventory = inventoryMap[itemName];
+                        if (inventory && inventory.in_stock === 'yes' && inventory.left_in_stock > 0) {
+                            cartItem.maxQuantity = Math.min(inventory.left_in_stock, inventory.max_quantity || inventory.left_in_stock);
+                        } else {
+                            // Item is sold out
+                            cartItem.maxQuantity = 0;
+                        }
+                    }
+                });
+                
+                // Update display for sold out items
+                soldOutItems.forEach(itemName => {
+                    const quantityDisplay = document.querySelector(`[data-item="${itemName}"].item-quantity-number`);
+                    const totalPriceDisplay = document.querySelector(`[data-item="${itemName}"].item-total-price`);
+                    const minusButton = document.querySelector(`[data-item="${itemName}"].minus-button`);
+                    const plusButton = document.querySelector(`[data-item="${itemName}"].plus-button`);
+                    const itemNameElement = document.querySelector(`[data-item-name="${itemName}"] .item-name`);
+                    const itemPriceElement = document.querySelector(`[data-item-name="${itemName}"] .item-price`);
+                    
+                    if (quantityDisplay) quantityDisplay.textContent = '0';
+                    if (totalPriceDisplay) totalPriceDisplay.textContent = 'SOLD OUT';
+                    if (itemNameElement) itemNameElement.classList.add('sold-out');
+                    if (itemPriceElement) itemPriceElement.classList.add('sold-out');
+                    if (minusButton) {
+                        minusButton.classList.add('disabled');
+                        minusButton.classList.remove('active');
+                    }
+                    if (plusButton) plusButton.classList.add('disabled');
+                });
+                
+                // Update display for adjusted items
+                adjustedItems.forEach(item => {
+                    const quantityDisplay = document.querySelector(`[data-item="${item.name}"].item-quantity-number`);
+                    const totalPriceDisplay = document.querySelector(`[data-item="${item.name}"].item-total-price`);
+                    const minusButton = document.querySelector(`[data-item="${item.name}"].minus-button`);
+                    const plusButton = document.querySelector(`[data-item="${item.name}"].plus-button`);
+                    
+                    if (quantityDisplay) quantityDisplay.textContent = item.newQuantity;
+                    if (totalPriceDisplay) {
+                        const total = item.newQuantity * cart[item.name].price;
+                        totalPriceDisplay.textContent = `$${formatPrice(total)}`;
+                    }
+                    
+                    // Update button states
+                    if (minusButton) {
+                        if (item.newQuantity <= 0) {
+                            minusButton.classList.add('disabled');
+                            minusButton.classList.remove('active');
+                        } else {
+                            minusButton.classList.remove('disabled');
+                            minusButton.classList.add('active');
+                        }
+                    }
+                    
+                    if (plusButton) {
+                        if (item.newQuantity >= item.newQuantity) { // Can't add more than available
+                            plusButton.classList.add('disabled');
+                        } else {
+                            plusButton.classList.remove('disabled');
+                        }
+                    }
+                });
+                
+                // Update order total
+                updateOrderTotal();
+                
+                // If there are any issues, return false to close popup
+                if (soldOutItems.length > 0 || adjustedItems.length > 0) {
+                    return { valid: false, message: 'Inventory updated' };
+                }
+                
+                return { valid: true };
+                
+            } catch (error) {
+                console.error('Error in checkInventoryBeforeOrder:', error);
+                return { valid: false, message: 'Error checking inventory. Please try again.' };
+            }
+        }
+
+        // Hide Cash popup and submit order
+        async function hideCashPopup() {
+            // Check inventory before proceeding
+            const inventoryCheck = await checkInventoryBeforeOrder();
+            if (!inventoryCheck.valid) {
+                // Close popup without alert
+                const popup = document.getElementById('cashPopupOverlay');
+                if (popup) {
+                    popup.style.display = 'none';
+                }
+                return;
+            }
+            
+            const popup = document.getElementById('cashPopupOverlay');
+            if (popup) {
+                popup.style.display = 'none';
+            }
+            
+            // Calculate order total
+            let orderTotal = 0;
+            const cartItems = [];
+            Object.entries(cart).forEach(([itemName, item]) => {
+                if (item.quantity > 0) {
+                    orderTotal += item.quantity * item.price;
+                    cartItems.push({
+                        name: itemName,
+                        quantity: item.quantity,
+                        price: item.price
+                    });
+                }
+            });
+            
+            // Generate order ID and save to database
+            try {
+                const orderId = await generateOrderId();
+                const saved = await saveOrderToDatabase(orderId, orderTotal, cartItems, 'Cash');
+                
+                if (!saved) {
+                    alert('Error creating order. Please try again.');
+                    return;
+                }
+                
+                // Show cash confirmation with order details
+                showCashConfirmation(cartItems, orderTotal, orderId);
+                
+            } catch (error) {
+                console.error('Error processing order:', error);
+                alert('Error creating order. Please try again.');
+            }
+        }
+
+        // Show cash confirmation
+        function showCashConfirmation(cartItems, orderTotal, orderId) {
+            const confirmation = document.getElementById('cashConfirmation');
+            const orderItemsContainer = document.getElementById('orderItems');
+            const cashNote = document.getElementById('cashNote');
+            const orderTitle = document.getElementById('cashOrderTitle');
+            
+            // Display order items
+            let itemsHtml = '';
+            cartItems.forEach(item => {
+                itemsHtml += `<p>${item.name} (${item.quantity}x)</p>`;
+            });
+            orderItemsContainer.innerHTML = itemsHtml;
+            
+            // Add total
+            const totalElement = document.createElement('p');
+            const orderTotalFormatted = formatPrice(orderTotal);
+            totalElement.innerHTML = `<strong>Total: $${orderTotalFormatted}</strong>`;
+            totalElement.style.marginTop = '15px';
+            totalElement.style.paddingTop = '15px';
+            totalElement.style.borderTop = '1px solid var(--black)';
+            totalElement.style.maxWidth = '300px';
+            totalElement.style.marginLeft = 'auto';
+            totalElement.style.marginRight = 'auto';
+            orderItemsContainer.appendChild(totalElement);
+            
+            // Update cash note with specific amount
+            const formattedAmount = orderTotalFormatted;
+            cashNote.innerHTML = `<strong>Cash Payment:</strong> Please have your $${formattedAmount} in cash ready when you collect your order.`;
+            
+            // Update order title with order number
+            orderTitle.textContent = `Order #${orderId}`;
+            
+            // Show confirmation
+            confirmation.style.display = 'flex';
+        }
+
+        // Show Venmo confirmation
+        function showVenmoConfirmation(cartItems, orderTotal, orderId) {
+            const confirmation = document.getElementById('venmoConfirmation');
+            const orderItemsContainer = document.getElementById('venmoOrderItems');
+            const orderTitle = document.getElementById('venmoOrderTitle');
+            const venmoLinkContainer = document.getElementById('venmoLinkContainer');
+            const venmoLink = document.getElementById('venmoLink');
+            
+            // Display order items
+            let itemsHtml = '';
+            cartItems.forEach(item => {
+                itemsHtml += `<p>${item.name} (${item.quantity}x)</p>`;
+            });
+            orderItemsContainer.innerHTML = itemsHtml;
+            
+            // Add total
+            const totalElement = document.createElement('p');
+            const orderTotalFormatted = formatPrice(orderTotal);
+            totalElement.innerHTML = `<strong>Total: $${orderTotalFormatted}</strong>`;
+            totalElement.style.marginTop = '15px';
+            totalElement.style.paddingTop = '15px';
+            totalElement.style.borderTop = '1px solid var(--black)';
+            totalElement.style.maxWidth = '300px';
+            totalElement.style.marginLeft = 'auto';
+            totalElement.style.marginRight = 'auto';
+            orderItemsContainer.appendChild(totalElement);
+            
+            // Update order title with order number
+            orderTitle.textContent = `Order #${orderId}`;
+            
+            // Show confirmation
+            confirmation.style.display = 'flex';
+            
+            // Show the Venmo link
+            venmoLinkContainer.style.display = 'block';
+            
+            // Set up Venmo link click handler
+            const note = `Order #: ${orderId}`;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            let venmoUrl;
+            if (isMobile) {
+                venmoUrl = `venmo://paycharge?txn=pay&recipients=${SEND_TO_VENMO}&amount=${orderTotal}&note=${encodeURIComponent(note)}`;
+            } else {
+                venmoUrl = `https://venmo.com/payment-link?amount=${orderTotal}&note=${encodeURIComponent(note)}&recipients=${SEND_TO_VENMO}`;
+            }
+            
+            venmoLink.href = venmoUrl;
+            venmoLink.onclick = function(e) {
+                e.preventDefault();
+                if (isMobile) {
+                    window.location.href = venmoUrl;
+                } else {
+                    window.open(venmoUrl, '_blank');
+                }
+            };
+            
+            // Start monitoring payment status
+            startPaymentStatusMonitoring(orderId);
+        }
+
+        // Start monitoring payment status
+        function startPaymentStatusMonitoring(orderId) {
+            const statusElement = document.getElementById('venmoPaymentStatus');
+            const statusMessage = statusElement.querySelector('.status-message');
+            const venmoLinkContainer = document.getElementById('venmoLinkContainer');
+            
+            // Check payment status every second
+            const interval = setInterval(async () => {
+                try {
+                    const { data, error } = await supabase
+                        .from('duncan_compound_order_logs')
+                        .select('status')
+                        .eq('order_id', orderId)
+                        .single();
+                    
+                    if (error) {
+                        console.error('Error checking payment status:', error);
+                        return;
+                    }
+                    
+                    if (data && data.status === 'Venmo Paid') {
+                        // Payment received
+                        statusElement.classList.add('paid');
+                        statusMessage.textContent = 'Venmo received. Please collect your order.';
+                        statusElement.style.animation = 'none'; // Stop the pulse animation
+                        venmoLinkContainer.style.display = 'none'; // Hide the Venmo link
+                        clearInterval(interval);
+                    }
+                } catch (error) {
+                    console.error('Error in payment status monitoring:', error);
+                }
+            }, 1000); // Check every second
+        }
+
+        // Show main content (hide confirmation)
+        function showMainContent() {
+            const confirmation = document.getElementById('cashConfirmation');
+            const mainContainer = document.querySelector('.main-container');
+            
+            confirmation.style.display = 'none';
+            mainContainer.style.display = 'flex';
+            
+            // Reset cart
+            Object.keys(cart).forEach(itemName => {
+                cart[itemName].quantity = 0;
+            });
+            
+            // Update UI
+            renderItems();
+            updateOrderTotal();
+        }
+
+        // Generate unique order ID
+        async function generateOrderId() {
+            try {
+                // Get all order_ids from the database to find the highest numeric one
+                const { data, error } = await supabase
+                    .from('duncan_compound_order_logs')
+                    .select('order_id')
+                    .order('order_id', { ascending: false });
+                
+                if (error) {
+                    console.error('Error getting order IDs:', error);
+                    // If there's an error, start with 100
+                    return 100;
+                }
+                
+                // If no orders exist, start with 100
+                if (!data || data.length === 0) {
+                    return 100;
+                }
+                
+                // Find the highest numeric order ID, skipping non-numeric ones
+                let highestNumericOrderId = 99; // Start below 100 so we get 100 as minimum
+                
+                for (const record of data) {
+                    const rawOrderId = record.order_id;
+                    const numericOrderId = parseInt(rawOrderId);
+                    
+                    // Check if the parsed value is a valid number
+                    if (!isNaN(numericOrderId) && numericOrderId > highestNumericOrderId) {
+                        highestNumericOrderId = numericOrderId;
+                    } else if (isNaN(numericOrderId)) {
+                        console.warn('Found non-numeric order ID, skipping:', rawOrderId);
+                    }
+                }
+                
+                const nextOrderId = highestNumericOrderId + 1;
+                
+                // Ensure the order ID is at least 100
+                return Math.max(nextOrderId, 100);
+                
+            } catch (error) {
+                console.error('Error in generateOrderId:', error);
+                // If there's an error, start with 100
+                return 100;
+            }
+        }
+
+        // Save order to database
+        async function saveOrderToDatabase(orderId, orderTotal, cartItems, paymentType = 'Venmo') {
+            try {
+                console.log('saveOrderToDatabase called with orderId:', orderId, 'type:', typeof orderId);
+                
+                // Validate orderId
+                if (orderId === null || orderId === undefined || isNaN(orderId)) {
+                    console.error('orderId is null, undefined, or NaN, cannot save order. orderId:', orderId);
+                    // Generate a fallback order ID
+                    const fallbackId = Math.max(100, Date.now() % 100000);
+                    console.log('Using emergency fallback order ID:', fallbackId);
+                    orderId = fallbackId;
+                }
+                
+                const { data, error } = await supabase
+                    .from('duncan_compound_order_logs')
+                    .insert([
+                        {
+                            order_id: orderId,
+                            name: null, // Will be filled by the API if needed
+                            order_items: cartItems.map(item => `${item.name} (${item.quantity})`).join(', '),
+                            timestamp: new Date().toLocaleString('en-US', { 
+                                hour: 'numeric', 
+                                minute: '2-digit', 
+                                second: '2-digit', 
+                                hour12: true 
+                            }).replace(',', '') + ' (' + 
+                            new Date().toLocaleDateString('en-US', { 
+                                month: 'numeric', 
+                                day: 'numeric' 
+                            }) + ')',
+                            order_total: orderTotal,
+                            status: paymentType === 'Cash' ? 'Cash Pending' : 'Venmo Pending',
+                            payment_type: paymentType,
+                            venmo_amount: null,
+                            collected: null
+                        }
+                    ]);
+                
+                if (error) {
+                    console.error('Error saving order:', error);
+                    throw error;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error in saveOrderToDatabase:', error);
+                return false;
+            }
+        }
+
+        // Hide Venmo popup and redirect to Venmo
+        async function hideVenmoPopup() {
+            // Check inventory before proceeding
+            const inventoryCheck = await checkInventoryBeforeOrder();
+            if (!inventoryCheck.valid) {
+                // Close popup without alert
+                const popup = document.getElementById('venmoPopupOverlay');
+                if (popup) {
+                    popup.style.display = 'none';
+                }
+                return;
+            }
+            
+            // Calculate order total
+            let orderTotal = 0;
+            const cartItems = [];
+            Object.entries(cart).forEach(([itemName, item]) => {
+                if (item.quantity > 0) {
+                    orderTotal += item.quantity * item.price;
+                    cartItems.push({
+                        name: itemName,
+                        quantity: item.quantity,
+                        price: item.price
+                    });
+                }
+            });
+            
+            // Generate order ID and save to database
+            try {
+                const orderId = await generateOrderId();
+                const saved = await saveOrderToDatabase(orderId, orderTotal, cartItems);
+                
+                if (!saved) {
+                    alert('Error creating order. Please try again.');
+                    return;
+                }
+                
+                // Set flag to track Venmo payment initiation
+                sessionStorage.setItem('venmoClicked', 'true');
+                
+                // Store order data for later use
+                sessionStorage.setItem('pendingOrderData', JSON.stringify({
+                    cartItems,
+                    orderTotal,
+                    orderId
+                }));
+                
+                // Redirect to Venmo without closing popup or showing confirmation yet
+                redirectToVenmo(orderTotal, orderId);
+                
+            } catch (error) {
+                console.error('Error processing order:', error);
+                alert('Error creating order. Please try again.');
+            }
+        }
+
+        // Redirect to Venmo
+        function redirectToVenmo(orderTotal, orderId) {
+            const note = `Order #: ${orderId}`;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            let venmoUrl;
+            if (isMobile) {
+                venmoUrl = `venmo://paycharge?txn=pay&recipients=${SEND_TO_VENMO}&amount=${orderTotal}&note=${encodeURIComponent(note)}`;
+            } else {
+                venmoUrl = `https://venmo.com/payment-link?amount=${orderTotal}&note=${encodeURIComponent(note)}&recipients=${SEND_TO_VENMO}`;
+            }
+            
+            // Redirect to Venmo
+            if (isMobile) {
+                window.location.href = venmoUrl;
+            } else {
+                window.open(venmoUrl, '_blank');
+            }
+        }
+
+        // Handle Venmo return
+        function handleVenmoReturn() {
+            const pendingOrderData = sessionStorage.getItem('pendingOrderData');
+            if (pendingOrderData) {
+                // Close the Venmo popup
+                const popup = document.getElementById('venmoPopupOverlay');
+                if (popup) {
+                    popup.style.display = 'none';
+                }
+                
+                const orderData = JSON.parse(pendingOrderData);
+                
+                // Show Venmo confirmation with order details
+                showVenmoConfirmation(orderData.cartItems, orderData.orderTotal, orderData.orderId);
+                
+                // Clear the stored data
+                sessionStorage.removeItem('pendingOrderData');
+                sessionStorage.removeItem('venmoClicked');
+            }
+        }
+
+        // Check if returning from Venmo
+        function checkIfReturningFromVenmo() {
+            const hasClickedVenmo = sessionStorage.getItem('venmoClicked');
+            if (hasClickedVenmo === 'true') {
+                // User is returning after clicking Venmo
+                handleVenmoReturn();
+            }
+        }
+
+        // Track page visibility changes
+        let pageWasHidden = false;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                pageWasHidden = true;
+            } else if (pageWasHidden) {
+                // Page became visible again, check if user clicked Venmo
+                const hasClickedVenmo = sessionStorage.getItem('venmoClicked');
+                if (hasClickedVenmo === 'true') {
+                    handleVenmoReturn();
+                }
+                pageWasHidden = false;
+            }
+        });
+
+
+
+        // Initialize the page
+        async function initialize() {
+            try {
+                await checkPricingMode(); // Check for type parameter and set pricing mode
+                await getVenmoName(); // Get Venmo name from database
+                await getLast4Digits(); // Get last 4 digits from database
+                await loadItems();
+                addEventListeners();
+                
+                // Update display with current value
+                updateLast4DigitsDisplay();
+                
+                // Check if returning from Venmo payment
+                checkIfReturningFromVenmo();
+                
+                // Since shutdown check is disabled, automatically show content
+                // Check if age verification is enabled
+                const currentAgeVerificationSetting = window.ENABLE_AGE_VERIFICATION || ENABLE_AGE_VERIFICATION;
+                if (currentAgeVerificationSetting === "no") {
+                    // Age verification is disabled, show main content directly
+                    document.body.classList.add('age-verified');
+                    const mainContainer = document.querySelector('.main-container');
+                    if (mainContainer) {
+                        mainContainer.style.visibility = 'visible';
+                    }
+                } else {
+                    // Age verification is enabled, show age verification popup
+                    const ageVerificationOverlay = document.getElementById('ageVerificationOverlay');
+                    if (ageVerificationOverlay) {
+                        ageVerificationOverlay.classList.add('show');
+                    }
+                }
+            } catch (error) {
+                console.error('Error initializing:', error);
+            }
+        }
+
+        // Start the application
+        window.addEventListener('load', initialize);
+   </script>
+</body>
+</html> 

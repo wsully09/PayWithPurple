@@ -2,29 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>Invite Only Event</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+    
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --dark-green:#12271d;
+            --white: #ffffff;
         }
 
+        ::selection {
+            background-color: white;
+            color: var(--dark-green);
+        }
+
+        ::-moz-selection {
+            background-color: white;
+            color: var(--dark-green);
+        }
+        
         body {
-            height: 100vh;
-            background-color: #0e140b;
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-green);
+            font-family: "Inter", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            position: relative;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            margin-top: 30px;
+           
         }
 
         .noise-overlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background-image: url('noise-light.png');
             background-repeat: repeat;
             opacity: 0.3;
@@ -33,157 +66,2352 @@
         }
 
         .container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .invite-text {
+            font-family: "Literata", serif;
+            font-size: 24px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 30px;
+            margin-top: calc(50vh - 150px);
+        }
+
+        .yes-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 200px;
+        }
+        
+        .yes-button:hover {
+           /*slide up 1 px*/
+           transform: translateY(-1px);
+        }
+
+        .subtitle {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.4;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* Pricing Screen Styles */
+        .pricing-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .pricing-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .pricing-text {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 40px;
+        }
+
+        .pricing-details {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            font-style: italic;
+            padding: 0 20px;
+        }
+
+        .pricing-disclaimer {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.4;
+            opacity: 0.8;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+
+        .couple-ticket-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 80px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .couple-ticket-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .single-ticket-button {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 12px 80px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .single-ticket-button:hover {
+            transform: translateY(-1px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button {
+            background-color: transparent;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            opacity: 1;
+        }
+
+        /* How To Pay Screen Styles */
+        .how-to-pay-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .how-to-pay-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .how-to-pay-title {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .how-to-pay-disclaimer {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.4;
+            opacity: 0.8;
+            font-style: italic;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+
+        .how-to-pay-disclaimer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .how-to-pay-disclaimer a:hover {
+            opacity: 0.7;
+        }
+
+        .how-to-pay-steps {
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            color: white;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-align: left;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .how-to-pay-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .how-to-pay-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .how-to-pay-step-number {
+            background-color: white;
+            color: var(--dark-green);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 15px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .how-to-pay-step-content {
+            flex: 1;
+        }
+
+        .how-to-pay-step-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin: 0 0 5px 0;
+        }
+
+        .how-to-pay-step-description {
+            font-size: 12px;
+            color: white;
+            margin: 0;
+            line-height: 1.4;
+            opacity: 0.8;
+        }
+
+        .how-to-pay-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 80px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .how-to-pay-button:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Complete Payment Screen Styles */
+        .complete-payment-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .complete-payment-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 5px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .complete-payment-title {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .complete-payment-description {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            text-align: center;
+            font-style: italic;
+            padding: 0 25px;
+        }
+
+        .venmo-launch-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .venmo-launch-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .fallback-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .fallback-title {
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .fallback-text {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        .copy-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .copy-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            padding: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            position: relative;
+        }
+
+        .copy-box:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .copy-label {
+            font-family: "Inter", sans-serif;
+            font-size: 12px;
+            color: white;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .copy-content {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .copy-feedback {
+            font-family: "Inter", sans-serif;
+            font-size: 12px;
+            color: #4CAF50;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+        }
+
+        .copy-feedback.show {
+            opacity: 1;
+        }
+
+        .copy-content {
+            transition: opacity 0.3s ease;
+        }
+
+        .copy-content.hidden {
+            opacity: 0;
+        }
+
+        .copy-label {
+            transition: opacity 0.3s ease;
+        }
+
+        .copy-label.hidden {
+            opacity: 0;
+        }
+
+        /* Phone Entry Screen Styles */
+        .phone-entry-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .phone-entry-container {
             text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
             z-index: 10;
-            color: white;
-            max-width: 500px;
-            width: 90%;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .ticket-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 40px 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .ticket-id {
+        .phone-entry-title {
+            font-family: "Literata", serif;
             font-size: 28px;
-            font-weight: 700;
+            color: white;
+            line-height: 1.3;
             margin-bottom: 20px;
-            color: #fff;
         }
 
-        .ticket-status {
-            font-size: 18px;
-            color: #4CAF50;
+        .phone-entry-description {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
             margin-bottom: 30px;
-            font-weight: 600;
+            opacity: 0.9;
+            text-align: center;
+            font-style: italic;
+            padding: 0 40px;
         }
 
-        .ticket-details {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-            margin-bottom: 30px;
+        .phone-form-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .back-button {
-            background: linear-gradient(135deg, #ffffff, #f8f8f8);
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            color: #333;
-            padding: 12px 30px;
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .phone-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             font-size: 16px;
-            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .phone-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .phone-input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .phone-input:invalid {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .input-hint {
+            font-family: "Inter", sans-serif;
+            font-size: 12px;
+            color: white;
+            margin-top: 5px;
+            opacity: 0.7;
+            text-align: left;
+        }
+
+        .submit-phone-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
             cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
             transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .error-message {
-            color: #ff6b6b;
-            font-size: 18px;
             margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .submit-phone-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .submit-phone-button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        /* Verification Screen Styles */
+        .verification-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .verification-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .verification-title {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .verification-description {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-align: center;
+            font-style: italic;
+            padding: 0 40px;
+        }
+
+        .verification-form-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .verification-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: "Inter", sans-serif;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .verification-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .verification-input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .verify-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .verify-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .verify-button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        /* Error message styles */
+        .error-message {
+            color: white;
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Name Entry Screen Styles */
+        .name-entry-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .name-entry-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .name-entry-title {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .name-entry-description {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-align: center;
+            font-style: italic;
+            padding: 0 40px;
+        }
+
+        .name-form-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: "Inter", sans-serif;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .name-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .name-input:invalid {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .submit-name-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .submit-name-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .submit-name-button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        /* Venmo Popup Styles */
+        .venmo-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .venmo-popup {
+            background-color: white;
+            color: var(--dark-green);
+            padding: 33px;
+            border-radius: 8px;
+            width: 320px;
+            height: auto;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.4;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .venmo-popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            color: var(--dark-green);
+        }
+
+        .venmo-popup-text {
+            margin-bottom: 20px;
+        }
+
+        .venmo-popup-button {
+            background-color: var(--dark-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .venmo-popup-button:hover {
+            opacity: 0.9;
+        }
+
+        .venmo-popup-button:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .venmo-popup-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #999;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+
+        .venmo-popup-close:hover {
+            opacity: 0.7;
+        }
+
+        .venmo-popup-close:active {
+            opacity: 0.5;
+        }
+
+        /* Payment Received Screen Styles */
+        .payment-received-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .payment-received-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .payment-received-title {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .payment-received-description {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-align: center;
+            font-style: italic;
+            padding: 0 10px;
+        }
+
+        .view-ticket-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .view-ticket-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .view-ticket-test-button {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .view-ticket-test-button:hover {
+            transform: translateY(-1px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Loading Screen Styles */
+        .loading-screen {
+            display: block;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        /* Mobile Detection Screen Styles */
+        .mobile-detection-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--dark-green) 0%, var(--light-green) 100%);
+            overflow-y: auto;
+        }
+
+        .mobile-detection-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .mobile-detection-title {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 30px;
+            margin-top: 0;
+        }
+
+        .mobile-detection-description {
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        .qr-code-container {
+            margin: 20px auto;
+            max-width: 200px;
+            min-height: 200px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-code-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            max-width: 180px;
+        }
+
+        .qr-code-placeholder {
+            color: white;
+            font-size: 14px;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        .mobile-link {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            margin-top: 20px;
+            display: inline-block;
+            font-style: italic;
+        }
+
+        .mobile-link:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
-    
-    <div class="container">
-        <div class="ticket-card" id="ticketCard">
-            <div class="ticket-id" id="ticketId">Loading...</div>
-            <div class="ticket-status" id="ticketStatus">Validating ticket...</div>
-            <div class="ticket-details" id="ticketDetails">
-                <p><strong>Event:</strong> Fall Formal</p>
-                <p><strong>Date:</strong> November 15, 2024</p>
-                <p><strong>Time:</strong> 7:00 PM - 11:00 PM</p>
-                <p><strong>Location:</strong> Duncan Hall</p>
+    <!-- Mobile Detection Screen -->
+    <div id="mobileDetectionScreen" class="mobile-detection-screen">
+        <div class="noise-overlay"></div>
+        <div class="mobile-detection-container">
+            <div class="mobile-detection-title">
+                Please continue on your phone
             </div>
-            <a href="/" class="back-button">Back to Home</a>
+            <div class="qr-code-container">
+                <img src="qr-code-mobile-3.png" alt="QR Code" class="qr-code-image" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="qr-code-placeholder" style="display: none;">QR Code: Scan to open on mobile</div>
+            </div>
+            <div class="mobile-link">
+                Already on your phone? <a href="https://duncancompound.org/ticket" style="color: white; text-decoration: underline; font-weight: bold;">Click here</a>
+            </div>
         </div>
     </div>
 
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="noise-overlay"></div>
+    </div>
+
+    <div class="app-container" style="display: none;">
+        <div class="noise-overlay"></div>
+        
+        <div class="container">
+            <div class="invite-text">
+                This is an invite only event.<br> Were you invited via Partiful?
+            </div>
+            <button class="yes-button" id="continueBtn">Yes</button>
+            <div class="subtitle">
+                Only Duncan members need to complete this. <br>Dates do not / should not fill this out.
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Screen -->
+    <div id="pricingScreen" class="pricing-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="pricing-container">
+                <div class="pricing-text">
+                    Fall Formal Ticket Pricing
+                </div>
+                <div class="pricing-details">
+                    Fall Formal tickets cost <strong><u>$10 for an individual ticket</u></strong> or <strong><u>$15 per couple</u></strong> to cover the cost of the event, including an all you can drink fall-themed cocktail bar. Tickets must be purchased in advance and will be scanned upon arrival.
+                </div>
+
+                <button class="couple-ticket-button" id="coupleTicketBtn">Couple Ticket ($15)</button>
+                <button class="single-ticket-button" id="singleTicketBtn">Single Ticket ($10)</button>
+                <button class="back-button" id="backButton">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- How To Pay Screen -->
+    <div id="howToPayScreen" class="how-to-pay-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="how-to-pay-container">
+                <div class="how-to-pay-title">
+                    How To Pay
+                </div>
+                <div class="how-to-pay-disclaimer">
+                    All tickets must be paid for via Venmo. No exceptions. If you do not have Venmo, have a friend visit <a href="https://DuncanCompound.org/ticket" target="_blank">DuncanCompound.org/ticket</a> on THEIR phone and complete the payment process using YOUR name and YOUR phone number but paying with THEIR Venmo.
+                </div>
+                <div class="how-to-pay-steps">
+                    <div class="how-to-pay-step">
+                        <span class="how-to-pay-step-number">1</span>
+                        <div class="how-to-pay-step-content">
+                            <div class="how-to-pay-step-title">Enter your name and phone number</div>
+                            <div class="how-to-pay-step-description">This is how we will text you your unique ticket.</div>
+                        </div>
+                    </div>
+                    <div class="how-to-pay-step">
+                        <span class="how-to-pay-step-number">2</span>
+                        <div class="how-to-pay-step-content">
+                            <div class="how-to-pay-step-title">Click to launch Venmo</div>
+                            <div class="how-to-pay-step-description">We'll open the Venmo app for you</div>
+                        </div>
+                    </div>
+                    <div class="how-to-pay-step">
+                        <span class="how-to-pay-step-number">3</span>
+                        <div class="how-to-pay-step-content">
+                            <div class="how-to-pay-step-title">Do not modify the pre-populated Venmo amount or note</div>
+                            <div class="how-to-pay-step-description">Keep the auto-filled fields as they are</div>
+                        </div>
+                    </div>
+                    <div class="how-to-pay-step">
+                        <span class="how-to-pay-step-number">4</span>
+                        <div class="how-to-pay-step-content">
+                            <div class="how-to-pay-step-title">Receive your ticket via text</div>
+                            <div class="how-to-pay-step-description">We'll send you your ticket once we confirm your Venmo payment</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="how-to-pay-button" id="proceedToPayment">Continue</button>
+                <button class="back-button" id="backFromHowToPay">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Name Entry Screen -->
+    <div id="nameEntryScreen" class="name-entry-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="name-entry-container">
+                <div class="name-entry-title">
+                    Enter Your Name
+                </div>
+                <div class="name-entry-description">
+                    This will be the name on your one ticket that you (and your date) will use.
+                </div>
+                
+                <div class="name-form-container">
+                    <form id="nameForm" onsubmit="handleNameSubmit(event)">
+                        <div class="input-group">
+                            <label for="fullName" class="input-label">Full Name</label>
+                            <input 
+                                type="text" 
+                                id="fullName" 
+                                name="fullName" 
+                                class="name-input" 
+                                placeholder="Enter your full name"
+                                value="Will Sullivan"
+                                required
+                                minlength="2"
+                                maxlength="50"
+                                autocomplete="name"
+                            >
+                            <div class="input-hint">Enter your first and last name</div>
+                        </div>
+                    </form>
+                </div>
+                
+                <button type="submit" form="nameForm" class="submit-name-button" id="submitNameButton" disabled>Continue</button>
+                <button class="back-button" id="backFromNameEntry">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phone Entry Screen -->
+    <div id="phoneEntryScreen" class="phone-entry-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="phone-entry-container">
+                <div class="phone-entry-title">
+                    Enter Phone Number
+                </div>
+                <div class="phone-entry-description">
+                    We'll send you a verification code, <br>and then later your ticket.
+                </div>
+                
+                <div class="phone-form-container">
+                    <form id="phoneForm" onsubmit="handlePhoneSubmit(event)">
+                        <div class="input-group">
+                            <label for="phoneNumber" class="input-label">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                id="phoneNumber" 
+                                name="phoneNumber" 
+                                class="phone-input" 
+                                placeholder="(000) 000-0000"
+                                value="(917) 900-6733"
+                                required
+                                pattern="[0-9\s\(\)\-]+"
+                                maxlength="14"
+                                inputmode="numeric"
+                                autocomplete="tel"
+                            >
+                            <div class="input-hint">Only US/Canada numbers (+1) are supported.</div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="phoneErrorMessage" class="error-message"></div>
+                
+                <button type="submit" form="phoneForm" class="submit-phone-button" id="submitPhoneButton" disabled>Send Verification Code</button>
+                <button class="back-button" id="backFromPhoneEntry">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Screen -->
+    <div id="verificationScreen" class="verification-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="verification-container">
+                <div class="verification-title">
+                    Enter Verification Code
+                </div>
+                <div class="verification-description" id="verificationDescription">
+                    We sent a code to your phone number
+                </div>
+                
+                <div class="verification-form-container">
+                    <form id="verificationForm" onsubmit="handleVerificationSubmit(event)">
+                        <div class="input-group">
+                            <label for="verificationCode" class="input-label">Verification Code</label>
+                            <input 
+                                type="text" 
+                                id="verificationCode" 
+                                name="verificationCode" 
+                                class="verification-input" 
+                                placeholder="000000"
+                                value=""
+                                required
+                                pattern="[0-9]{6}"
+                                maxlength="6"
+                                inputmode="numeric"
+                                autocomplete="one-time-code"
+                                data-form-type="other"
+                            >
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="verificationErrorMessage" class="error-message"></div>
+                
+                <button type="submit" form="verificationForm" class="verify-button" id="verifyButton" disabled>Verify Code</button>
+                <button class="back-button" id="backFromVerification">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Payment Screen -->
+    <div id="completePaymentScreen" class="complete-payment-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="complete-payment-container">
+                <div class="complete-payment-title">
+                    Complete Payment
+                </div>
+                <div class="complete-payment-description" id="completePaymentDescription">
+                    Clicking the button below will launch Venmo with a pre-populated note and the $10 amount. <strong><u>You will receive a text with your ticket once we confirm your Venmo payment.</u></strong>
+                </div>
+                
+                <div class="fallback-section">
+                    <div class="fallback-title">In the event Venmo does not open:</div>
+                    <div class="fallback-text" id="fallbackText">
+                        Venmo $10 to @DuncanOffCampus <br>with message "Fall Formal (#42821)". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.
+                    </div>
+                    <div class="copy-section">
+                        <div class="copy-box" onclick="copyToClipboard('duncanoffcampus', this)">
+                            <div class="copy-label">Venmo Username (click to copy)</div>
+                            <div class="copy-content">@DuncanOffCampus</div>
+                            <div class="copy-feedback">Text Copied</div>
+                        </div>
+                        <div class="copy-box" onclick="copyToClipboard('Fall Formal (#42821)', this)">
+                            <div class="copy-label">Venmo Message (click to copy)</div>
+                            <div class="copy-content" id="venmoMessageContent">Fall Formal (#42821)</div>
+                            <div class="copy-feedback">Text Copied</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="venmo-launch-button" id="launchVenmo">Launch Venmo</button>
+                <button class="back-button" id="backFromCompletePayment">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Venmo Popup -->
+    <div class="venmo-popup-overlay" id="venmoPopupOverlay">
+        <div class="venmo-popup">
+            <button class="venmo-popup-close" id="venmoPopupClose">&times;</button>
+            <div class="venmo-popup-title">IMPORTANT NOTE</div>
+            <div class="venmo-popup-text">Click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number</div>
+            <button class="venmo-popup-button" id="venmoPopupButton">GOT IT. TAKE ME TO VENMO</button>
+        </div>
+    </div>
+
+    <!-- Payment Received Screen -->
+    <div id="paymentReceivedScreen" class="payment-received-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="payment-received-container">
+                <div class="payment-received-title">
+                    Payment Received
+                </div>
+                <div class="payment-received-description">
+                    View your ticket below. It was also texted to you.
+                </div>
+                
+                <button class="view-ticket-button" id="viewTicketButton">View Your Ticket (#11111)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        // Extract ticket ID from URL
-        function getTicketIdFromUrl() {
-            const path = window.location.pathname;
-            const pathParts = path.split('/');
-            return pathParts[pathParts.length - 1];
+        // Supabase configuration
+        const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhenNya2N2ZWN5bXVqZm1yemV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTIwNzAzNCwiZXhwIjoyMDcwNzgzMDM0fQ.oP2KHilItRH1EZ53-eOY_Ihcyt0Kn-paa1U-jAZnUgo";
+        
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Skip OTP verification - set to "true" to bypass SMS verification
+        const SKIP_OTP = true;
+        
+        // Track ticket type for Venmo amount
+        let selectedTicketType = 'single'; // 'single' or 'couple'
+        let ticketAmount = 10; // Default to single ticket amount
+        let generatedTicketNumber = null; // Store the generated ticket number
+        let hasReachedPaymentScreen = false; // Track if user has reached payment screen before
+        let verificationCode = null; // Store the generated verification code
+        
+        // Function to generate a 5-digit random ticket number
+        function generateTicketNumber() {
+            return Math.floor(10000 + Math.random() * 90000).toString();
         }
-
-        // Validate ticket ID (basic validation)
-        function validateTicketId(ticketId) {
-            // Check if it's a 6-digit number
-            return /^\d{6}$/.test(ticketId);
+        
+        // Function to generate a 6-digit random verification code
+        function generateVerificationCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
         }
-
-        // Generate ticket details based on ID
-        function generateTicketDetails(ticketId) {
-            // This is where you could add logic to:
-            // - Check against a database
-            // - Validate with a backend API
-            // - Generate ticket details based on ID
+        
+        // Function to show error message on screen
+        function showErrorMessage(message, elementId) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    errorElement.classList.remove('show');
+                }, 5000);
+            }
+        }
+        
+        // Function to increment messages_sent counter in duncan_compound_overview table
+        async function incrementMessagesSent() {
+            try {
+                console.log('Incrementing messages_sent counter...');
+                
+                const { data, error } = await supabase
+                    .from('duncan_compound_overview')
+                    .select('messages_sent')
+                    .single();
+                
+                if (error) {
+                    console.error('Error fetching current messages_sent count:', error);
+                    return false;
+                }
+                
+                const currentCount = data.messages_sent || 0;
+                const newCount = currentCount + 1;
+                
+                const { error: updateError } = await supabase
+                    .from('duncan_compound_overview')
+                    .update({ messages_sent: newCount })
+                    .eq('id', 1); // Assuming there's a single row with id=1
+                
+                if (updateError) {
+                    console.error('Error updating messages_sent counter:', updateError);
+                    return false;
+                }
+                
+                console.log(`Messages sent counter updated: ${currentCount} → ${newCount}`);
+                return true;
+            } catch (error) {
+                console.error('Error incrementing messages_sent counter:', error);
+                return false;
+            }
+        }
+        
+        // Function to send SMS using Textbelt API
+        async function sendSMS(phoneNumber, message) {
+            try {
+                console.log('Sending SMS to:', phoneNumber, 'Message:', message);
+                
+                // Create a form and submit it to bypass CORS
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'https://textbelt.com/text';
+                form.target = 'hiddenFrame';
+                
+                const phoneInput = document.createElement('input');
+                phoneInput.type = 'hidden';
+                phoneInput.name = 'phone';
+                phoneInput.value = phoneNumber;
+                
+                const messageInput = document.createElement('input');
+                messageInput.type = 'hidden';
+                messageInput.name = 'message';
+                messageInput.value = message;
+                
+                const keyInput = document.createElement('input');
+                keyInput.type = 'hidden';
+                keyInput.name = 'key';
+                keyInput.value = '45debba6c3c5d9cad3f4c8ca12acb0b88b985490KTZaeiFqRnvU5RonIZArQHyVA';
+                
+                form.appendChild(phoneInput);
+                form.appendChild(messageInput);
+                form.appendChild(keyInput);
+                
+                // Create hidden iframe to handle response
+                const iframe = document.createElement('iframe');
+                iframe.name = 'hiddenFrame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                // Handle response
+                return new Promise((resolve, reject) => {
+                    iframe.onload = function() {
+                        try {
+                            const responseText = iframe.contentDocument.body.textContent;
+                            const result = JSON.parse(responseText);
+                            
+                            if (result.success) {
+                                console.log('SMS sent successfully! Text ID:', result.textId);
+                                
+                                // Increment messages_sent counter
+                                incrementMessagesSent().then(success => {
+                                    if (success) {
+                                        console.log('Messages sent counter incremented successfully');
+                                    } else {
+                                        console.warn('Failed to increment messages sent counter, but SMS was sent');
+                                    }
+                                });
+                                
+                                resolve({ success: true, textId: result.textId });
+                            } else {
+                                console.error('SMS failed:', result.error);
+                                reject(new Error(result.error));
+                            }
+                        } catch (e) {
+                            console.log('SMS request submitted (response format may vary)');
+                            
+                            // Increment messages_sent counter even if response format varies
+                            incrementMessagesSent().then(success => {
+                                if (success) {
+                                    console.log('Messages sent counter incremented successfully');
+                                } else {
+                                    console.warn('Failed to increment messages sent counter, but SMS was sent');
+                                }
+                            });
+                            
+                            resolve({ success: true });
+                        }
+                        
+                        // Clean up
+                        document.body.removeChild(iframe);
+                    };
+                    
+                    iframe.onerror = function() {
+                        console.error('SMS request failed');
+                        document.body.removeChild(iframe);
+                        reject(new Error('SMS request failed'));
+                    };
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                });
+                
+            } catch (error) {
+                console.error('Error sending SMS:', error);
+                throw error;
+            }
+        }
+        
+        // Function to check if ticket number exists in the database
+        async function checkTicketNumberExists(ticketNumber) {
+            try {
+                const { data, error } = await supabase
+                    .from('fall_formal_orders')
+                    .select('ticket_number')
+                    .eq('ticket_number', ticketNumber)
+                    .maybeSingle();
+                
+                if (error) {
+                    console.error('Error checking ticket number:', error);
+                    return false; // Assume it doesn't exist if there's an error
+                }
+                
+                return data !== null; // If data exists, ticket number is taken
+            } catch (error) {
+                console.error('Error checking ticket number:', error);
+                return false; // Assume it doesn't exist if there's an error
+            }
+        }
+        
+        // Function to generate a unique ticket number
+        async function generateUniqueTicketNumber() {
+            let attempts = 0;
+            const maxAttempts = 100; // Prevent infinite loop
             
-            // For demo purposes, we'll just show the ticket ID
+            while (attempts < maxAttempts) {
+                const ticketNumber = generateTicketNumber();
+                const exists = await checkTicketNumberExists(ticketNumber);
+                
+                if (!exists) {
+                    console.log('Generated unique ticket number:', ticketNumber);
+                    return ticketNumber;
+                }
+                
+                attempts++;
+                console.log(`Ticket number ${ticketNumber} already exists, trying again... (attempt ${attempts})`);
+            }
+            
+            console.error('Failed to generate unique ticket number after', maxAttempts, 'attempts');
+            return null;
+        }
+        
+        // Function to generate ticket number in the background after page load
+        async function generateTicketNumberInBackground() {
+            try {
+                console.log('Generating ticket number in background...');
+                generatedTicketNumber = await generateUniqueTicketNumber();
+                
+                if (generatedTicketNumber) {
+                    console.log('Ticket number generated successfully:', generatedTicketNumber);
+                    // Update the view ticket button with the actual ticket number
+                    const viewTicketButton = document.getElementById('viewTicketButton');
+                    if (viewTicketButton) {
+                        viewTicketButton.textContent = `View Your Ticket (#${generatedTicketNumber})`;
+                    }
+                } else {
+                    console.error('Failed to generate ticket number');
+                }
+            } catch (error) {
+                console.error('Error generating ticket number:', error);
+            }
+        }
+        
+        // Function to format timestamp as "H:MM:SS PM (M/D)"
+        function formatTimestamp() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            
+            // Convert to 12-hour format
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            
+            return `${displayHours}:${minutes}:${seconds} ${ampm} (${month}/${day})`;
+        }
+        
+        // Function to get current user data
+        function getUserData() {
+            const fullName = document.getElementById('fullName')?.value?.trim() || '';
+            const phoneNumber = document.getElementById('phoneNumber')?.value?.replace(/\D/g, '') || '';
+            const timestamp = formatTimestamp();
+            
             return {
-                id: ticketId,
-                valid: true,
-                event: "Fall Formal",
-                date: "November 15, 2024",
-                time: "7:00 PM - 11:00 PM",
-                location: "Duncan Hall"
+                ticket_number: generatedTicketNumber,
+                phone_number: phoneNumber,
+                name: fullName,
+                ticket_type: selectedTicketType,
+                expected_amount: ticketAmount,
+                timestamp: timestamp
             };
         }
-
-        // Initialize the ticket page
-        function initTicketPage() {
-            const ticketId = getTicketIdFromUrl();
+        
+        // Function to save user data to the database
+        async function saveUserData() {
+            if (!generatedTicketNumber) {
+                console.error('No ticket number available to save data');
+                return false;
+            }
             
-            if (!ticketId || !validateTicketId(ticketId)) {
-                showError("Invalid ticket ID");
+            const userData = getUserData();
+            
+            // Check if all required data is available
+            if (!userData.name || !userData.phone_number) {
+                console.error('Missing required user data:', userData);
+                return false;
+            }
+            
+            try {
+                console.log('Saving user data:', userData);
+                console.log(`Expected amount for ${userData.ticket_type} ticket: $${userData.expected_amount}`);
+                
+                // First, check if a record with this ticket number already exists
+                const { data: existingData, error: checkError } = await supabase
+                    .from('fall_formal_orders')
+                    .select('ticket_number')
+                    .eq('ticket_number', generatedTicketNumber)
+                    .maybeSingle();
+                
+                if (checkError) {
+                    console.error('Error checking existing record:', checkError);
+                    return false;
+                }
+                
+                let result;
+                if (existingData) {
+                    // Update existing record
+                    console.log('Updating existing record for ticket number:', generatedTicketNumber);
+                    result = await supabase
+                        .from('fall_formal_orders')
+                        .update({
+                            phone_number: userData.phone_number,
+                            name: userData.name,
+                            ticket_type: userData.ticket_type,
+                            expected_amount: userData.expected_amount,
+                            timestamp: userData.timestamp,
+                            payment_approved: 'pending'
+                        })
+                        .eq('ticket_number', generatedTicketNumber);
+                } else {
+                    // Insert new record
+                    console.log('Inserting new record for ticket number:', generatedTicketNumber);
+                    const userDataWithPaymentStatus = {
+                        ...userData,
+                        payment_approved: 'pending'
+                    };
+                    result = await supabase
+                        .from('fall_formal_orders')
+                        .insert([userDataWithPaymentStatus]);
+                }
+                
+                if (result.error) {
+                    console.error('Error saving user data:', result.error);
+                    return false;
+                }
+                
+                console.log('User data saved successfully');
+                return true;
+            } catch (error) {
+                console.error('Error saving user data:', error);
+                return false;
+            }
+        }
+        
+        // Get the pricing screen and button elements
+        const pricingScreen = document.getElementById('pricingScreen');
+        const howToPayScreen = document.getElementById('howToPayScreen');
+        const nameEntryScreen = document.getElementById('nameEntryScreen');
+        const phoneEntryScreen = document.getElementById('phoneEntryScreen');
+        const verificationScreen = document.getElementById('verificationScreen');
+        const completePaymentScreen = document.getElementById('completePaymentScreen');
+        const continueBtn = document.getElementById('continueBtn');
+        const backButton = document.getElementById('backButton');
+        const coupleTicketBtn = document.getElementById('coupleTicketBtn');
+        const singleTicketBtn = document.getElementById('singleTicketBtn');
+        const backFromHowToPay = document.getElementById('backFromHowToPay');
+        const proceedToPayment = document.getElementById('proceedToPayment');
+        const backFromNameEntry = document.getElementById('backFromNameEntry');
+        const backFromPhoneEntry = document.getElementById('backFromPhoneEntry');
+        const backFromVerification = document.getElementById('backFromVerification');
+        const backFromCompletePayment = document.getElementById('backFromCompletePayment');
+        const launchVenmo = document.getElementById('launchVenmo');
+
+        // Show pricing screen when "Yes" button is clicked
+        continueBtn.addEventListener('click', function() {
+            pricingScreen.style.display = 'block';
+        });
+
+        // Hide pricing screen when back button is clicked
+        backButton.addEventListener('click', function() {
+            pricingScreen.style.display = 'none';
+        });
+
+        // Show How To Pay screen when either ticket button is clicked
+        coupleTicketBtn.addEventListener('click', function() {
+            selectedTicketType = 'couple';
+            ticketAmount = 15;
+            pricingScreen.style.display = 'none';
+            howToPayScreen.style.display = 'block';
+            
+            // If user has reached payment screen before, mark that data needs updating
+            if (hasReachedPaymentScreen) {
+                console.log('Ticket type changed to couple after reaching payment screen - data will be updated');
+            }
+        });
+
+        singleTicketBtn.addEventListener('click', function() {
+            selectedTicketType = 'single';
+            ticketAmount = 10;
+            pricingScreen.style.display = 'none';
+            howToPayScreen.style.display = 'block';
+            
+            // If user has reached payment screen before, mark that data needs updating
+            if (hasReachedPaymentScreen) {
+                console.log('Ticket type changed to single after reaching payment screen - data will be updated');
+            }
+        });
+
+        // Hide How To Pay screen when back button is clicked
+        backFromHowToPay.addEventListener('click', function() {
+            howToPayScreen.style.display = 'none';
+            pricingScreen.style.display = 'block';
+        });
+
+        // Show Name Entry screen when Continue button is clicked from How To Pay
+        proceedToPayment.addEventListener('click', function() {
+            howToPayScreen.style.display = 'none';
+            nameEntryScreen.style.display = 'block';
+        });
+
+        // Hide Name Entry screen when back button is clicked
+        backFromNameEntry.addEventListener('click', function() {
+            nameEntryScreen.style.display = 'none';
+            howToPayScreen.style.display = 'block';
+        });
+
+        // Hide Phone Entry screen when back button is clicked
+        backFromPhoneEntry.addEventListener('click', function() {
+            phoneEntryScreen.style.display = 'none';
+            nameEntryScreen.style.display = 'block';
+        });
+
+        // Hide Verification screen when back button is clicked
+        backFromVerification.addEventListener('click', function() {
+            verificationScreen.style.display = 'none';
+            phoneEntryScreen.style.display = 'block';
+        });
+
+        // Hide Complete Payment screen when back button is clicked
+        backFromCompletePayment.addEventListener('click', function() {
+            completePaymentScreen.style.display = 'none';
+            verificationScreen.style.display = 'block';
+        });
+        
+        // Function to handle when user reaches complete payment screen (for updates)
+        function handleCompletePaymentScreenShow() {
+            // Save/update user data when reaching complete payment screen
+            saveUserData().then(success => {
+                if (success) {
+                    console.log('User data updated successfully when reaching payment screen');
+                } else {
+                    console.error('Failed to update user data');
+                }
+            });
+            
+            // Start monitoring payment status as soon as payment screen is shown
+            startPaymentStatusMonitoring();
+        }
+
+        // Handle Venmo launch button
+        launchVenmo.addEventListener('click', function() {
+            showVenmoPopup();
+        });
+
+        // Show Venmo popup
+        function showVenmoPopup() {
+            const popup = document.getElementById('venmoPopupOverlay');
+            if (popup) {
+                popup.style.display = 'flex';
+            }
+        }
+
+        // Close Venmo popup
+        function closeVenmoPopup() {
+            const popup = document.getElementById('venmoPopupOverlay');
+            if (popup) {
+                popup.style.display = 'none';
+            }
+        }
+
+        // Launch Venmo with proper link
+        function launchVenmoApp() {
+            const ticketNumber = generatedTicketNumber || '42821';
+            const venmoUrl = `venmo://paycharge?txn=pay&recipients=duncanoffcampus&amount=${ticketAmount}&note=Fall%20Formal%20(%23${ticketNumber})`;
+            window.location.href = venmoUrl;
+        }
+
+        // Show payment received screen
+        function showPaymentReceivedScreen() {
+            const completePaymentScreen = document.getElementById('completePaymentScreen');
+            const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
+            
+            completePaymentScreen.style.display = 'none';
+            paymentReceivedScreen.style.display = 'block';
+        }
+
+        // Start monitoring payment status
+        function startPaymentStatusMonitoring() {
+            if (!generatedTicketNumber) {
+                console.error('No ticket number available for payment monitoring');
                 return;
             }
 
-            const ticketDetails = generateTicketDetails(ticketId);
+            console.log('Starting payment status monitoring for ticket:', generatedTicketNumber);
             
-            if (ticketDetails.valid) {
-                showValidTicket(ticketDetails);
+            // Check payment status every second
+            const interval = setInterval(async () => {
+                try {
+                    const { data, error } = await supabase
+                        .from('fall_formal_orders')
+                        .select('payment_approved')
+                        .eq('ticket_number', generatedTicketNumber)
+                        .single();
+                    
+                    if (error) {
+                        console.error('Error checking payment status:', error);
+                        return;
+                    }
+                    
+                    if (data && data.payment_approved === 'approved') {
+                        console.log('Payment approved! Showing confirmation screen.');
+                        clearInterval(interval);
+                        showPaymentReceivedScreen();
+                    }
+                } catch (error) {
+                    console.error('Error in payment status monitoring:', error);
+                }
+            }, 1000); // Check every second
+        }
+
+        // Name handling functions
+        function handleNameSubmit(event) {
+            event.preventDefault();
+            const fullName = document.getElementById('fullName').value.trim();
+            
+            // Check if there's a space and at least 2 characters after it (last name)
+            const nameParts = fullName.split(' ');
+            const hasLastName = nameParts.length >= 2 && nameParts[nameParts.length - 1].length >= 2;
+            
+            if (hasLastName) {
+                // Store name (in a real app, this would be sent to a server)
+                console.log('Name submitted:', fullName);
+                
+                // Show phone entry screen
+                nameEntryScreen.style.display = 'none';
+                phoneEntryScreen.style.display = 'block';
             } else {
-                showError("Ticket not found or invalid");
+                alert('Please enter your first and last name (last name must be at least 2 characters)');
             }
         }
 
-        function showValidTicket(details) {
-            document.getElementById('ticketId').textContent = `Ticket #${details.id}`;
-            document.getElementById('ticketStatus').textContent = "✓ Valid Ticket";
-            document.getElementById('ticketStatus').style.color = "#4CAF50";
+        // Phone number handling functions
+        async function handlePhoneSubmit(event) {
+            event.preventDefault();
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const submitButton = document.getElementById('submitPhoneButton');
+            
+            // Basic phone number validation
+            const phoneRegex = /^[\d\s\(\)\-]{10,14}$/;
+            const cleanPhone = phoneNumber.replace(/\D/g, '');
+            
+            if (cleanPhone.length === 10) {
+                // Disable button and show loading state
+                submitButton.disabled = true;
+                submitButton.textContent = 'Sending...';
+                
+                try {
+                    // Store phone number (in a real app, this would be sent to a server)
+                    console.log('Phone number submitted:', cleanPhone);
+                    
+                    if (SKIP_OTP) {
+                        // Skip OTP verification - go directly to complete payment screen
+                        console.log('Skipping OTP verification - going directly to payment screen');
+                        
+                        // Show complete payment screen
+                        phoneEntryScreen.style.display = 'none';
+                        completePaymentScreen.style.display = 'block';
+                        
+                        // Handle data saving/updating when reaching payment screen
+                        handleCompletePaymentScreenShow();
+                        hasReachedPaymentScreen = true;
+                        
+                        // Update fallback text with correct amount and ticket number
+                        const fallbackText = document.getElementById('fallbackText');
+                        if (fallbackText) {
+                            const ticketNumber = generatedTicketNumber || '42821';
+                            fallbackText.innerHTML = `Simply Venmo $${ticketAmount} to @DuncanOffCampus <br>with message "Fall Formal (#${ticketNumber})". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.`;
+                        }
+                        
+                        // Update copy content with correct amount and ticket number
+                        const venmoMessageContent = document.getElementById('venmoMessageContent');
+                        if (venmoMessageContent) {
+                            const ticketNumber = generatedTicketNumber || '42821';
+                            venmoMessageContent.textContent = `Fall Formal (#${ticketNumber})`;
+                        }
+                        
+                        // Update complete payment description with correct amount
+                        const completePaymentDescription = document.getElementById('completePaymentDescription');
+                        if (completePaymentDescription) {
+                            completePaymentDescription.innerHTML = `Clicking the button below will launch Venmo with a pre-populated note and the $${ticketAmount} amount. Please do not modify these values. <strong><u>You will receive a text with your ticket once we confirm your Venmo payment.</u></strong>`;
+                        }
+                        
+                        // Re-enable button
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Send Verification Code';
+                    } else {
+                        // Normal OTP flow
+                        // Generate verification code
+                        verificationCode = generateVerificationCode();
+                        console.log('Generated verification code:', verificationCode);
+                        
+                        // Create SMS message
+                        const message = `${verificationCode} is your Fall Formal verification code.`;
+                        
+                        // Send SMS
+                        await sendSMS(cleanPhone, message);
+                        
+                        // Update verification description with formatted phone number
+                        const verificationDescription = document.getElementById('verificationDescription');
+                        verificationDescription.textContent = `We texted a code to ${phoneNumber}`;
+                        
+                        // Clear the verification input
+                        const verificationInput = document.getElementById('verificationCode');
+                        verificationInput.value = '';
+                        validateVerificationCode();
+                        
+                        // Show verification screen
+                        phoneEntryScreen.style.display = 'none';
+                        verificationScreen.style.display = 'block';
+                        
+                        // Re-enable button
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Send Verification Code';
+                    }
+                    
+                } catch (error) {
+                    console.error('Failed to send SMS:', error);
+                    showErrorMessage('Failed to send verification code. Please try again.', 'verificationErrorMessage');
+                    
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Send Verification Code';
+                }
+            } else {
+                showErrorMessage('Please enter a valid 10-digit phone number', 'phoneErrorMessage');
+            }
         }
 
-        function showError(message) {
-            document.getElementById('ticketId').textContent = "Invalid Ticket";
-            document.getElementById('ticketStatus').textContent = message;
-            document.getElementById('ticketStatus').style.color = "#ff6b6b";
-            document.getElementById('ticketDetails').innerHTML = `
-                <p>This ticket ID is not valid or has expired.</p>
-                <p>Please contact support if you believe this is an error.</p>
-            `;
+        function handleVerificationSubmit(event) {
+            event.preventDefault();
+            const enteredCode = document.getElementById('verificationCode').value;
+            
+            // Basic verification code validation
+            if (enteredCode.length === 6 && /^\d{6}$/.test(enteredCode)) {
+                // Check if the entered code matches the generated code
+                if (enteredCode === verificationCode) {
+                    // Store verification code (in a real app, this would be sent to a server)
+                    console.log('Verification code submitted and verified:', enteredCode);
+                    
+                    // Show complete payment screen
+                    verificationScreen.style.display = 'none';
+                    completePaymentScreen.style.display = 'block';
+                    
+                    // Handle data saving/updating when reaching payment screen
+                    handleCompletePaymentScreenShow();
+                    hasReachedPaymentScreen = true;
+                    
+                    // Update fallback text with correct amount and ticket number
+                    const fallbackText = document.getElementById('fallbackText');
+                    if (fallbackText) {
+                        const ticketNumber = generatedTicketNumber || '42821';
+                        fallbackText.innerHTML = `Simply Venmo $${ticketAmount} to @DuncanOffCampus <br>with message "Fall Formal (#${ticketNumber})". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.`;
+                    }
+                    
+                    // Update copy content with correct amount and ticket number
+                    const venmoMessageContent = document.getElementById('venmoMessageContent');
+                    if (venmoMessageContent) {
+                        const ticketNumber = generatedTicketNumber || '42821';
+                        venmoMessageContent.textContent = `Fall Formal (#${ticketNumber})`;
+                    }
+                    
+                    // Update complete payment description with correct amount
+                    const completePaymentDescription = document.getElementById('completePaymentDescription');
+                    if (completePaymentDescription) {
+                        completePaymentDescription.innerHTML = `Clicking the button below will launch Venmo with a pre-populated note and the $${ticketAmount} amount. Please do not modify these values. <strong><u>You will receive a text with your ticket once we confirm your Venmo payment.</u></strong>`;
+                    }
+                } else {
+                    showErrorMessage('Invalid verification code. Please check the code sent to your phone.', 'verificationErrorMessage');
+                }
+            } else {
+                showErrorMessage('Please enter a valid 6-digit verification code', 'verificationErrorMessage');
+            }
         }
 
-        // Initialize when page loads
-        window.addEventListener('load', initTicketPage);
+        // Phone number formatting - only format on blur to prevent cursor jumping
+        function formatPhoneNumber(input) {
+            let value = input.value.replace(/\D/g, '');
+            
+            // Handle 11-digit numbers (like 1XXXXXXXXXX) by stripping the first digit
+            if (value.length === 11 && value.startsWith('1')) {
+                value = value.slice(1); // Remove the first '1'
+            }
+            
+            let formattedValue = '';
+            if (value.length >= 6) {
+                formattedValue = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+            } else if (value.length >= 3) {
+                formattedValue = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+            } else if (value.length > 0) {
+                formattedValue = `(${value}`;
+            }
+            
+            input.value = formattedValue;
+        }
+
+        function validatePhoneNumber() {
+            const phoneInput = document.getElementById('phoneNumber');
+            const submitButton = document.getElementById('submitPhoneButton');
+            const phoneNumber = phoneInput.value.replace(/\D/g, '');
+            
+            if (phoneNumber.length === 10) {
+                submitButton.disabled = false;
+                // Dismiss keyboard after 10th digit
+                phoneInput.blur();
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        function validateName() {
+            const nameInput = document.getElementById('fullName');
+            const submitButton = document.getElementById('submitNameButton');
+            const name = nameInput.value.trim();
+            
+            // Check if there's a space and at least 2 characters after it (last name)
+            const nameParts = name.split(' ');
+            const hasLastName = nameParts.length >= 2 && nameParts[nameParts.length - 1].length >= 2;
+            
+            if (hasLastName) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        function validateVerificationCode() {
+            const verificationInput = document.getElementById('verificationCode');
+            const verifyButton = document.getElementById('verifyButton');
+            const verificationCode = verificationInput.value;
+            
+            if (verificationCode.length === 6 && /^\d{6}$/.test(verificationCode)) {
+                verifyButton.disabled = false;
+                // Dismiss keyboard after 6th digit
+                verificationInput.blur();
+            } else {
+                verifyButton.disabled = true;
+            }
+        }
+
+        // Mobile detection function
+        function isMobileDevice() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const screenWidth = window.innerWidth;
+            
+            // Consider it mobile if it's a mobile device OR if screen is small
+            return isMobile || (screenWidth < 768);
+        }
+
+        // Show appropriate screen after device detection
+        function showAppropriateScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mobileDetectionScreen = document.getElementById('mobileDetectionScreen');
+            const appContainer = document.querySelector('.app-container');
+            
+            // Hide loading screen
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
+            }
+            
+            if (isMobileDevice()) {
+                // Hide mobile detection screen for mobile users
+                if (mobileDetectionScreen) {
+                    mobileDetectionScreen.style.display = 'none';
+                }
+                if (appContainer) {
+                    appContainer.style.display = 'block';
+                }
+            } else {
+                // Show mobile detection screen for desktop users
+                if (mobileDetectionScreen) {
+                    mobileDetectionScreen.style.display = 'block';
+                }
+                if (appContainer) {
+                    appContainer.style.display = 'none';
+                }
+            }
+        }
+
+        // Add event listeners when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add a small delay to ensure loading screen is visible
+            setTimeout(() => {
+                showAppropriateScreen();
+            }, 100);
+            
+            // Generate ticket number in the background
+            generateTicketNumberInBackground();
+            
+            const nameInput = document.getElementById('fullName');
+            const phoneInput = document.getElementById('phoneNumber');
+            const verificationInput = document.getElementById('verificationCode');
+            
+            // Venmo popup event listeners
+            const venmoPopupButton = document.getElementById('venmoPopupButton');
+            const venmoPopupClose = document.getElementById('venmoPopupClose');
+            const venmoPopupOverlay = document.getElementById('venmoPopupOverlay');
+            
+            if (venmoPopupButton) {
+                venmoPopupButton.addEventListener('click', function() {
+                    closeVenmoPopup();
+                    launchVenmoApp();
+                });
+            }
+            
+            if (venmoPopupClose) {
+                venmoPopupClose.addEventListener('click', function() {
+                    closeVenmoPopup();
+                });
+            }
+            
+            if (venmoPopupOverlay) {
+                venmoPopupOverlay.addEventListener('click', function(e) {
+                    if (e.target === venmoPopupOverlay) {
+                        closeVenmoPopup();
+                    }
+                });
+            }
+
+            // Payment received screen event listeners
+            const viewTicketButton = document.getElementById('viewTicketButton');
+            
+            if (viewTicketButton) {
+                viewTicketButton.addEventListener('click', function() {
+                    // Navigate to the unique ticket page
+                    const ticketNumber = generatedTicketNumber || '11111';
+                    window.location.href = `/ticket/${ticketNumber}`;
+                });
+            }
+            
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    validateName();
+                    // If user has reached payment screen before, mark that data needs updating
+                    if (hasReachedPaymentScreen) {
+                        console.log('Name changed after reaching payment screen - data will be updated');
+                    }
+                });
+                // Validate pre-populated name on page load
+                validateName();
+            }
+            
+            if (phoneInput) {
+                // Only validate on input, format on blur to prevent cursor jumping
+                phoneInput.addEventListener('input', function() {
+                    validatePhoneNumber();
+                    
+                    // If user has reached payment screen before, mark that data needs updating
+                    if (hasReachedPaymentScreen) {
+                        console.log('Phone number changed after reaching payment screen - data will be updated');
+                    }
+                    
+                    // Check if autofill happened (10 or 11 digits)
+                    const value = this.value.replace(/\D/g, '');
+                    if (value.length === 10 || (value.length === 11 && value.startsWith('1'))) {
+                        // Hide keyboard by blurring the input
+                        setTimeout(() => {
+                            this.blur();
+                        }, 100); // Small delay to ensure autofill is complete
+                    }
+                });
+                
+                // Validate pre-populated phone number on page load
+                validatePhoneNumber();
+                
+                // Format when user finishes typing (blur event)
+                phoneInput.addEventListener('blur', function() {
+                    formatPhoneNumber(this);
+                    validatePhoneNumber();
+                });
+                
+                // Handle paste events to strip 11-digit numbers
+                phoneInput.addEventListener('paste', function(e) {
+                    setTimeout(() => {
+                        formatPhoneNumber(this);
+                        validatePhoneNumber();
+                    }, 0);
+                });
+            }
+
+            if (verificationInput) {
+                verificationInput.addEventListener('input', function() {
+                    validateVerificationCode();
+                });
+                
+                // Handle automatic code detection from SMS
+                verificationInput.addEventListener('paste', function(e) {
+                    // Allow the paste to complete, then validate
+                    setTimeout(() => {
+                        validateVerificationCode();
+                    }, 0);
+                });
+                
+                // Handle automatic code detection from iOS
+                verificationInput.addEventListener('change', function() {
+                    validateVerificationCode();
+                });
+                
+                // Validate pre-populated verification code on page load
+                validateVerificationCode();
+            }
+        });
+
+        // Copy to clipboard function
+        function copyToClipboard(text, copyBox) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Hide the original content and label, show "Text Copied"
+                const content = copyBox.querySelector('.copy-content');
+                const label = copyBox.querySelector('.copy-label');
+                const feedback = copyBox.querySelector('.copy-feedback');
+                
+                content.classList.add('hidden');
+                label.classList.add('hidden');
+                feedback.classList.add('show');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                    content.classList.remove('hidden');
+                    label.classList.remove('hidden');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                // Show feedback even for fallback
+                const content = copyBox.querySelector('.copy-content');
+                const label = copyBox.querySelector('.copy-label');
+                const feedback = copyBox.querySelector('.copy-feedback');
+                
+                content.classList.add('hidden');
+                label.classList.add('hidden');
+                feedback.classList.add('show');
+                
+                setTimeout(() => {
+                    feedback.classList.remove('show');
+                    content.classList.remove('hidden');
+                    label.classList.remove('hidden');
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>

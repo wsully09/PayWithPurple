@@ -8,5 +8,5 @@
 
 [[redirects]]
   from = "/ticket/*"
-  to = "/ticket.html"
+  to = "/.netlify/functions/create-ticket"
   status = 200
