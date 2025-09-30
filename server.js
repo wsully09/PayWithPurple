@@ -690,7 +690,7 @@ app.get('/admin', (req, res) => {
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
-app.use('/favicons', express.static(path.join(__dirname, 'favicons')));
+app.use('/favicons', express.static(path.join(__dirname, 'favicons2')));
 app.use(express.static(path.join(__dirname, '.'), {
     // Only serve files with these extensions as static files
     setHeaders: (res, path) => {
