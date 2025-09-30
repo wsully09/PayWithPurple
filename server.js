@@ -293,12 +293,16 @@ app.get('/ticket/:id', async (req, res) => {
                 body {
                     height: 100vh;
                     background-color: #000000; /* Black background */
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                    padding-top: 20px;
                 }
 
                 .container {
                     background-color: white;
-                    margin: 20px;
-                    padding: 20px;
+                    margin: 0;
+                    padding: 20px 20px 0px 20px;
                     max-width: 400px;
                     width: calc(100% - 40px);
                     height: 550px;
@@ -424,9 +428,9 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .share-button {
-                    background: #2c5530;
-                    color: white;
-                    border: none;
+                    background: white;
+                    color: black;
+                    border: 1px solid #ccc;
                     padding: 12px 24px;
                     border-radius: 6px;
                     font-size: 14px;
@@ -435,7 +439,7 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .share-button:hover {
-                    background: #1e3a22;
+                    background: #f5f5f5;
                 }
 
                 .copy-feedback {
@@ -448,6 +452,12 @@ app.get('/ticket/:id', async (req, res) => {
                     display: none;
                     margin-top: 10px;
                 }
+
+                @media (max-width: 768px) {
+                    .copy-feedback {
+                        display: none !important;
+                    }
+                }
             </style>
         </head>
         <body>
@@ -456,7 +466,9 @@ app.get('/ticket/:id', async (req, res) => {
                     <!--in top left corner-->
                     <div flex column class="brand-section">
                         <div class="brand">${eventConfig.brand_name}</div>
-                        <div class="address">${eventConfig.event_address}</div>
+                        <div class="address">
+                            <a href="https://m.uber.com/looking/?pickup=my_location&drop[0]=%7B%22latitude%22%3A41.676667%2C%22longitude%22%3A-86.238611%2C%22addressLine1%22%3A%22825%20E%20Washington%20St%22%2C%22addressLine2%22%3A%22South%20Bend%2C%20IN%2046617%22%7D" target="_blank" style="color: #747474; text-decoration: underline;">${eventConfig.event_address}</a>
+                        </div>
                     </div>
                     <!--in top right corner, flex column-->
                     <div flex column class="ticket-info">
