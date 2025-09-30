@@ -149,8 +149,8 @@ app.get('/ticket/:id', async (req, res) => {
                 width: 200,
                 margin: 2,
                 color: {
-                    dark: '#FFFFFF',
-                    light: '#000000'
+                    dark: '#000000',
+                    light: '#FFFFFF'
                 }
             });
         } catch (qrError) {
@@ -158,9 +158,9 @@ app.get('/ticket/:id', async (req, res) => {
             // Fallback: create a simple text-based QR placeholder
             qrCodeDataURL = 'data:image/svg+xml;base64,' + Buffer.from(`
                 <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="200" height="200" fill="transparent"/>
-                    <text x="100" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="16">QR Code</text>
-                    <text x="100" y="120" text-anchor="middle" fill="white" font-family="Arial" font-size="12">${ticketId}</text>
+                    <rect width="200" height="200" fill="white"/>
+                    <text x="100" y="100" text-anchor="middle" fill="black" font-family="Arial" font-size="16">QR Code</text>
+                    <text x="100" y="120" text-anchor="middle" fill="black" font-family="Arial" font-size="12">${ticketId}</text>
                 </svg>
             `).toString('base64');
         }
@@ -195,7 +195,7 @@ app.get('/ticket/:id', async (req, res) => {
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background-image: url('noise-light.png');
+                    background-image: url('/noise-light.png');
                     background-repeat: repeat;
                     opacity: 0.3;
                     pointer-events: none;
@@ -262,12 +262,8 @@ app.get('/ticket/:id', async (req, res) => {
                     height: 200px;
                     margin: 0 auto 20px;
                     border-radius: 12px;
-                    background: transparent;
-                    padding: 10px;
-                }
-                
-                .qr-code img {
-                    mix-blend-mode: screen;
+                    background: white;
+                    padding: 20px;
                 }
 
                 .ticket-details {
@@ -283,25 +279,6 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .share-button {
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    border: none;
-                    color: white;
-                    padding: 15px 30px;
-                    border-radius: 25px;
-                    font-size: 16px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    width: 100%;
-                    margin-bottom: 10px;
-                }
-
-                .share-button:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-                }
-
-                .back-button {
                     background: linear-gradient(135deg, #ffffff, #f8f8f8);
                     border: 2px solid rgba(255, 255, 255, 0.8);
                     color: #333;
@@ -311,13 +288,11 @@ app.get('/ticket/:id', async (req, res) => {
                     font-weight: 600;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    text-decoration: none;
-                    display: inline-block;
                     width: 100%;
-                    text-align: center;
+                    margin-bottom: 10px;
                 }
 
-                .back-button:hover {
+                .share-button:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
                 }
@@ -364,22 +339,12 @@ app.get('/ticket/:id', async (req, res) => {
                         </div>
                     </div>
                     
-                    <div class="ticket-details">
-                        <p><strong>Date:</strong> ${ticket.date || 'November 15, 2024'}</p>
-                        <p><strong>Time:</strong> ${ticket.time || '7:00 PM - 11:00 PM'}</p>
-                        <p><strong>Location:</strong> ${ticket.location || 'Duncan Hall'}</p>
-                        <p><strong>Price:</strong> ${ticket.price || '$12'}</p>
-                        <p><strong>Status:</strong> ${ticket.payment_approved || 'pending'}</p>
-                    </div>
-                    
                     <div class="share-section">
                         ${ticket.ticket_type === 'couple' ? `
                             <button class="share-button" onclick="shareTicket()">Share Ticket With Date</button>
                         ` : ''}
                         <div class="copy-feedback" id="copyFeedback">Ticket Link Copied!</div>
                     </div>
-                    
-                    <a href="/" class="back-button">Back to Home</a>
                 </div>
             </div>
 
@@ -392,8 +357,6 @@ app.get('/ticket/:id', async (req, res) => {
                         // Mobile sharing
                         if (navigator.share) {
                             navigator.share({
-                                title: 'Fall Formal Ticket',
-                                text: 'Check out my Fall Formal ticket!',
                                 url: ticketUrl
                             }).catch(err => {
                                 console.log('Error sharing:', err);
