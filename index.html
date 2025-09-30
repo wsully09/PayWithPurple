@@ -3,134 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purple</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+    <title>Duncan Compound</title>
     
+    <!-- Favicon Configuration -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons3/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons3/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons3/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicons3/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="favicons3/android-chrome-512x512.png">
+    
+   
 
-
-    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
-    <link rel="manifest" href="favicons/site.webmanifest">
     <style>
+
         :root {
-            --purple: #7628ce;
-        }
+            --blue: #143268;
+            --white: #fff;
+            --background: #e8dfd0;
+            --light-gray: #f7f7f7;
+            --black: black;
+            --light-blue: #568cba;
 
-        ::selection {
-            background-color: white;
-            color: var(--purple);
         }
-
-        ::-moz-selection {
-            background-color: white;
-            color: var(--purple);
-        }
-        
         body {
             margin: 0;
-            padding: 0;
-            background-color: var(--purple);
-            background-image: url('noise-light copy.png');
-            background-repeat: repeat;
-            background-size: auto;
-            background-attachment: fixed;
-      
-            font-family: "Inter", sans-serif;
+            
+            display: flex;
+            justify-content: center;
+           
+            background-color: var(--background);
 
         }
-        
-        .try-button {
+
+        /* Loading Animation Styles */
+        .loading-container {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: white;
-            color: var(--purple);
-            border: none;
-            padding: 10px 20px;
-            font-size: 13px;
-            border-radius: 4px;
-            box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.2s ease;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        
-        .try-button:hover {
-            transform: scale(1.02);
-          
+
+        .loading-container img{
+            filter: brightness(0.8);
+        }
+
+        .logo-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .logo {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            font-family: "Inter", sans-serif;
-            text-decoration: none;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            animation: pulse 2s ease-in-out forwards;
         }
 
-        .hero-text{
-            font-family: "Literata", serif;
-            font-size: 34px;
-            color: white;
-            text-align: center;
-            margin-top: 300px;
-            line-height: 1.2;
-
-        }
-        .hero-text span {
-            font-style: italic;
-            font-size: 35px;
-        }
-
-
-        .subtitle {
-            font-family: "Inter", sans-serif;
-            font-size: 17px;
-            color: white;
-            text-align: center;
-            margin-top: 20px;
-            line-height: 1.4;
-            opacity: 0.9;
+        @keyframes pulse {
+            0% {
+                transform: scale(0.5);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
-        .cta-button {
-            display: block;
-            margin: 40px auto 0;
-            background-color: white;
-            color: var(--purple);
-            border: none;
-            padding: 13px 50px;
-            font-size: 16px;
-            border-radius: 6px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            font-weight: 600;
-            font-family: "Inter", sans-serif;
-            transition: all 0.3s ease;
-        }
         
-        .cta-button:hover {
-            transform: scale(1.02);
-           
-        }
 
-       
     </style>
 </head>
 <body>
-    <div class="logo">Purple</div>
-    <button class="try-button" onclick="window.location.href='pay.html'">Use For Free Now</button>
-    <div class="hero-text">"Venmo for Business" with <span>zero</span> transaction fees.</div>
-    <div class="subtitle">Easily collect payments in bulk to your personal Venmo and automatically verify who paid.</div>
-    <button class="cta-button" onclick="window.location.href='pay.html'">Use For Free Now</button>
+    <!-- Loading Animation -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo" class="logo">
+        </div>
+    </div>
 
-    
+
+    <script>
+        // The logo will stay visible with the loading animation
+        // No need to hide the loading container
+    </script>
 </body>
 </html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purple</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+    
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+    <link rel="manifest" href="favicons/site.webmanifest">
+    <style>
+        :root {
+            --purple: #7628ce;
+        }
+
+        ::selection {
+            background-color: white;
+            color: var(--purple);
+        }
+
+        ::-moz-selection {
+            background-color: white;
+            color: var(--purple);
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--purple);
+            background-image: url('noise-light copy.png');
+            background-repeat: repeat;
+            background-size: auto;
+            background-attachment: fixed;
+      
+            font-family: "Inter", sans-serif;
+
+        }
+        
+        .try-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: white;
+            color: var(--purple);
+            border: none;
+            padding: 10px 20px;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+        }
+        
+        .try-button:hover {
+            transform: scale(1.02);
+          
+        }
+
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            font-family: "Inter", sans-serif;
+            text-decoration: none;
+        }
+
+        .hero-text{
+            font-family: "Literata", serif;
+            font-size: 34px;
+            color: white;
+            text-align: center;
+            margin-top: 300px;
+            line-height: 1.2;
+
+        }
+        .hero-text span {
+            font-style: italic;
+            font-size: 35px;
+        }
+
+
+        .subtitle {
+            font-family: "Inter", sans-serif;
+            font-size: 17px;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.4;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: block;
+            margin: 40px auto 0;
+            background-color: white;
+            color: var(--purple);
+            border: none;
+            padding: 13px 50px;
+            font-size: 16px;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.02);
+           
+        }
+
+       
+    </style>
+</head>
+<body>
+    <div class="logo">Purple</div>
+    <button class="try-button" onclick="window.location.href='pay.html'">Use For Free Now</button>
+    <div class="hero-text">"Venmo for Business" with <span>zero</span> transaction fees.</div>
+    <div class="subtitle">Easily collect payments in bulk to your personal Venmo and automatically verify who paid.</div>
+    <button class="cta-button" onclick="window.location.href='pay.html'">Use For Free Now</button>
+
+    
+</body>
+</html>
