@@ -431,7 +431,6 @@ app.get('/ticket/:id', async (req, res) => {
                 .share-button {
                     background: white;
                     color: black;
-                    border: 1px solid #ccc;
                     padding: 12px 24px;
                     border-radius: 25px;
                     font-size: 14px;
@@ -443,22 +442,6 @@ app.get('/ticket/:id', async (req, res) => {
                     background: #f5f5f5;
                 }
 
-                .copy-feedback {
-                    background: #4CAF50;
-                    color: white;
-                    padding: 8px;
-                    border-radius: 4px;
-                    text-align: center;
-                    font-size: 12px;
-                    display: none;
-                    margin-top: 10px;
-                }
-
-                @media (max-width: 768px) {
-                    .copy-feedback {
-                        display: none !important;
-                    }
-                }
             </style>
         </head>
         <body>
@@ -504,8 +487,7 @@ app.get('/ticket/:id', async (req, res) => {
             
             ${ticket.ticket_type === 'couple' ? `
                 <div class="share-section">
-                    <button class="share-button" onclick="shareTicket()">Share Ticket With Date</button>
-                    <div class="copy-feedback" id="copyFeedback">Ticket Link Copied!</div>
+                    <button class="share-button" id="shareButton" onclick="shareTicket()">Share Ticket With Date</button>
                 </div>
             ` : ''}
 
@@ -534,10 +516,11 @@ app.get('/ticket/:id', async (req, res) => {
                 
                 function copyToClipboard(text) {
                     navigator.clipboard.writeText(text).then(() => {
-                        const feedback = document.getElementById('copyFeedback');
-                        feedback.style.display = 'block';
+                        const button = document.getElementById('shareButton');
+                        const originalText = button.textContent;
+                        button.textContent = 'Ticket Link Copied!';
                         setTimeout(() => {
-                            feedback.style.display = 'none';
+                            button.textContent = originalText;
                         }, 2000);
                     }).catch(err => {
                         console.log('Error copying to clipboard:', err);
@@ -549,10 +532,11 @@ app.get('/ticket/:id', async (req, res) => {
                         document.execCommand('copy');
                         document.body.removeChild(textArea);
                         
-                        const feedback = document.getElementById('copyFeedback');
-                        feedback.style.display = 'block';
+                        const button = document.getElementById('shareButton');
+                        const originalText = button.textContent;
+                        button.textContent = 'Ticket Link Copied!';
                         setTimeout(() => {
-                            feedback.style.display = 'none';
+                            button.textContent = originalText;
                         }, 2000);
                     });
                 }
