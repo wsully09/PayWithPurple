@@ -5,7 +5,6 @@ const path = require('path');
 const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
 const QRCode = require('qrcode');
-const { runAutoApproval } = require('./auto-approve');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -687,10 +686,6 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-app.get('/manual-approve', (req, res) => {
-    res.sendFile(path.join(__dirname, 'manual-approve.html'));
-});
-
 // Serve static files for specific assets only (CSS, JS, images, etc.)
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
@@ -756,9 +751,4 @@ app.listen(PORT, () => {
     console.log(`Railway ticket generator: http://localhost:${PORT}/ticket-generator-railway`);
     console.log(`Send page: http://localhost:${PORT}/send`);
     console.log(`QR Scanner: http://localhost:${PORT}/qr-code-scanner`);
-    console.log(`Manual approval: http://localhost:${PORT}/manual-approve`);
-    
-    // Start auto-approval process
-    console.log('Starting auto-approval process...');
-    runAutoApproval().catch(console.error);
 });
