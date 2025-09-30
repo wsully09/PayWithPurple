@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -244,8 +245,22 @@ app.get('/qr-code-scanner', (req, res) => {
     res.sendFile(path.join(__dirname, 'qr-code-scanner.html'));
 });
 
-// Serve static files AFTER all routes (this ensures pretty URLs work)
-app.use(express.static('.'));
+// Serve static files for specific assets only (CSS, JS, images, etc.)
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/favicons', express.static(path.join(__dirname, 'favicons')));
+app.use(express.static(path.join(__dirname, '.'), {
+    // Only serve files with these extensions as static files
+    setHeaders: (res, path) => {
+        if (path.endsWith('.css') || path.endsWith('.js') || path.endsWith('.png') || 
+            path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.gif') || 
+            path.endsWith('.svg') || path.endsWith('.ico') || path.endsWith('.woff') || 
+            path.endsWith('.woff2') || path.endsWith('.ttf') || path.endsWith('.eot')) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+        }
+    }
+}));
 
 // Catch-all handler for any remaining routes (fallback to index.html for SPA behavior)
 app.get('*', (req, res) => {
@@ -253,6 +268,37 @@ app.get('*', (req, res) => {
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'API endpoint not found' });
     }
+    
+    // Check if it's a request for a static file that doesn't exist
+    const filePath = path.join(__dirname, req.path);
+    const ext = path.extname(req.path);
+    
+    // If it has an extension and the file doesn't exist, return 404
+    if (ext && !fs.existsSync(filePath)) {
+        return res.status(404).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>404 - File Not Found</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        text-align: center; 
+                        padding: 50px;
+                        background-color: #0e140b;
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>404 - File Not Found</h1>
+                <p>The requested file could not be found.</p>
+                <a href="/" style="color: white;">Back to Home</a>
+            </body>
+            </html>
+        `);
+    }
+    
     // For all other routes, serve index.html (useful for client-side routing)
     res.sendFile(path.join(__dirname, 'index.html'));
 });
