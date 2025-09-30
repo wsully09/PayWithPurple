@@ -292,12 +292,7 @@ app.get('/ticket/:id', async (req, res) => {
 
                 body {
                     height: 100vh;
-                    background-color: #12271d; /* Dark green background */
-                    background-image: url('/noise-light.png');
-                    background-size: 200px 200px;
-                    background-repeat: repeat;
-                    background-blend-mode: overlay;
-                    opacity: 0.8;
+                    background-color: #000000; /* Black background */
                 }
 
                 .container {
@@ -406,14 +401,14 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .qr-code {
-                    width: 120px;
-                    height: 120px;
+                    width: 140px;
+                    height: 140px;
                     border-radius: 8px;
                 }
 
                 .qr-placeholder {
-                    width: 150px;
-                    height: 150px;
+                    width: 170px;
+                    height: 170px;
                     background-color: white;
                     border-radius: 8px;
                     display: flex;
@@ -424,23 +419,19 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .share-section {
-                    position: absolute;
-                    bottom: 10px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: calc(100% - 40px);
+                    margin-top: 20px;
+                    text-align: center;
                 }
 
                 .share-button {
                     background: #2c5530;
                     color: white;
                     border: none;
-                    padding: 8px 16px;
+                    padding: 12px 24px;
                     border-radius: 6px;
-                    font-size: 12px;
+                    font-size: 14px;
                     cursor: pointer;
-                    width: 100%;
-                    margin-bottom: 5px;
+                    margin-bottom: 10px;
                 }
 
                 .share-button:hover {
@@ -450,11 +441,12 @@ app.get('/ticket/:id', async (req, res) => {
                 .copy-feedback {
                     background: #4CAF50;
                     color: white;
-                    padding: 5px;
+                    padding: 8px;
                     border-radius: 4px;
                     text-align: center;
-                    font-size: 10px;
+                    font-size: 12px;
                     display: none;
+                    margin-top: 10px;
                 }
             </style>
         </head>
@@ -495,14 +487,14 @@ app.get('/ticket/:id', async (req, res) => {
                         <img src="${qrCodeDataURL}" alt="QR Code" class="qr-code">
                     </div>
                 </div>
-                
+            </div>
+            
+            ${ticket.ticket_type === 'couple' ? `
                 <div class="share-section">
-                    ${ticket.ticket_type === 'couple' ? `
-                        <button class="share-button" onclick="shareTicket()">Share Ticket With Date</button>
-                    ` : ''}
+                    <button class="share-button" onclick="shareTicket()">Share Ticket With Date</button>
                     <div class="copy-feedback" id="copyFeedback">Ticket Link Copied!</div>
                 </div>
-            </div>
+            ` : ''}
 
             <script>
                 function shareTicket() {
