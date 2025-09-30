@@ -1164,9 +1164,6 @@
             font-style: italic;
         }
 
-        .mobile-link:hover {
-            opacity: 0.8;
-        }
     </style>
 </head>
 <body>
@@ -1183,7 +1180,7 @@
                 <div class="qr-code-placeholder" style="display: none;">QR Code: Scan to open on mobile</div>
             </div>
             <div class="mobile-link">
-                Already on your phone? <a href="https://duncancompound.org/ticket" style="color: white; text-decoration: underline; font-weight: bold;">Click here</a>
+                Already on your phone? <a href="#" id="mobileOverrideLink" style="color: white; text-decoration: underline; font-weight: bold;">Click here</a>
             </div>
         </div>
     </div>
@@ -2243,8 +2240,11 @@
                 loadingScreen.style.display = 'none';
             }
             
-            if (isMobileDevice()) {
-                // Hide mobile detection screen for mobile users
+            // Check for mobile override in localStorage
+            const mobileOverride = localStorage.getItem('mobileOverride') === 'true';
+            
+            if (isMobileDevice() || mobileOverride) {
+                // Hide mobile detection screen for mobile users or when overridden
                 if (mobileDetectionScreen) {
                     mobileDetectionScreen.style.display = 'none';
                 }
@@ -2268,6 +2268,16 @@
             setTimeout(() => {
                 showAppropriateScreen();
             }, 100);
+            
+            // Add click handler for mobile override link
+            const mobileOverrideLink = document.getElementById('mobileOverrideLink');
+            if (mobileOverrideLink) {
+                mobileOverrideLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    localStorage.setItem('mobileOverride', 'true');
+                    showAppropriateScreen();
+                });
+            }
             
             // Generate ticket number in the background
             generateTicketNumberInBackground();
