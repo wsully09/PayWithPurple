@@ -294,8 +294,9 @@ app.get('/ticket/:id', async (req, res) => {
                     height: 100vh;
                     background-color: #000000; /* Black background */
                     display: flex;
-                    justify-content: center;
-                    align-items: flex-start;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    align-items: center;
                     padding-top: 20px;
                 }
 
@@ -432,7 +433,7 @@ app.get('/ticket/:id', async (req, res) => {
                     color: black;
                     border: 1px solid #ccc;
                     padding: 12px 24px;
-                    border-radius: 6px;
+                    border-radius: 25px;
                     font-size: 14px;
                     cursor: pointer;
                     margin-bottom: 10px;
