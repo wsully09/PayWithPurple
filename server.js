@@ -25,20 +25,122 @@ function generateTicketId() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+// Get event configuration from Supabase
+async function getEventConfig() {
+    try {
+        const { data, error } = await supabase
+            .from('event_config')
+            .select('*')
+            .single();
+        
+        if (error) {
+            console.error('Error fetching event config:', error);
+            // Return default config if table doesn't exist or has no data
+            return {
+                event_name: 'Fall Formal',
+                event_date: 'November 15, 2024',
+                event_time: '7:00 PM - 11:00 PM',
+                event_location: 'Duncan Hall',
+                event_price: '$12',
+                event_address: '825 East Washington Street',
+                brand_name: 'Duncan Fall Formal'
+            };
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Error in getEventConfig:', error);
+        // Return default config on error
+        return {
+            event_name: 'Fall Formal',
+            event_date: 'November 15, 2024',
+            event_time: '7:00 PM - 11:00 PM',
+            event_location: 'Duncan Hall',
+            event_price: '$12',
+            event_address: '825 East Washington Street',
+            brand_name: 'Duncan Fall Formal'
+        };
+    }
+}
+
+// Get event configuration
+app.get('/api/event-config', async (req, res) => {
+    try {
+        const config = await getEventConfig();
+        res.json({
+            success: true,
+            config: config
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to retrieve event configuration'
+        });
+    }
+});
+
+// Update event configuration
+app.put('/api/event-config', async (req, res) => {
+    try {
+        const { event_name, event_date, event_time, event_location, event_price, event_address, brand_name } = req.body;
+        
+        // Update or insert the configuration
+        const { data, error } = await supabase
+            .from('event_config')
+            .upsert([{
+                id: 1, // Use a fixed ID for the single config record
+                event_name,
+                event_date,
+                event_time,
+                event_location,
+                event_price,
+                event_address,
+                brand_name,
+                updated_at: new Date().toISOString()
+            }], {
+                onConflict: 'id'
+            });
+        
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to update event configuration'
+            });
+        }
+        
+        res.json({
+            success: true,
+            message: 'Event configuration updated successfully'
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to update event configuration'
+        });
+    }
+});
+
 // Create a new ticket
 app.post('/api/tickets', async (req, res) => {
     try {
         const ticketId = generateTicketId();
+        const eventConfig = await getEventConfig();
+        
         const ticketData = {
             ticket_number: ticketId,
             created_at: new Date().toISOString(),
             status: 'active',
-            event: 'Fall Formal',
-            date: 'November 15, 2024',
-            time: '7:00 PM - 11:00 PM',
-            location: 'Duncan Hall',
-            price: '$12',
-            payment_approved: 'pending'
+            event: eventConfig.event_name,
+            date: eventConfig.event_date,
+            time: eventConfig.event_time,
+            location: eventConfig.event_location,
+            price: eventConfig.event_price,
+            payment_approved: 'pending',
+            name: req.body.name || null,
+            ticket_type: req.body.ticket_type || 'single'
         };
         
         // Save to Supabase database
@@ -142,6 +244,9 @@ app.get('/ticket/:id', async (req, res) => {
             `);
         }
 
+        // Get current event configuration for dynamic display
+        const eventConfig = await getEventConfig();
+
         // Generate QR code for the ticket number
         let qrCodeDataURL;
         try {
@@ -172,7 +277,7 @@ app.get('/ticket/:id', async (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Fall Formal Ticket #${ticketId}</title>
+            <title>${eventConfig.event_name} Ticket #${ticketId}</title>
             <style>
                 :root {
                     --black: #000000;
@@ -358,8 +463,8 @@ app.get('/ticket/:id', async (req, res) => {
                 <div flex row class="header">
                     <!--in top left corner-->
                     <div flex column class="brand-section">
-                        <div class="brand">Duncan Fall Formal</div>
-                        <div class="address">825 East Washington Street</div>
+                        <div class="brand">${eventConfig.brand_name}</div>
+                        <div class="address">${eventConfig.event_address}</div>
                     </div>
                     <!--in top right corner, flex column-->
                     <div flex column class="ticket-info">
@@ -504,6 +609,10 @@ app.get('/qr-code-scanner', (req, res) => {
 
 app.get('/ticket', (req, res) => {
     res.sendFile(path.join(__dirname, 'ticket.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // Serve static files for specific assets only (CSS, JS, images, etc.)

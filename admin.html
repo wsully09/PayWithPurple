@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Configuration Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0e140b;
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4CAF50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+
+        .status.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status.error {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Configuration</h1>
+        
+        <form id="configForm">
+            <div class="form-group">
+                <label for="eventName">Event Name:</label>
+                <input type="text" id="eventName" name="eventName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventDate">Event Date:</label>
+                <input type="text" id="eventDate" name="eventDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventTime">Event Time:</label>
+                <input type="text" id="eventTime" name="eventTime" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventLocation">Event Location:</label>
+                <input type="text" id="eventLocation" name="eventLocation" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventPrice">Event Price:</label>
+                <input type="text" id="eventPrice" name="eventPrice" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="eventAddress">Event Address:</label>
+                <input type="text" id="eventAddress" name="eventAddress" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="brandName">Brand Name:</label>
+                <input type="text" id="brandName" name="brandName" required>
+            </div>
+            
+            <button type="submit" id="submitBtn">Update Configuration</button>
+        </form>
+        
+        <div class="loading" id="loading">Loading current configuration...</div>
+        
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        // Load current configuration
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/event-config');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const config = data.config;
+                    document.getElementById('eventName').value = config.event_name || '';
+                    document.getElementById('eventDate').value = config.event_date || '';
+                    document.getElementById('eventTime').value = config.event_time || '';
+                    document.getElementById('eventLocation').value = config.event_location || '';
+                    document.getElementById('eventPrice').value = config.event_price || '';
+                    document.getElementById('eventAddress').value = config.event_address || '';
+                    document.getElementById('brandName').value = config.brand_name || '';
+                } else {
+                    showStatus('Error loading configuration: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showStatus('Error loading configuration: ' + error.message, 'error');
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 5000);
+        }
+
+        // Handle form submission
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const formData = new FormData(e.target);
+                const config = {
+                    event_name: formData.get('eventName'),
+                    event_date: formData.get('eventDate'),
+                    event_time: formData.get('eventTime'),
+                    event_location: formData.get('eventLocation'),
+                    event_price: formData.get('eventPrice'),
+                    event_address: formData.get('eventAddress'),
+                    brand_name: formData.get('brandName')
+                };
+                
+                const response = await fetch('/api/event-config', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('Configuration updated successfully!', 'success');
+                } else {
+                    showStatus('Error updating configuration: ' + result.error, 'error');
+                }
+                
+            } catch (error) {
+                showStatus('Error updating configuration: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Load configuration on page load
+        document.addEventListener('DOMContentLoaded', loadConfig);
+    </script>
+</body>
+</html>
