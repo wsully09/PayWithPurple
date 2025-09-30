@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,8 +12,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// In-memory storage for tickets (in production, use a database)
-const tickets = new Map();
+// Supabase configuration
+const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhenNya2N2ZWN5bXVqZm1yemV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTIwNzAzNCwiZXhwIjoyMDcwNzgzMDM0fQ.oP2KHilItRH1EZ53-eOY_Ihcyt0Kn-paa1U-jAZnUgo";
+
+// Initialize Supabase client
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Generate random 6-digit ticket ID
 function generateTicketId() {
@@ -20,21 +25,33 @@ function generateTicketId() {
 }
 
 // Create a new ticket
-app.post('/api/tickets', (req, res) => {
+app.post('/api/tickets', async (req, res) => {
     try {
         const ticketId = generateTicketId();
         const ticketData = {
-            id: ticketId,
-            createdAt: new Date().toISOString(),
+            ticket_number: ticketId,
+            created_at: new Date().toISOString(),
             status: 'active',
             event: 'Fall Formal',
             date: 'November 15, 2024',
             time: '7:00 PM - 11:00 PM',
             location: 'Duncan Hall',
-            price: '$12'
+            price: '$12',
+            payment_approved: 'pending'
         };
         
-        tickets.set(ticketId, ticketData);
+        // Save to Supabase database
+        const { data, error } = await supabase
+            .from('fall_formal_orders')
+            .insert([ticketData]);
+        
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to create ticket in database'
+            });
+        }
         
         // Get the actual domain from the request
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
@@ -47,6 +64,7 @@ app.post('/api/tickets', (req, res) => {
             url: `${baseUrl}/ticket/${ticketId}`
         });
     } catch (error) {
+        console.error('Server error:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to create ticket'
@@ -55,52 +73,73 @@ app.post('/api/tickets', (req, res) => {
 });
 
 // Get ticket by ID
-app.get('/api/tickets/:id', (req, res) => {
-    const ticketId = req.params.id;
-    const ticket = tickets.get(ticketId);
-    
-    if (!ticket) {
-        return res.status(404).json({
+app.get('/api/tickets/:id', async (req, res) => {
+    try {
+        const ticketId = req.params.id;
+        
+        // Get ticket from Supabase database
+        const { data, error } = await supabase
+            .from('fall_formal_orders')
+            .select('*')
+            .eq('ticket_number', ticketId)
+            .single();
+        
+        if (error || !data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Ticket not found'
+            });
+        }
+        
+        res.json({
+            success: true,
+            ticket: data
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({
             success: false,
-            error: 'Ticket not found'
+            error: 'Failed to retrieve ticket'
         });
     }
-    
-    res.json({
-        success: true,
-        ticket: ticket
-    });
 });
 
 // Serve ticket page
-app.get('/ticket/:id', (req, res) => {
-    const ticketId = req.params.id;
-    const ticket = tickets.get(ticketId);
-    
-    if (!ticket) {
-        return res.status(404).send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Ticket Not Found</title>
-                <style>
-                    body { 
-                        font-family: Arial, sans-serif; 
-                        text-align: center; 
-                        padding: 50px;
-                        background-color: #0e140b;
-                        color: white;
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>Ticket Not Found</h1>
-                <p>This ticket ID is not valid or has expired.</p>
-                <a href="/" style="color: white;">Back to Home</a>
-            </body>
-            </html>
-        `);
-    }
+app.get('/ticket/:id', async (req, res) => {
+    try {
+        const ticketId = req.params.id;
+        
+        // Get ticket from Supabase database
+        const { data: ticket, error } = await supabase
+            .from('fall_formal_orders')
+            .select('*')
+            .eq('ticket_number', ticketId)
+            .single();
+        
+        if (error || !ticket) {
+            return res.status(404).send(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Ticket Not Found</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            text-align: center; 
+                            padding: 50px;
+                            background-color: #0e140b;
+                            color: white;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Ticket Not Found</h1>
+                    <p>This ticket ID is not valid or has expired.</p>
+                    <a href="/" style="color: white;">Back to Home</a>
+                </body>
+                </html>
+            `);
+        }
     
     // Serve the ticket.html page with ticket data
     res.send(`
@@ -205,15 +244,16 @@ app.get('/ticket/:id', (req, res) => {
             
             <div class="container">
                 <div class="ticket-card">
-                    <div class="ticket-id">Ticket #${ticket.id}</div>
+                    <div class="ticket-id">Ticket #${ticket.ticket_number}</div>
                     <div class="ticket-status">✓ Valid Ticket</div>
                     <div class="ticket-details">
-                        <p><strong>Event:</strong> ${ticket.event}</p>
-                        <p><strong>Date:</strong> ${ticket.date}</p>
-                        <p><strong>Time:</strong> ${ticket.time}</p>
-                        <p><strong>Location:</strong> ${ticket.location}</p>
-                        <p><strong>Price:</strong> ${ticket.price}</p>
-                        <p><strong>Created:</strong> ${new Date(ticket.createdAt).toLocaleDateString()}</p>
+                        <p><strong>Event:</strong> ${ticket.event || 'Fall Formal'}</p>
+                        <p><strong>Date:</strong> ${ticket.date || 'November 15, 2024'}</p>
+                        <p><strong>Time:</strong> ${ticket.time || '7:00 PM - 11:00 PM'}</p>
+                        <p><strong>Location:</strong> ${ticket.location || 'Duncan Hall'}</p>
+                        <p><strong>Price:</strong> ${ticket.price || '$12'}</p>
+                        <p><strong>Status:</strong> ${ticket.payment_approved || 'pending'}</p>
+                        <p><strong>Created:</strong> ${ticket.created_at ? new Date(ticket.created_at).toLocaleDateString() : 'Unknown'}</p>
                     </div>
                     <a href="/" class="back-button">Back to Home</a>
                 </div>
@@ -221,6 +261,31 @@ app.get('/ticket/:id', (req, res) => {
         </body>
         </html>
     `);
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Server Error</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        text-align: center; 
+                        padding: 50px;
+                        background-color: #0e140b;
+                        color: white;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Server Error</h1>
+                <p>There was an error retrieving your ticket. Please try again later.</p>
+                <a href="/" style="color: white;">Back to Home</a>
+            </body>
+            </html>
+        `);
+    }
 });
 
 // Serve the main page
