@@ -1485,7 +1485,7 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Skip OTP verification - set to "true" to bypass SMS verification
-        const SKIP_OTP = true;
+        const SKIP_OTP = false;
         
         // Track ticket type for Venmo amount
         let selectedTicketType = 'single'; // 'single' or 'couple'
