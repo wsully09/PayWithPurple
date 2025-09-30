@@ -1451,7 +1451,7 @@
                     View your ticket below. It was also texted to you.
                 </div>
                 
-                <button class="view-ticket-button" id="viewTicketButton">View Your Ticket (#11111)</button>
+                <button class="view-ticket-button" id="viewTicketButton">View Your Ticket</button>
             </div>
         </div>
     </div>
@@ -1463,6 +1463,9 @@
         // Supabase configuration
         const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhenNya2N2ZWN5bXVqZm1yemV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTIwNzAzNCwiZXhwIjoyMDcwNzgzMDM0fQ.oP2KHilItRH1EZ53-eOY_Ihcyt0Kn-paa1U-jAZnUgo";
+        
+        // Configuration flags
+        const SEND_TICKET_TEXT = true; // Set to false to disable automatic SMS sending
         
         // Initialize Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1934,12 +1937,50 @@
         }
 
         // Show payment received screen
-        function showPaymentReceivedScreen() {
+        async function showPaymentReceivedScreen() {
             const completePaymentScreen = document.getElementById('completePaymentScreen');
             const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
             
             completePaymentScreen.style.display = 'none';
             paymentReceivedScreen.style.display = 'block';
+            
+            // Update the view ticket button with the actual ticket number
+            const viewTicketButton = document.getElementById('viewTicketButton');
+            if (viewTicketButton) {
+                viewTicketButton.textContent = `View Your Ticket (#${generatedTicketNumber})`;
+            }
+            
+            // Only send SMS if SEND_TICKET_TEXT is enabled
+            if (SEND_TICKET_TEXT) {
+                // Get user data to access phone number
+                const userData = getUserData();
+                
+                // Call the server to approve payment and send SMS
+                try {
+                    const response = await fetch('/api/approve-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ticket_number: generatedTicketNumber,
+                            phone_number: userData.phone_number
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        console.log('Payment approved and SMS sent:', result);
+                    } else {
+                        console.error('Failed to approve payment:', result.error);
+                    }
+                } catch (error) {
+                    console.error('Error calling approve-payment API:', error);
+                }
+            } else {
+                console.log('SMS sending disabled - SEND_TICKET_TEXT is false');
+            }
         }
 
         // Start monitoring payment status

@@ -207,6 +207,87 @@ app.get('/api/tickets/:id', async (req, res) => {
     }
 });
 
+// Approve payment and send ticket
+app.post('/api/approve-payment', async (req, res) => {
+    try {
+        const { ticket_number, phone_number } = req.body;
+        
+        if (!ticket_number) {
+            return res.status(400).json({
+                success: false,
+                error: 'Ticket number is required'
+            });
+        }
+        
+        // Update payment status to approved
+        const { data, error } = await supabase
+            .from('fall_formal_orders')
+            .update({ payment_approved: 'approved' })
+            .eq('ticket_number', ticket_number)
+            .select()
+            .single();
+        
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to approve payment'
+            });
+        }
+        
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                error: 'Ticket not found'
+            });
+        }
+        
+        // Get the base URL for the ticket
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'paywithpurple-production.up.railway.app';
+        const baseUrl = `${protocol}://${host}`;
+        const ticketUrl = `${baseUrl}/ticket/${ticket_number}`;
+        
+        // Send SMS with ticket link if phone number is provided
+        if (phone_number) {
+            try {
+                const message = `Your Venmo was received. See below for your Fall Formal Ticket: ${ticketUrl}`;
+                
+                // Use Textbelt API to send SMS
+                const smsResponse = await fetch('https://textbelt.com/text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        phone: phone_number,
+                        message: message,
+                        key: '45debba6c3c5d9cad3f4c8ca12acb0b88b985490KTZaeiFqRnvU5RonIZArQHyVA'
+                    })
+                });
+                
+                const smsResult = await smsResponse.json();
+                console.log('SMS sent:', smsResult);
+            } catch (smsError) {
+                console.error('Error sending SMS:', smsError);
+                // Don't fail the payment approval if SMS fails
+            }
+        }
+        
+        res.json({
+            success: true,
+            message: 'Payment approved and ticket sent',
+            ticket_url: ticketUrl
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to approve payment'
+        });
+    }
+});
+
 // Serve ticket page
 app.get('/ticket/:id', async (req, res) => {
     try {
@@ -431,6 +512,7 @@ app.get('/ticket/:id', async (req, res) => {
                 .share-button {
                     background: white;
                     color: black;
+                    border: 1px solid white;
                     padding: 12px 24px;
                     border-radius: 25px;
                     font-size: 14px;
