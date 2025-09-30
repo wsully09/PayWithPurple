@@ -174,177 +174,228 @@ app.get('/ticket/:id', async (req, res) => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Fall Formal Ticket #${ticketId}</title>
             <style>
+                :root {
+                    --black: #000000;
+                }
+
                 * {
                     margin: 0;
                     padding: 0;
                     box-sizing: border-box;
+                    font-family: "Inter", sans-serif;
                 }
 
                 body {
-                    min-height: 100vh;
-                    background-color: #0e140b;
-                    position: relative;
-                    overflow-x: hidden;
-                    font-family: Arial, sans-serif;
-                    padding: 20px;
-                }
-
-                .noise-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
+                    height: 100vh;
+                    background-color: #12271d; /* Dark green background */
                     background-image: url('/noise-light.png');
+                    background-size: 200px 200px;
                     background-repeat: repeat;
-                    opacity: 0.3;
-                    pointer-events: none;
-                    z-index: 1;
+                    background-blend-mode: overlay;
+                    opacity: 0.8;
                 }
 
                 .container {
+                    background-color: white;
+                    margin: 20px;
+                    padding: 20px;
+                    max-width: 400px;
+                    width: calc(100% - 40px);
+                    height: 550px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    border-radius: 10px;
+                    box-sizing: border-box;
                     position: relative;
-                    z-index: 10;
-                    color: white;
-                    max-width: 500px;
-                    width: 100%;
-                    margin: 0 auto;
                 }
 
-                .ticket-card {
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    padding: 30px;
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    backdrop-filter: blur(10px);
+                [flex] {
+                    display: flex;
+                }
+
+                [row] {
+                    flex-direction: row;
+                }
+
+                [column] {
+                    flex-direction: column;
+                }
+
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
                     margin-bottom: 20px;
                 }
 
-                .event-title {
-                    font-size: 32px;
-                    font-weight: 700;
-                    margin-bottom: 10px;
-                    color: #fff;
-                    text-align: center;
-                }
-
-                .ticket-id {
-                    font-size: 24px;
-                    font-weight: 600;
-                    margin-bottom: 20px;
-                    color: #4CAF50;
-                    text-align: center;
-                }
-
-                .attendee-name {
-                    font-size: 20px;
-                    font-weight: 600;
-                    margin-bottom: 20px;
-                    color: #fff;
-                    text-align: center;
-                }
-
-                .ticket-type {
+                .brand {
+                    font-weight: bold;
                     font-size: 18px;
-                    color: #ffd700;
+                    color: #2c5530;
+                }
+
+                .address {
+                    font-size: 12px;
+                    color: #747474;
+                    margin-top: 5px;
+                }
+
+                .ticket-info {
+                    text-align: right;
+                }
+
+                .ticket-label {
+                    font-size: 12px;
+                    color: #747474;
+                    font-weight: bold;
+                }
+
+                .ticket-number {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: var(--black);
+                }
+
+                .placeholder-image {
+                    width: calc(100% + 40px);
+                    margin: 15px -20px 20px -20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .banner-image {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                }
+
+                .info-section {
+                    display: flex;
+                    justify-content: space-between;
                     margin-bottom: 20px;
-                    text-align: center;
-                    font-weight: 600;
+                }
+
+                .info-group {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .info-label {
+                    font-size: 12px;
+                    color: #747474;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }
+
+                .info-value {
+                    font-size: 16px;
+                    color: var(--black);
+                    font-weight: 500;
                 }
 
                 .qr-section {
-                    text-align: center;
-                    margin: 30px 0;
+                    position: absolute;
+                    bottom: 30px;
+                    left: 50%;
+                    transform: translateX(-50%);
                 }
 
                 .qr-code {
-                    width: 200px;
-                    height: 200px;
-                    margin: 0 auto 20px;
-                    border-radius: 12px;
-                    background: white;
-                    padding: 20px;
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 8px;
                 }
 
-                .ticket-details {
-                    font-size: 16px;
-                    color: rgba(255, 255, 255, 0.8);
-                    line-height: 1.6;
-                    margin-bottom: 30px;
-                    text-align: left;
+                .qr-placeholder {
+                    width: 150px;
+                    height: 150px;
+                    background-color: white;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    color: #666;
                 }
 
                 .share-section {
-                    margin-top: 20px;
+                    position: absolute;
+                    bottom: 10px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: calc(100% - 40px);
                 }
 
                 .share-button {
-                    background: linear-gradient(135deg, #ffffff, #f8f8f8);
-                    border: 2px solid rgba(255, 255, 255, 0.8);
-                    color: #333;
-                    padding: 12px 30px;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    font-weight: 600;
+                    background: #2c5530;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    font-size: 12px;
                     cursor: pointer;
-                    transition: all 0.3s ease;
                     width: 100%;
-                    margin-bottom: 10px;
+                    margin-bottom: 5px;
                 }
 
                 .share-button:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+                    background: #1e3a22;
                 }
 
                 .copy-feedback {
                     background: #4CAF50;
                     color: white;
-                    padding: 10px;
-                    border-radius: 8px;
-                    margin-top: 10px;
+                    padding: 5px;
+                    border-radius: 4px;
                     text-align: center;
+                    font-size: 10px;
                     display: none;
-                }
-
-                @media (max-width: 768px) {
-                    .container {
-                        padding: 10px;
-                    }
-                    
-                    .ticket-card {
-                        padding: 20px;
-                    }
-                    
-                    .qr-code {
-                        width: 150px;
-                        height: 150px;
-                    }
                 }
             </style>
         </head>
         <body>
-            <div class="noise-overlay"></div>
-            
             <div class="container">
-                <div class="ticket-card">
-                    <div class="event-title">Fall Formal</div>
-                    <div class="ticket-id">Ticket #${ticket.ticket_number}</div>
-                    <div class="attendee-name">${ticket.name || 'Guest'}</div>
-                    <div class="ticket-type">Type: ${ticket.ticket_type === 'couple' ? 'Couple (2x)' : 'Single (1x)'}</div>
-                    
-                    <div class="qr-section">
-                        <div class="qr-code">
-                            <img src="${qrCodeDataURL}" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;">
-                        </div>
+                <div flex row class="header">
+                    <!--in top left corner-->
+                    <div flex column class="brand-section">
+                        <div class="brand">Duncan Fall Formal</div>
+                        <div class="address">825 East Washington Street</div>
                     </div>
-                    
-                    <div class="share-section">
-                        ${ticket.ticket_type === 'couple' ? `
-                            <button class="share-button" onclick="shareTicket()">Share Ticket With Date</button>
-                        ` : ''}
-                        <div class="copy-feedback" id="copyFeedback">Ticket Link Copied!</div>
+                    <!--in top right corner, flex column-->
+                    <div flex column class="ticket-info">
+                        <div class="ticket-label">TICKET</div>
+                        <div class="ticket-number">${ticket.ticket_number}</div>
                     </div>
+                </div>
+                
+                <!--image banner, width of container with proper aspect ratio-->
+                <div class="placeholder-image">
+                    <img src="/image-banner.png" alt="Banner Image" class="banner-image">
+                </div>
+                
+                <div flex row class="info-section">
+                    <!--align to left side-->
+                    <div flex column class="info-group">
+                        <div class="info-label">NAME</div>
+                        <div class="info-value">${ticket.name || 'Guest'}</div>
+                    </div>
+                    <div flex column class="info-group">
+                        <div class="info-label">TYPE</div>
+                        <div class="info-value">${ticket.ticket_type === 'couple' ? 'Couple (2x)' : 'Single (1x)'}</div>
+                    </div>
+                </div>
+                
+                <div class="qr-section">
+                    <div class="qr-placeholder">
+                        <img src="${qrCodeDataURL}" alt="QR Code" class="qr-code">
+                    </div>
+                </div>
+                
+                <div class="share-section">
+                    ${ticket.ticket_type === 'couple' ? `
+                        <button class="share-button" onclick="shareTicket()">Share Ticket With Date</button>
+                    ` : ''}
+                    <div class="copy-feedback" id="copyFeedback">Ticket Link Copied!</div>
                 </div>
             </div>
 
