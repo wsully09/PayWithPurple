@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="format-detection" content="telephone=no">
-    <title>Invite Only Event</title>
+    <title>Fall Formal</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
     
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons2/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons2/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons2/favicon-16x16.png">
+    <link rel="manifest" href="favicons2/site.webmanifest">
     
     <style>
         :root {
@@ -1507,7 +1511,6 @@
         // Function to increment messages_sent counter in duncan_compound_overview table
         async function incrementMessagesSent() {
             try {
-                console.log('Incrementing messages_sent counter...');
                 
                 const { data, error } = await supabase
                     .from('duncan_compound_overview')
@@ -1532,7 +1535,6 @@
                     return false;
                 }
                 
-                console.log(`Messages sent counter updated: ${currentCount} → ${newCount}`);
                 return true;
             } catch (error) {
                 console.error('Error incrementing messages_sent counter:', error);
@@ -1543,7 +1545,6 @@
         // Function to send SMS using Textbelt API
         async function sendSMS(phoneNumber, message) {
             try {
-                console.log('Sending SMS to:', phoneNumber, 'Message:', message);
                 
                 // Create a form and submit it to bypass CORS
                 const form = document.createElement('form');
@@ -1584,12 +1585,10 @@
                             const result = JSON.parse(responseText);
                             
                             if (result.success) {
-                                console.log('SMS sent successfully! Text ID:', result.textId);
                                 
                                 // Increment messages_sent counter
                                 incrementMessagesSent().then(success => {
                                     if (success) {
-                                        console.log('Messages sent counter incremented successfully');
                                     } else {
                                         console.warn('Failed to increment messages sent counter, but SMS was sent');
                                     }
@@ -1601,12 +1600,10 @@
                                 reject(new Error(result.error));
                             }
                         } catch (e) {
-                            console.log('SMS request submitted (response format may vary)');
                             
                             // Increment messages_sent counter even if response format varies
                             incrementMessagesSent().then(success => {
                                 if (success) {
-                                    console.log('Messages sent counter incremented successfully');
                                 } else {
                                     console.warn('Failed to increment messages sent counter, but SMS was sent');
                                 }
@@ -1667,12 +1664,10 @@
                 const exists = await checkTicketNumberExists(ticketNumber);
                 
                 if (!exists) {
-                    console.log('Generated unique ticket number:', ticketNumber);
                     return ticketNumber;
                 }
                 
                 attempts++;
-                console.log(`Ticket number ${ticketNumber} already exists, trying again... (attempt ${attempts})`);
             }
             
             console.error('Failed to generate unique ticket number after', maxAttempts, 'attempts');
@@ -1682,11 +1677,9 @@
         // Function to generate ticket number in the background after page load
         async function generateTicketNumberInBackground() {
             try {
-                console.log('Generating ticket number in background...');
                 generatedTicketNumber = await generateUniqueTicketNumber();
                 
                 if (generatedTicketNumber) {
-                    console.log('Ticket number generated successfully:', generatedTicketNumber);
                     // Update the view ticket button with the actual ticket number
                     const viewTicketButton = document.getElementById('viewTicketButton');
                     if (viewTicketButton) {
@@ -1748,8 +1741,6 @@
             }
             
             try {
-                console.log('Saving user data:', userData);
-                console.log(`Expected amount for ${userData.ticket_type} ticket: $${userData.expected_amount}`);
                 
                 // First, check if a record with this ticket number already exists
                 const { data: existingData, error: checkError } = await supabase
@@ -1766,7 +1757,6 @@
                 let result;
                 if (existingData) {
                     // Update existing record
-                    console.log('Updating existing record for ticket number:', generatedTicketNumber);
                     result = await supabase
                         .from('fall_formal_orders')
                         .update({
@@ -1780,7 +1770,6 @@
                         .eq('ticket_number', generatedTicketNumber);
                 } else {
                     // Insert new record
-                    console.log('Inserting new record for ticket number:', generatedTicketNumber);
                     const userDataWithPaymentStatus = {
                         ...userData,
                         payment_approved: 'pending'
@@ -1795,7 +1784,7 @@
                     return false;
                 }
                 
-                console.log('User data saved successfully');
+               
                 return true;
             } catch (error) {
                 console.error('Error saving user data:', error);
@@ -1841,7 +1830,6 @@
             
             // If user has reached payment screen before, mark that data needs updating
             if (hasReachedPaymentScreen) {
-                console.log('Ticket type changed to couple after reaching payment screen - data will be updated');
             }
         });
 
@@ -1853,7 +1841,6 @@
             
             // If user has reached payment screen before, mark that data needs updating
             if (hasReachedPaymentScreen) {
-                console.log('Ticket type changed to single after reaching payment screen - data will be updated');
             }
         });
 
@@ -1898,7 +1885,6 @@
             // Save/update user data when reaching complete payment screen
             saveUserData().then(success => {
                 if (success) {
-                    console.log('User data updated successfully when reaching payment screen');
                 } else {
                     console.error('Failed to update user data');
                 }
@@ -1971,7 +1957,6 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        console.log('Payment approved and SMS sent:', result);
                     } else {
                         console.error('Failed to approve payment:', result.error);
                     }
@@ -1979,7 +1964,6 @@
                     console.error('Error calling approve-payment API:', error);
                 }
             } else {
-                console.log('SMS sending disabled - SEND_TICKET_TEXT is false');
             }
         }
 
@@ -1990,7 +1974,6 @@
                 return;
             }
 
-            console.log('Starting payment status monitoring for ticket:', generatedTicketNumber);
             
             // Check payment status every second
             const interval = setInterval(async () => {
@@ -2007,7 +1990,6 @@
                     }
                     
                     if (data && data.payment_approved === 'approved') {
-                        console.log('Payment approved! Showing confirmation screen.');
                         clearInterval(interval);
                         showPaymentReceivedScreen();
                     }
@@ -2028,7 +2010,6 @@
             
             if (hasLastName) {
                 // Store name (in a real app, this would be sent to a server)
-                console.log('Name submitted:', fullName);
                 
                 // Show phone entry screen
                 nameEntryScreen.style.display = 'none';
@@ -2055,11 +2036,9 @@
                 
                 try {
                     // Store phone number (in a real app, this would be sent to a server)
-                    console.log('Phone number submitted:', cleanPhone);
                     
                     if (SKIP_OTP) {
                         // Skip OTP verification - go directly to complete payment screen
-                        console.log('Skipping OTP verification - going directly to payment screen');
                         
                         // Show complete payment screen
                         phoneEntryScreen.style.display = 'none';
@@ -2096,7 +2075,6 @@
                         // Normal OTP flow
                         // Generate verification code
                         verificationCode = generateVerificationCode();
-                        console.log('Generated verification code:', verificationCode);
                         
                         // Create SMS message
                         const message = `${verificationCode} is your Fall Formal verification code.`;
@@ -2144,7 +2122,6 @@
                 // Check if the entered code matches the generated code
                 if (enteredCode === verificationCode) {
                     // Store verification code (in a real app, this would be sent to a server)
-                    console.log('Verification code submitted and verified:', enteredCode);
                     
                     // Show complete payment screen
                     verificationScreen.style.display = 'none';
@@ -2341,7 +2318,6 @@
                     validateName();
                     // If user has reached payment screen before, mark that data needs updating
                     if (hasReachedPaymentScreen) {
-                        console.log('Name changed after reaching payment screen - data will be updated');
                     }
                 });
                 // Validate pre-populated name on page load
@@ -2355,7 +2331,6 @@
                     
                     // If user has reached payment screen before, mark that data needs updating
                     if (hasReachedPaymentScreen) {
-                        console.log('Phone number changed after reaching payment screen - data will be updated');
                     }
                     
                     // Check if autofill happened (10 or 11 digits)
