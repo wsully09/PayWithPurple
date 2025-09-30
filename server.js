@@ -228,8 +228,28 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Pretty URL routes for HTML files (without .html extension)
+app.get('/ticket-generator', (req, res) => {
+    res.sendFile(path.join(__dirname, 'ticket-generator.html'));
+});
+
+app.get('/ticket-generator-railway', (req, res) => {
+    res.sendFile(path.join(__dirname, 'ticket-generator-railway.html'));
+});
+
+app.get('/send', (req, res) => {
+    res.sendFile(path.join(__dirname, 'send.html'));
+});
+
+app.get('/qr-code-scanner', (req, res) => {
+    res.sendFile(path.join(__dirname, 'qr-code-scanner.html'));
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Ticket generator: http://localhost:${PORT}/ticket-generator.html`);
+    console.log(`Ticket generator: http://localhost:${PORT}/ticket-generator`);
+    console.log(`Railway ticket generator: http://localhost:${PORT}/ticket-generator-railway`);
+    console.log(`Send page: http://localhost:${PORT}/send`);
+    console.log(`QR Scanner: http://localhost:${PORT}/qr-code-scanner`);
 });
