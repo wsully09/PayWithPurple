@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('.')); // Serve static files from current directory
 
 // In-memory storage for tickets (in production, use a database)
 const tickets = new Map();
@@ -243,6 +242,19 @@ app.get('/send', (req, res) => {
 
 app.get('/qr-code-scanner', (req, res) => {
     res.sendFile(path.join(__dirname, 'qr-code-scanner.html'));
+});
+
+// Serve static files AFTER all routes (this ensures pretty URLs work)
+app.use(express.static('.'));
+
+// Catch-all handler for any remaining routes (fallback to index.html for SPA behavior)
+app.get('*', (req, res) => {
+    // If it's an API route, return 404
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+    }
+    // For all other routes, serve index.html (useful for client-side routing)
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server
