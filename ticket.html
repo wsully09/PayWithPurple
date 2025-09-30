@@ -1193,7 +1193,7 @@
                 <div class="qr-code-placeholder" style="display: none;">QR Code: Scan to open on mobile</div>
             </div>
             <div class="mobile-link">
-                Already on your phone? <a href="#" id="mobileOverrideLink" style="color: white; text-decoration: underline; font-weight: bold;">Click here</a>
+                Please scan the QR code above to continue on your mobile device.
             </div>
         </div>
     </div>
@@ -1512,7 +1512,7 @@
                 // Fetch both prices in a single query
                 const { data, error } = await supabase
                     .from('duncan_compound_overview')
-                    .select('thing, num_value')
+                    .select('thing, num_value_float')
                     .in('thing', ['fall_formal_couple_price', 'fall_formal_single_price']);
                 
                 if (error) {
@@ -1522,10 +1522,10 @@
                 
                 if (data && data.length > 0) {
                     data.forEach(row => {
-                        if (row.thing === 'fall_formal_couple_price' && row.num_value) {
-                            coupleTicketPrice = parseFloat(row.num_value);
-                        } else if (row.thing === 'fall_formal_single_price' && row.num_value) {
-                            singleTicketPrice = parseFloat(row.num_value);
+                        if (row.thing === 'fall_formal_couple_price' && row.num_value_float) {
+                            coupleTicketPrice = parseFloat(row.num_value_float);
+                        } else if (row.thing === 'fall_formal_single_price' && row.num_value_float) {
+                            singleTicketPrice = parseFloat(row.num_value_float);
                         }
                     });
                     
@@ -2311,10 +2311,7 @@
                 loadingScreen.style.display = 'none';
             }
             
-            // Check for mobile override in localStorage
-            const mobileOverride = localStorage.getItem('mobileOverride') === 'true';
-            
-            if (isMobileDevice() || mobileOverride) {
+            if (isMobileDevice()) {
                 // Hide mobile detection screen for mobile users or when overridden
                 if (mobileDetectionScreen) {
                     mobileDetectionScreen.style.display = 'none';
@@ -2340,15 +2337,7 @@
                 showAppropriateScreen();
             }, 100);
             
-            // Add click handler for mobile override link
-            const mobileOverrideLink = document.getElementById('mobileOverrideLink');
-            if (mobileOverrideLink) {
-                mobileOverrideLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    localStorage.setItem('mobileOverride', 'true');
-                    showAppropriateScreen();
-                });
-            }
+            // Mobile override link removed - no longer using localStorage
             
             // Fetch ticket prices from database
             fetchTicketPrices();
