@@ -1490,6 +1490,8 @@
         // Track ticket type for Venmo amount
         let selectedTicketType = 'single'; // 'single' or 'couple'
         let ticketAmount = 10; // Default to single ticket amount
+        let coupleTicketPrice = 15; // Default couple ticket price
+        let singleTicketPrice = 10; // Default single ticket price
         let generatedTicketNumber = null; // Store the generated ticket number
         let hasReachedPaymentScreen = false; // Track if user has reached payment screen before
         let verificationCode = null; // Store the generated verification code
@@ -1502,6 +1504,62 @@
         // Function to generate a 6-digit random verification code
         function generateVerificationCode() {
             return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        
+        // Function to fetch ticket prices from database
+        async function fetchTicketPrices() {
+            try {
+                // Fetch both prices in a single query
+                const { data, error } = await supabase
+                    .from('duncan_compound_overview')
+                    .select('thing, num_value')
+                    .in('thing', ['fall_formal_couple_price', 'fall_formal_single_price']);
+                
+                if (error) {
+                    console.error('Error fetching ticket prices:', error);
+                    return; // Keep default prices if fetch fails
+                }
+                
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        if (row.thing === 'fall_formal_couple_price' && row.num_value) {
+                            coupleTicketPrice = parseFloat(row.num_value);
+                        } else if (row.thing === 'fall_formal_single_price' && row.num_value) {
+                            singleTicketPrice = parseFloat(row.num_value);
+                        }
+                    });
+                    
+                    // Update ticket amount to match single ticket price
+                    ticketAmount = singleTicketPrice;
+                    
+                    // Update the pricing display
+                    updatePricingDisplay();
+                }
+                
+            } catch (error) {
+                console.error('Error fetching ticket prices:', error);
+                // Keep default prices if fetch fails
+            }
+        }
+        
+        // Function to update pricing display with fetched prices
+        function updatePricingDisplay() {
+            // Update pricing details text
+            const pricingDetails = document.querySelector('.pricing-details');
+            if (pricingDetails) {
+                pricingDetails.innerHTML = `Fall Formal tickets cost <strong><u>$${singleTicketPrice} for an individual ticket</u></strong> or <strong><u>$${coupleTicketPrice} per couple</u></strong> to cover the cost of the event, including an all you can drink fall-themed cocktail bar. Tickets must be purchased in advance and will be scanned upon arrival.`;
+            }
+            
+            // Update button text
+            const coupleButton = document.getElementById('coupleTicketBtn');
+            if (coupleButton) {
+                coupleButton.textContent = `Couple Ticket ($${coupleTicketPrice})`;
+            }
+            
+            const singleButton = document.getElementById('singleTicketBtn');
+            if (singleButton) {
+                singleButton.textContent = `Single Ticket ($${singleTicketPrice})`;
+            }
         }
         
         // Function to show error message on screen
@@ -1834,7 +1892,7 @@
         // Show How To Pay screen when either ticket button is clicked
         coupleTicketBtn.addEventListener('click', function() {
             selectedTicketType = 'couple';
-            ticketAmount = 15;
+            ticketAmount = coupleTicketPrice;
             pricingScreen.style.display = 'none';
             howToPayScreen.style.display = 'block';
             
@@ -1845,7 +1903,7 @@
 
         singleTicketBtn.addEventListener('click', function() {
             selectedTicketType = 'single';
-            ticketAmount = 10;
+            ticketAmount = singleTicketPrice;
             pricingScreen.style.display = 'none';
             howToPayScreen.style.display = 'block';
             
@@ -2291,6 +2349,9 @@
                     showAppropriateScreen();
                 });
             }
+            
+            // Fetch ticket prices from database
+            fetchTicketPrices();
             
             // Generate ticket number in the background
             generateTicketNumberInBackground();
