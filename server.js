@@ -245,6 +245,10 @@ app.get('/qr-code-scanner', (req, res) => {
     res.sendFile(path.join(__dirname, 'qr-code-scanner.html'));
 });
 
+app.get('/ticket', (req, res) => {
+    res.sendFile(path.join(__dirname, 'ticket.html'));
+});
+
 // Serve static files for specific assets only (CSS, JS, images, etc.)
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
