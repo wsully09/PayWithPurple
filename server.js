@@ -143,14 +143,27 @@ app.get('/ticket/:id', async (req, res) => {
         }
 
         // Generate QR code for the ticket number
-        const qrCodeDataURL = await QRCode.toDataURL(ticketId, { 
-            width: 200,
-            margin: 2,
-            color: {
-                dark: '#FFFFFF',
-                light: 'transparent'
-            }
-        });
+        let qrCodeDataURL;
+        try {
+            qrCodeDataURL = await QRCode.toDataURL(ticketId, { 
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#FFFFFF',
+                    light: '#000000'
+                }
+            });
+        } catch (qrError) {
+            console.error('QR Code generation error:', qrError);
+            // Fallback: create a simple text-based QR placeholder
+            qrCodeDataURL = 'data:image/svg+xml;base64,' + Buffer.from(`
+                <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="200" height="200" fill="transparent"/>
+                    <text x="100" y="100" text-anchor="middle" fill="white" font-family="Arial" font-size="16">QR Code</text>
+                    <text x="100" y="120" text-anchor="middle" fill="white" font-family="Arial" font-size="12">${ticketId}</text>
+                </svg>
+            `).toString('base64');
+        }
     
     // Serve the ticket.html page with ticket data
     res.send(`
@@ -251,6 +264,10 @@ app.get('/ticket/:id', async (req, res) => {
                     border-radius: 12px;
                     background: transparent;
                     padding: 10px;
+                }
+                
+                .qr-code img {
+                    mix-blend-mode: screen;
                 }
 
                 .ticket-details {
@@ -421,6 +438,8 @@ app.get('/ticket/:id', async (req, res) => {
     `);
     } catch (error) {
         console.error('Server error:', error);
+        console.error('Error details:', error.message);
+        console.error('Stack trace:', error.stack);
         res.status(500).send(`
             <!DOCTYPE html>
             <html>
@@ -439,6 +458,7 @@ app.get('/ticket/:id', async (req, res) => {
             <body>
                 <h1>Server Error</h1>
                 <p>There was an error retrieving your ticket. Please try again later.</p>
+                <p>Error: ${error.message}</p>
                 <a href="/" style="color: white;">Back to Home</a>
             </body>
             </html>
