@@ -1624,14 +1624,19 @@
         const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhenNya2N2ZWN5bXVqZm1yemV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTIwNzAzNCwiZXhwIjoyMDcwNzgzMDM0fQ.oP2KHilItRH1EZ53-eOY_Ihcyt0Kn-paa1U-jAZnUgo";
         
+
+        const SKIP_OTP = true;
+
+        
         // Configuration flags
+
+        //DON'T CHANGE THIS ONE˜
         const SEND_TICKET_TEXT = true; // Set to false to disable automatic SMS sending
         
         // Initialize Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Skip OTP verification - set to "true" to bypass SMS verification
-        const SKIP_OTP = true;
         
         // Track ticket type for Venmo amount
         let selectedTicketType = 'single'; // 'single' or 'couple'
@@ -2483,10 +2488,9 @@
         // Mobile detection function
         function isMobileDevice() {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const screenWidth = window.innerWidth;
             
-            // Consider it mobile if it's a mobile device OR if screen is small
-            return isMobile || (screenWidth < 768);
+            // Consider it mobile only if it's a mobile device (no screen size check)
+            return isMobile;
         }
 
         // Show appropriate screen after device detection
