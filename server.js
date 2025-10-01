@@ -582,9 +582,9 @@ app.get('/ticket/:id', async (req, res) => {
                 function shareTicket() {
                     const ticketUrl = window.location.href;
                     
-                    // Check if it's a mobile device
-                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                        // Mobile sharing
+                    // Check if it's a mobile device (excluding iPhone)
+                    if (/Android|webOS|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                        // Mobile sharing (non-iPhone)
                         if (navigator.share) {
                             navigator.share({
                                 url: ticketUrl
@@ -596,7 +596,7 @@ app.get('/ticket/:id', async (req, res) => {
                             copyToClipboard(ticketUrl);
                         }
                     } else {
-                        // Desktop - copy to clipboard
+                        // Desktop or iPhone - copy to clipboard
                         copyToClipboard(ticketUrl);
                     }
                 }
