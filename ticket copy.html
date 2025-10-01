@@ -1477,7 +1477,7 @@
                     Enter Phone Number
                 </div>
                 <div class="phone-entry-description">
-                    We may text you updates <br>about the event to this number.
+                    We'll send you a verification code, <br>and then later your payment confirmation.
                 </div>
                 
                 <div class="phone-form-container">
@@ -1504,7 +1504,7 @@
                 
                 <div id="phoneErrorMessage" class="error-message"></div>
                 
-                <button type="submit" form="phoneForm" class="submit-phone-button" id="submitPhoneButton" disabled>Continue</button>
+                <button type="submit" form="phoneForm" class="submit-phone-button" id="submitPhoneButton" disabled>Send Verification Code</button>
                 <button class="back-button" id="backFromPhoneEntry">Back</button>
             </div>
         </div>
@@ -2314,12 +2314,12 @@
                         // Update complete payment description with correct amount
                         const completePaymentDescription = document.getElementById('completePaymentDescription');
                         if (completePaymentDescription) {
-                            completePaymentDescription.innerHTML = `Clicking the button below will launch Venmo with a pre-populated note and the $${ticketAmount} amount. Please do not modify these values. <strong><u>You will receive an email with your ticket once we confirm your Venmo payment (about 10 seconds after). REMEMBER TO CHECK YOUR SPAM FOLDER.</u></strong>`;
+                            completePaymentDescription.innerHTML = `Clicking the button below will launch Venmo with a pre-populated note and the $${ticketAmount} amount. Please do not modify these values. <strong><u>You will receive an email with your ticket once we confirm your Venmo payment.</u></strong>`;
                         }
                         
                         // Re-enable button
                         submitButton.disabled = false;
-                        submitButton.textContent = 'Continue';
+                        submitButton.textContent = 'Send Verification Code';
                     } else {
                         // Normal OTP flow
                         // Generate verification code
@@ -2346,7 +2346,7 @@
                         
                         // Re-enable button
                         submitButton.disabled = false;
-                        submitButton.textContent = 'Continue';
+                        submitButton.textContent = 'Send Verification Code';
                     }
                     
                 } catch (error) {
