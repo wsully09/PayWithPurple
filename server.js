@@ -481,7 +481,7 @@ app.get('/ticket/:id', async (req, res) => {
 
                 .qr-section {
                     position: absolute;
-                    bottom: 30px;
+                    bottom: 0px;
                     left: 50%;
                     transform: translateX(-50%);
                 }
