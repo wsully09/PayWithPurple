@@ -902,6 +902,114 @@
             cursor: default;
         }
 
+        /* Email Entry Screen Styles */
+        .email-entry-screen {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-green);
+            overflow: hidden;
+        }
+
+        .email-entry-container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .email-entry-title {
+            font-family: "Literata", serif;
+            font-size: 28px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .email-entry-description {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-align: center;
+            font-style: italic;
+            padding: 0 40px;
+        }
+
+        .email-form-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 0 auto 30px auto;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: "Inter", sans-serif;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .email-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .email-input:invalid {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .submit-email-button {
+            background-color: white;
+            color: var(--dark-green);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .submit-email-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .submit-email-button:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
         /* Venmo Popup Styles */
         .venmo-popup-overlay {
             position: fixed;
@@ -1322,6 +1430,44 @@
         </div>
     </div>
 
+    <!-- Email Entry Screen -->
+    <div id="emailEntryScreen" class="email-entry-screen">
+        <div class="app-container">
+            <div class="noise-overlay"></div>
+            <div class="email-entry-container">
+                <div class="email-entry-title">
+                    Enter Your Email
+                </div>
+                <div class="email-entry-description">
+                    Your ticket will be emailed to this address
+                </div>
+                
+                <div class="email-form-container">
+                    <form id="emailForm" onsubmit="handleEmailSubmit(event)">
+                        <div class="input-group">
+                            <label for="emailAddress" class="input-label">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="emailAddress" 
+                                name="emailAddress" 
+                                class="email-input" 
+                                placeholder="Enter your email address"
+                                value=""
+                                required
+                                autocomplete="email"
+                            >
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="emailErrorMessage" class="error-message"></div>
+                
+                <button type="submit" form="emailForm" class="submit-email-button" id="submitEmailButton" disabled>Continue</button>
+                <button class="back-button" id="backFromEmailEntry">Back</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Phone Entry Screen -->
     <div id="phoneEntryScreen" class="phone-entry-screen">
         <div class="app-container">
@@ -1485,7 +1631,7 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Skip OTP verification - set to "true" to bypass SMS verification
-        const SKIP_OTP = false;
+        const SKIP_OTP = true;
         
         // Track ticket type for Venmo amount
         let selectedTicketType = 'single'; // 'single' or 'couple'
@@ -1780,6 +1926,7 @@
         // Function to get current user data
         function getUserData() {
             const fullName = document.getElementById('fullName')?.value?.trim() || '';
+            const emailAddress = document.getElementById('emailAddress')?.value?.trim() || '';
             const phoneNumber = document.getElementById('phoneNumber')?.value?.replace(/\D/g, '') || '';
             const timestamp = formatTimestamp();
             
@@ -1787,6 +1934,7 @@
                 ticket_number: generatedTicketNumber,
                 phone_number: phoneNumber,
                 name: fullName,
+                email: emailAddress,
                 ticket_type: selectedTicketType,
                 expected_amount: ticketAmount,
                 timestamp: timestamp
@@ -1803,7 +1951,7 @@
             const userData = getUserData();
             
             // Check if all required data is available
-            if (!userData.name || !userData.phone_number) {
+            if (!userData.name || !userData.phone_number || !userData.email) {
                 console.error('Missing required user data:', userData);
                 return false;
             }
@@ -1830,6 +1978,7 @@
                         .update({
                             phone_number: userData.phone_number,
                             name: userData.name,
+                            email: userData.email,
                             ticket_type: userData.ticket_type,
                             expected_amount: userData.expected_amount,
                             timestamp: userData.timestamp,
@@ -1864,6 +2013,7 @@
         const pricingScreen = document.getElementById('pricingScreen');
         const howToPayScreen = document.getElementById('howToPayScreen');
         const nameEntryScreen = document.getElementById('nameEntryScreen');
+        const emailEntryScreen = document.getElementById('emailEntryScreen');
         const phoneEntryScreen = document.getElementById('phoneEntryScreen');
         const verificationScreen = document.getElementById('verificationScreen');
         const completePaymentScreen = document.getElementById('completePaymentScreen');
@@ -1874,6 +2024,7 @@
         const backFromHowToPay = document.getElementById('backFromHowToPay');
         const proceedToPayment = document.getElementById('proceedToPayment');
         const backFromNameEntry = document.getElementById('backFromNameEntry');
+        const backFromEmailEntry = document.getElementById('backFromEmailEntry');
         const backFromPhoneEntry = document.getElementById('backFromPhoneEntry');
         const backFromVerification = document.getElementById('backFromVerification');
         const backFromCompletePayment = document.getElementById('backFromCompletePayment');
@@ -1930,10 +2081,16 @@
             howToPayScreen.style.display = 'block';
         });
 
+        // Hide Email Entry screen when back button is clicked
+        backFromEmailEntry.addEventListener('click', function() {
+            emailEntryScreen.style.display = 'none';
+            nameEntryScreen.style.display = 'block';
+        });
+
         // Hide Phone Entry screen when back button is clicked
         backFromPhoneEntry.addEventListener('click', function() {
             phoneEntryScreen.style.display = 'none';
-            nameEntryScreen.style.display = 'block';
+            emailEntryScreen.style.display = 'block';
         });
 
         // Hide Verification screen when back button is clicked
@@ -2042,29 +2199,31 @@
                 return;
             }
 
-            
-            // Check payment status every second
-            const interval = setInterval(async () => {
-                try {
-                    const { data, error } = await supabase
-                        .from('fall_formal_orders')
-                        .select('payment_approved')
-                        .eq('ticket_number', generatedTicketNumber)
-                        .single();
-                    
-                    if (error) {
-                        console.error('Error checking payment status:', error);
-                        return;
+            // Wait a moment for the database record to be created
+            setTimeout(() => {
+                // Check payment status every second
+                const interval = setInterval(async () => {
+                    try {
+                        const { data, error } = await supabase
+                            .from('fall_formal_orders')
+                            .select('payment_approved')
+                            .eq('ticket_number', generatedTicketNumber)
+                            .maybeSingle();
+                        
+                        if (error) {
+                            console.error('Error checking payment status:', error);
+                            return;
+                        }
+                        
+                        if (data && data.payment_approved === 'approved') {
+                            clearInterval(interval);
+                            showPaymentReceivedScreen();
+                        }
+                    } catch (error) {
+                        console.error('Error in payment status monitoring:', error);
                     }
-                    
-                    if (data && data.payment_approved === 'approved') {
-                        clearInterval(interval);
-                        showPaymentReceivedScreen();
-                    }
-                } catch (error) {
-                    console.error('Error in payment status monitoring:', error);
-                }
-            }, 1000); // Check every second
+                }, 1000); // Check every second
+            }, 2000); // Wait 2 seconds before starting monitoring
         }
 
         // Name handling functions
@@ -2079,11 +2238,28 @@
             if (hasLastName) {
                 // Store name (in a real app, this would be sent to a server)
                 
-                // Show phone entry screen
+                // Show email entry screen
                 nameEntryScreen.style.display = 'none';
-                phoneEntryScreen.style.display = 'block';
+                emailEntryScreen.style.display = 'block';
             } else {
                 alert('Please enter your first and last name (last name must be at least 2 characters)');
+            }
+        }
+
+        // Email handling functions
+        function handleEmailSubmit(event) {
+            event.preventDefault();
+            const emailAddress = document.getElementById('emailAddress').value.trim();
+            
+            // Basic email validation - must contain @ and .
+            if (emailAddress.includes('@') && emailAddress.includes('.')) {
+                // Store email (in a real app, this would be sent to a server)
+                
+                // Show phone entry screen
+                emailEntryScreen.style.display = 'none';
+                phoneEntryScreen.style.display = 'block';
+            } else {
+                showErrorMessage('Please enter a valid email address with @ and .', 'emailErrorMessage');
             }
         }
 
@@ -2291,6 +2467,19 @@
             }
         }
 
+        function validateEmail() {
+            const emailInput = document.getElementById('emailAddress');
+            const submitButton = document.getElementById('submitEmailButton');
+            const email = emailInput.value.trim();
+            
+            // Check if email contains @ and .
+            if (email.includes('@') && email.includes('.')) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
         // Mobile detection function
         function isMobileDevice() {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -2346,6 +2535,7 @@
             generateTicketNumberInBackground();
             
             const nameInput = document.getElementById('fullName');
+            const emailInput = document.getElementById('emailAddress');
             const phoneInput = document.getElementById('phoneNumber');
             const verificationInput = document.getElementById('verificationCode');
             
@@ -2395,6 +2585,17 @@
                 });
                 // Validate pre-populated name on page load
                 validateName();
+            }
+
+            if (emailInput) {
+                emailInput.addEventListener('input', function() {
+                    validateEmail();
+                    // If user has reached payment screen before, mark that data needs updating
+                    if (hasReachedPaymentScreen) {
+                    }
+                });
+                // Validate pre-populated email on page load
+                validateEmail();
             }
             
             if (phoneInput) {
