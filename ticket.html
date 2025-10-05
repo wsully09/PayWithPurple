@@ -1575,7 +1575,7 @@
                             <div class="copy-content">@DuncanOffCampus</div>
                             <div class="copy-feedback">Text Copied</div>
                         </div>
-                        <div class="copy-box" onclick="copyToClipboard('Fall Formal (#42821)', this)">
+                        <div class="copy-box" onclick="copyToClipboard(getVenmoMessage(), this)">
                             <div class="copy-label">Venmo Message (click to copy)</div>
                             <div class="copy-content" id="venmoMessageContent">Fall Formal (#42821)</div>
                             <div class="copy-feedback">Text Copied</div>
@@ -2705,6 +2705,12 @@
                     label.classList.remove('hidden');
                 }, 2000);
             });
+        }
+
+        // Function to get the current Venmo message with dynamic ticket number
+        function getVenmoMessage() {
+            const ticketNumber = generatedTicketNumber || '42821';
+            return `Fall Formal (#${ticketNumber})`;
         }
     </script>
 </body>
