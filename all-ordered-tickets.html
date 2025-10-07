@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Ordered Tickets - Fall Formal</title>
+    <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+    <link rel="manifest" href="/favicons/site.webmanifest">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+
+        body {
+            background-color: #0e140b;
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #2c5530;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2c5530, #1a3a1e);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #2c5530, #1a3a1e);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 85, 48, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #ccc;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #2c5530, #1a3a1e);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #4ade80;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .ticket-number {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .name {
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .amount {
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status.approved {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .status.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status.rejected {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .ticket-type {
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .ticket-type.single {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .ticket-type.couple {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .timestamp {
+            color: #ccc;
+            font-size: 0.85rem;
+        }
+
+        .email {
+            color: #60a5fa;
+            font-size: 0.85rem;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ccc;
+        }
+
+        .no-data h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .no-data p {
+            font-size: 1rem;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 8px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>All Ordered Tickets</h1>
+            <p>Fall Formal Order Management Dashboard</p>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="totalOrders">-</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="approvedOrders">-</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingOrders">-</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRevenue">-</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">Order Details</div>
+                <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
+            </div>
+            
+            <div id="loadingMessage" class="loading">
+                <p>Loading orders...</p>
+            </div>
+            
+            <div id="errorMessage" class="error" style="display: none;">
+                <p>Failed to load orders. Please try again.</p>
+            </div>
+            
+            <div id="noDataMessage" class="no-data" style="display: none;">
+                <h3>No Orders Found</h3>
+                <p>There are no orders in the system yet.</p>
+            </div>
+            
+            <table id="ordersTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Ticket #</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Venmo Amount</th>
+                        <th>Expected Amount</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let ordersData = [];
+
+        async function loadOrders() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const ordersTable = document.getElementById('ordersTable');
+            const ordersTableBody = document.getElementById('ordersTableBody');
+
+            // Show loading state
+            loadingMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            noDataMessage.style.display = 'none';
+            ordersTable.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/orders');
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to fetch orders');
+                }
+
+                ordersData = data.orders || [];
+                
+                if (ordersData.length === 0) {
+                    loadingMessage.style.display = 'none';
+                    noDataMessage.style.display = 'block';
+                } else {
+                    displayOrders(ordersData);
+                    updateStats(ordersData);
+                    
+                    loadingMessage.style.display = 'none';
+                    ordersTable.style.display = 'table';
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                loadingMessage.style.display = 'none';
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        function displayOrders(orders) {
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            ordersTableBody.innerHTML = '';
+
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                
+                const statusClass = order.payment_approved === 'approved' ? 'approved' : 
+                                  order.payment_approved === 'rejected' ? 'rejected' : 'pending';
+                
+                const typeClass = order.ticket_type === 'couple' ? 'couple' : 'single';
+                
+                const timestamp = new Date(order.created_at || order.timestamp).toLocaleString();
+                
+                row.innerHTML = `
+                    <td><span class="ticket-number">${order.ticket_number || 'N/A'}</span></td>
+                    <td><span class="name">${order.name || 'N/A'}</span></td>
+                    <td><span class="email">${order.email || 'N/A'}</span></td>
+                    <td><span class="amount">$${order.venmo_amount || '0.00'}</span></td>
+                    <td><span class="amount">$${order.expected_amount || '0.00'}</span></td>
+                    <td><span class="ticket-type ${typeClass}">${order.ticket_type || 'single'}</span></td>
+                    <td><span class="status ${statusClass}">${order.payment_approved || 'pending'}</span></td>
+                    <td><span class="timestamp">${timestamp}</span></td>
+                `;
+                
+                ordersTableBody.appendChild(row);
+            });
+        }
+
+        function updateStats(orders) {
+            const totalOrders = orders.length;
+            const approvedOrders = orders.filter(order => order.payment_approved === 'approved').length;
+            const pendingOrders = orders.filter(order => order.payment_approved === 'pending' || !order.payment_approved).length;
+            
+            // Calculate total revenue from approved orders
+            const totalRevenue = orders
+                .filter(order => order.payment_approved === 'approved')
+                .reduce((sum, order) => {
+                    const amount = parseFloat(order.venmo_amount) || 0;
+                    return sum + amount;
+                }, 0);
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('approvedOrders').textContent = approvedOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+        }
+
+        // Load orders when page loads
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+</html>

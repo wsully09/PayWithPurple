@@ -207,6 +207,35 @@ app.get('/api/tickets/:id', async (req, res) => {
     }
 });
 
+// Get all orders from fall_formal_orders table
+app.get('/api/orders', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('fall_formal_orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('Supabase error:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to fetch orders'
+            });
+        }
+        
+        res.json({
+            success: true,
+            orders: data
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to retrieve orders'
+        });
+    }
+});
+
 // Approve payment and send ticket
 app.post('/api/approve-payment', async (req, res) => {
     try {
@@ -689,6 +718,10 @@ app.get('/ticket', (req, res) => {
 
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.get('/all-ordered-tickets', (req, res) => {
+    res.sendFile(path.join(__dirname, 'all-ordered-tickets.html'));
 });
 
 // Serve static files for specific assets only (CSS, JS, images, etc.)
