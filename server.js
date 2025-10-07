@@ -215,7 +215,7 @@ app.get('/api/orders', async (req, res) => {
         const { data, error } = await supabase
             .from('fall_formal_orders')
             .select('*')
-            .order('created_at', { ascending: false });
+            .order('timestamp', { ascending: false });
         
         if (error) {
             console.error('Supabase error details:', {
