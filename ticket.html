@@ -418,7 +418,7 @@
             opacity: 0.9;
             text-align: center;
             font-style: italic;
-            padding: 0 25px;
+            padding: 0 15px;
         }
 
         .venmo-launch-button {
@@ -2107,7 +2107,13 @@
         // Hide Complete Payment screen when back button is clicked
         backFromCompletePayment.addEventListener('click', function() {
             completePaymentScreen.style.display = 'none';
-            verificationScreen.style.display = 'block';
+            if (SKIP_OTP) {
+                // If OTP is skipped, go back to phone entry screen
+                phoneEntryScreen.style.display = 'block';
+            } else {
+                // If OTP is not skipped, go back to verification screen
+                verificationScreen.style.display = 'block';
+            }
         });
         
         // Function to handle when user reaches complete payment screen (for updates)
@@ -2314,7 +2320,7 @@
                         // Update complete payment description with correct amount
                         const completePaymentDescription = document.getElementById('completePaymentDescription');
                         if (completePaymentDescription) {
-                            completePaymentDescription.innerHTML = `Clicking the button below will launch Venmo with a pre-populated note and the $${ticketAmount} amount. Please do not modify these values. <strong><u>You will receive an email with your ticket once we confirm your Venmo payment (about 10 seconds after). REMEMBER TO CHECK YOUR SPAM FOLDER.</u></strong>`;
+                            completePaymentDescription.innerHTML = `Clicking the button below will launch Venmo with a pre-populated note and the $${ticketAmount} amount. Please do not modify these values. <strong><u>You will receive an email with your ticket once we confirm your Venmo payment (about 10 seconds after). REMEMBER TO CHECK YOUR EMAIL SPAM FOLDER.</u></strong>`;
                         }
                         
                         // Re-enable button
