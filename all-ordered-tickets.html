@@ -287,16 +287,8 @@
 
         <div class="stats" id="statsContainer">
             <div class="stat-card">
-                <div class="stat-number" id="totalOrders">-</div>
-                <div class="stat-label">Total Orders</div>
-            </div>
-            <div class="stat-card">
                 <div class="stat-number" id="approvedOrders">-</div>
                 <div class="stat-label">Approved</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="pendingOrders">-</div>
-                <div class="stat-label">Pending</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="totalRevenue">-</div>
@@ -389,7 +381,41 @@
             const ordersTableBody = document.getElementById('ordersTableBody');
             ordersTableBody.innerHTML = '';
 
-            orders.forEach(order => {
+            // Sort orders by timestamp (most recent first)
+            const sortedOrders = orders.sort((a, b) => {
+                const timestampA = a.created_at || a.timestamp;
+                const timestampB = b.created_at || b.timestamp;
+                
+                // Handle custom format "5:57:52 PM (10/1)"
+                const parseCustomTimestamp = (timestamp) => {
+                    if (typeof timestamp === 'string' && timestamp.includes('PM') && timestamp.includes('(')) {
+                        try {
+                            const timeMatch = timestamp.match(/(\d+:\d+:\d+ [AP]M)/);
+                            const dateMatch = timestamp.match(/\((\d+\/\d+)\)/);
+                            
+                            if (timeMatch && dateMatch) {
+                                const timePart = timeMatch[1];
+                                const datePart = dateMatch[1];
+                                const currentYear = new Date().getFullYear();
+                                const [month, day] = datePart.split('/');
+                                const dateString = `${month}/${day}/${currentYear} ${timePart}`;
+                                return new Date(dateString);
+                            }
+                        } catch (error) {
+                            // Fallback to original timestamp
+                        }
+                    }
+                    return new Date(timestamp);
+                };
+                
+                const dateA = parseCustomTimestamp(timestampA);
+                const dateB = parseCustomTimestamp(timestampB);
+                
+                // Sort in descending order (most recent first)
+                return dateB - dateA;
+            });
+
+            sortedOrders.forEach(order => {
                 const row = document.createElement('tr');
                 
                 const statusClass = order.payment_approved === 'approved' ? 'approved' : 
@@ -397,7 +423,49 @@
                 
                 const typeClass = order.ticket_type === 'couple' ? 'couple' : 'single';
                 
-                const timestamp = new Date(order.created_at || order.timestamp).toLocaleString();
+                // Parse the custom timestamp format "5:57:52 PM (10/1)"
+                let timestamp = 'N/A';
+                const timestampValue = order.created_at || order.timestamp;
+                
+                if (timestampValue) {
+                    // Handle the custom format "5:57:52 PM (10/1)"
+                    if (typeof timestampValue === 'string' && timestampValue.includes('PM') && timestampValue.includes('(')) {
+                        try {
+                            // Extract time and date parts
+                            const timeMatch = timestampValue.match(/(\d+:\d+:\d+ [AP]M)/);
+                            const dateMatch = timestampValue.match(/\((\d+\/\d+)\)/);
+                            
+                            if (timeMatch && dateMatch) {
+                                const timePart = timeMatch[1];
+                                const datePart = dateMatch[1];
+                                
+                                // Create a proper date string (assuming current year)
+                                const currentYear = new Date().getFullYear();
+                                const [month, day] = datePart.split('/');
+                                const dateString = `${month}/${day}/${currentYear} ${timePart}`;
+                                
+                                const parsedDate = new Date(dateString);
+                                if (!isNaN(parsedDate.getTime())) {
+                                    timestamp = parsedDate.toLocaleString();
+                                } else {
+                                    timestamp = timestampValue; // Fallback to original
+                                }
+                            } else {
+                                timestamp = timestampValue; // Fallback to original
+                            }
+                        } catch (error) {
+                            timestamp = timestampValue; // Fallback to original
+                        }
+                    } else {
+                        // Try standard date parsing
+                        const parsedDate = new Date(timestampValue);
+                        if (!isNaN(parsedDate.getTime())) {
+                            timestamp = parsedDate.toLocaleString();
+                        } else {
+                            timestamp = timestampValue; // Fallback to original
+                        }
+                    }
+                }
                 
                 row.innerHTML = `
                     <td><span class="ticket-number">${order.ticket_number || 'N/A'}</span></td>
@@ -415,9 +483,7 @@
         }
 
         function updateStats(orders) {
-            const totalOrders = orders.length;
             const approvedOrders = orders.filter(order => order.payment_approved === 'approved').length;
-            const pendingOrders = orders.filter(order => order.payment_approved === 'pending' || !order.payment_approved).length;
             
             // Calculate total revenue from approved orders
             const totalRevenue = orders
@@ -427,10 +493,8 @@
                     return sum + amount;
                 }, 0);
 
-            document.getElementById('totalOrders').textContent = totalOrders;
             document.getElementById('approvedOrders').textContent = approvedOrders;
-            document.getElementById('pendingOrders').textContent = pendingOrders;
-            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = `$${Math.round(totalRevenue)}`;
         }
 
         // Load orders when page loads
