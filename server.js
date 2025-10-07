@@ -210,28 +210,51 @@ app.get('/api/tickets/:id', async (req, res) => {
 // Get all orders from fall_formal_orders table
 app.get('/api/orders', async (req, res) => {
     try {
+        console.log('Attempting to fetch orders from fall_formal_orders table...');
+        
         const { data, error } = await supabase
             .from('fall_formal_orders')
             .select('*')
             .order('created_at', { ascending: false });
         
         if (error) {
-            console.error('Supabase error:', error);
+            console.error('Supabase error details:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
+            
+            // If table doesn't exist, return empty array instead of error
+            if (error.code === 'PGRST116' || error.message.includes('relation "fall_formal_orders" does not exist')) {
+                console.log('fall_formal_orders table does not exist, returning empty array');
+                return res.json({
+                    success: true,
+                    orders: []
+                });
+            }
+            
             return res.status(500).json({
                 success: false,
-                error: 'Failed to fetch orders'
+                error: 'Failed to fetch orders',
+                details: error.message
             });
         }
         
+        console.log(`Successfully fetched ${data ? data.length : 0} orders`);
         res.json({
             success: true,
-            orders: data
+            orders: data || []
         });
     } catch (error) {
-        console.error('Server error:', error);
+        console.error('Server error in /api/orders:', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
-            error: 'Failed to retrieve orders'
+            error: 'Failed to retrieve orders',
+            details: error.message
         });
     }
 });
