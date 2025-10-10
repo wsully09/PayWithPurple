@@ -613,7 +613,7 @@ app.get('/ticket/:id', async (req, res) => {
                     </div>
                     <div flex column class="info-group">
                         <div class="info-label">TYPE</div>
-                        <div class="info-value">${ticket.ticket_type === 'couple' ? 'Couple (2x)' : 'Single (1x)'}</div>
+                        <div class="info-value">${ticket.ticket_type === 'couple' ? 'Couple (2x)' : ticket.ticket_type === 'single' ? 'Single (1x)' : ticket.ticket_type}</div>
                     </div>
                 </div>
                 
