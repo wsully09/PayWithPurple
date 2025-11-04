@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>Bowball</title>
+
+    <!-- Open Graph meta tags for social media preview -->
+    <meta property="og:title" content="Bowball">
+    <meta property="og:description" content="Bowball Event">
+    <meta property="og:image" content="image-banner.png">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bowball">
+    <meta name="twitter:description" content="Bowball Event">
+    <meta name="twitter:image" content="image-banner.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap" rel="stylesheet">
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons2/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons2/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons2/favicon-16x16.png">
+    <link rel="manifest" href="favicons2/site.webmanifest">
+    
+    <style>
+        :root {
+            --navy-blue: #050823;
+            --white: #ffffff;
+        }
+
+        ::selection {
+            background-color: white;
+            color: var(--navy-blue);
+        }
+
+        ::-moz-selection {
+            background-color: white;
+            color: var(--navy-blue);
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--navy-blue);
+            font-family: "Inter", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            position: relative;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            margin-top: 30px;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('noise-light.png');
+            background-repeat: repeat;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 100%;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .main-content {
+            font-family: "Literata", serif;
+            font-size: 24px;
+            color: white;
+            line-height: 1.3;
+            margin-bottom: 30px;
+            margin-top: calc(50vh - 150px);
+        }
+
+        .button {
+            background-color: white;
+            color: var(--navy-blue);
+            border: none;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin: auto;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 250px;
+            display: block;
+            white-space: nowrap;
+            text-align: center;
+        }
+        
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button-outline {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 12px 60px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s ease;
+            margin: auto;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 250px;
+            display: block;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .button-outline:hover {
+            transform: translateY(-1px);
+   
+        }
+
+        .subtitle {
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            color: white;
+            line-height: 1.4;
+            opacity: 0.9;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="noise-overlay"></div>
+        
+        <div class="container">
+            <div class="main-content">
+                RSVP to Bow Ball!
+            </div>=
+            <button class="button" id="goingButton">I'm Going!</button>
+            <button class="button-outline" id="notGoingButton">Can't Make It</button>
+            <div class="subtitle">
+             
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add your JavaScript functionality here
+        document.addEventListener('DOMContentLoaded', function() {
+            const goingButton = document.getElementById('goingButton');
+            const notGoingButton = document.getElementById('notGoingButton');
+            
+            if (goingButton) {
+                goingButton.addEventListener('click', function() {
+                    // Add your "I'm going" functionality here
+                    console.log('I\'m going clicked!');
+                });
+            }
+            
+            if (notGoingButton) {
+                notGoingButton.addEventListener('click', function() {
+                    // Add your "I'm not going" functionality here
+                    console.log('I\'m not going clicked!');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

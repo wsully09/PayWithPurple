@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .result h3 {
+            margin: 0 0 10px 0;
+            color: #2e7d32;
+        }
+        
+        .result p {
+            margin: 5px 0;
+            word-break: break-all;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        
+        .error h3 {
+            color: #c62828;
+        }
+        
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .loading {
+            color: #666;
+        }
+        
+        .success {
+            color: #4caf50;
+        }
+        
+        .error-text {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Scanner</h1>
+        
+        <div class="status" id="status">Initializing scanner...</div>
+        
+        <div id="reader"></div>
+        
+        <div class="controls">
+            <button id="startBtn" onclick="startScanner()">Start Scanner</button>
+            <button id="stopBtn" onclick="stopScanner()" disabled>Stop Scanner</button>
+            <button id="clearBtn" onclick="clearResult()">Clear Result</button>
+        </div>
+        
+        <div id="result" class="result">
+            <h3>Scanned Result:</h3>
+            <p><strong>Text:</strong> <span id="scannedText"></span></p>
+            <p><strong>Format:</strong> <span id="scannedFormat"></span></p>
+            <p><strong>Timestamp:</strong> <span id="scannedTime"></span></p>
+        </div>
+    </div>
+
+    <!-- Include the html5-qrcode library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <script>
+        let html5QrcodeScanner = null;
+        let isScanning = false;
+        
+        // Configuration for the scanner
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            rememberLastUsedCamera: true,
+            supportedScanTypes: [
+                Html5QrcodeScanType.SCAN_TYPE_CAMERA,
+                Html5QrcodeScanType.SCAN_TYPE_FILE
+            ]
+        };
+        
+        // Initialize the scanner when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeScanner();
+        });
+        
+        function initializeScanner() {
+            try {
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader", 
+                    config, 
+                    false // verbose = false
+                );
+                
+                updateStatus("Scanner ready. Click 'Start Scanner' to begin.", "loading");
+                document.getElementById('startBtn').disabled = false;
+            } catch (error) {
+                console.error("Error initializing scanner:", error);
+                updateStatus("Error initializing scanner: " + error.message, "error-text");
+            }
+        }
+        
+        function startScanner() {
+            if (isScanning) {
+                return;
+            }
+            
+            try {
+                updateStatus("Starting camera...", "loading");
+                
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                
+                isScanning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                updateStatus("Scanner is active. Point camera at QR code.", "success");
+                
+            } catch (error) {
+                console.error("Error starting scanner:", error);
+                updateStatus("Error starting scanner: " + error.message, "error-text");
+                isScanning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+        
+        function stopScanner() {
+            if (!isScanning) {
+                return;
+            }
+            
+            try {
+                html5QrcodeScanner.clear();
+                isScanning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+                updateStatus("Scanner stopped.", "loading");
+                
+            } catch (error) {
+                console.error("Error stopping scanner:", error);
+                updateStatus("Error stopping scanner: " + error.message, "error-text");
+            }
+        }
+        
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log(`QR Code detected: ${decodedText}`);
+            
+            // Update the result display
+            document.getElementById('scannedText').textContent = decodedText;
+            document.getElementById('scannedFormat').textContent = decodedResult.result.format || 'Unknown';
+            document.getElementById('scannedTime').textContent = new Date().toLocaleString();
+            
+            // Show the result
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.add('show');
+            resultDiv.classList.remove('error');
+            
+            updateStatus("QR Code scanned successfully!", "success");
+            
+            // Optional: Stop scanning after successful scan
+            // Uncomment the next line if you want to stop scanning after each successful scan
+            // stopScanner();
+        }
+        
+        function onScanFailure(error) {
+            // This function is called when scanning fails
+            // We don't need to show every failure as it's called frequently
+            // console.log("Scan failed:", error);
+        }
+        
+        function clearResult() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('show', 'error');
+            updateStatus("Result cleared.", "loading");
+        }
+        
+        function updateStatus(message, className = '') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = 'status ' + className;
+        }
+        
+        // Handle page visibility change to pause/resume scanning
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isScanning) {
+                // Page is hidden, you might want to pause scanning
+                console.log("Page hidden, scanner is still running");
+            } else if (!document.hidden && isScanning) {
+                // Page is visible again
+                console.log("Page visible, scanner is running");
+            }
+        });
+        
+        // Handle window beforeunload to clean up
+        window.addEventListener('beforeunload', function() {
+            if (isScanning) {
+                stopScanner();
+            }
+        });
+    </script>
+</body>
+</html>
