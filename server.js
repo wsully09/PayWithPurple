@@ -37,7 +37,7 @@ async function getEventConfig() {
             console.error('Error fetching event config:', error);
             // Return default config if table doesn't exist or has no data
             return {
-                event_name: 'Fall Formal',
+                event_name: 'Winter Formal',
                 event_date: 'November 15, 2024',
                 event_time: '7:00 PM - 11:00 PM',
                 event_location: 'Duncan Hall',
@@ -52,13 +52,13 @@ async function getEventConfig() {
         console.error('Error in getEventConfig:', error);
         // Return default config on error
         return {
-            event_name: 'Fall Formal',
+            event_name: 'Winter Formal',
             event_date: 'November 15, 2024',
             event_time: '7:00 PM - 11:00 PM',
             event_location: 'Duncan Hall',
             event_price: '$12',
             event_address: '825 East Washington Street',
-            brand_name: 'Duncan Fall Formal'
+            brand_name: 'Duncan Winter Formal'
         };
     }
 }
@@ -314,7 +314,7 @@ app.post('/api/approve-payment', async (req, res) => {
         // Send SMS with ticket link if phone number is provided
         if (phone_number) {
             try {
-                const message = `Your Venmo was received. See below for your Fall Formal Ticket: ${ticketUrl}`;
+                const message = `Your Venmo was received. See below for your Winter Formal Ticket: ${ticketUrl}`;
                 
                 // Use Textbelt API to send SMS
                 const smsResponse = await fetch('https://textbelt.com/text', {
@@ -433,7 +433,7 @@ app.get('/ticket/:id', async (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${eventConfig.event_name} Ticket #${ticketId}</title>
+            <title>Winter Formal Ticket #${ticketId}</title>
             <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
             <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
@@ -778,7 +778,7 @@ app.get('/formal', (req, res) => {
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
-app.use('/favicons', express.static(path.join(__dirname, 'favicons2')));
+app.use('/favicons', express.static(path.join(__dirname, 'favicons5')));
 app.use(express.static(path.join(__dirname, '.'), {
     // Only serve files with these extensions as static files
     setHeaders: (res, path) => {
