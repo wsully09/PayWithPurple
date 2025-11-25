@@ -652,7 +652,13 @@
         }
 
         .copy-label.hidden {
-            opacity: 0;
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+        
+        .copy-box.simple .copy-label.hidden {
+            opacity: 0 !important;
+            pointer-events: none;
         }
 
         .input-group {
