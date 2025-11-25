@@ -406,7 +406,7 @@ app.get('/ticket/:id', async (req, res) => {
         // Generate QR code for the ticket number
         let qrCodeDataURL;
         try {
-            qrCodeDataURL = await QRCode.toDataURL(ticketId, { 
+            qrCodeDataURL = await QRCode.toDataURL(`https://duncancompound.org/scan?t=${ticketId}`, { 
                 width: 200,
                 margin: 2,
                 color: {
@@ -582,6 +582,8 @@ app.get('/ticket/:id', async (req, res) => {
                     justify-content: center;
                     font-size: 12px;
                     color: #666;
+                    user-select: none;
+                    
                 }
 
                 .share-section {
