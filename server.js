@@ -180,18 +180,29 @@ app.get('/api/tickets/:id', async (req, res) => {
     try {
         const ticketId = req.params.id;
         
-        // Get ticket from Supabase database
-        const { data, error } = await supabase
-            .from('fall_formal_orders')
+        // Try to get ticket from winter_formal_orders first
+        let { data, error } = await supabase
+            .from('winter_formal_orders')
             .select('*')
             .eq('ticket_number', ticketId)
             .single();
         
+        // If not found in winter_formal_orders, try fall_formal_orders
         if (error || !data) {
-            return res.status(404).json({
-                success: false,
-                error: 'Ticket not found'
-            });
+            const { data: fallData, error: fallError } = await supabase
+                .from('fall_formal_orders')
+                .select('*')
+                .eq('ticket_number', ticketId)
+                .single();
+            
+            if (fallError || !fallData) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Ticket not found'
+                });
+            }
+            
+            data = fallData;
         }
         
         res.json({
@@ -345,36 +356,47 @@ app.get('/ticket/:id', async (req, res) => {
     try {
         const ticketId = req.params.id;
         
-        // Get ticket from Supabase database
-        const { data: ticket, error } = await supabase
-            .from('fall_formal_orders')
+        // Try to get ticket from winter_formal_orders first
+        let { data: ticket, error } = await supabase
+            .from('winter_formal_orders')
             .select('*')
             .eq('ticket_number', ticketId)
             .single();
         
+        // If not found in winter_formal_orders, try fall_formal_orders
         if (error || !ticket) {
-            return res.status(404).send(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Ticket Not Found</title>
-                    <style>
-                        body { 
-                            font-family: Arial, sans-serif; 
-                            text-align: center; 
-                            padding: 50px;
-                            background-color: #0e140b;
-                            color: white;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1>Ticket Not Found</h1>
-                    <p>This ticket ID is not valid or has expired.</p>
-                    <a href="/" style="color: white;">Back to Home</a>
-                </body>
-                </html>
-            `);
+            const { data: fallTicket, error: fallError } = await supabase
+                .from('fall_formal_orders')
+                .select('*')
+                .eq('ticket_number', ticketId)
+                .single();
+            
+            if (fallError || !fallTicket) {
+                return res.status(404).send(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Ticket Not Found</title>
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                text-align: center; 
+                                padding: 50px;
+                                background-color: #0e140b;
+                                color: white;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Ticket Not Found</h1>
+                        <p>This ticket ID is not valid or has expired.</p>
+                        <a href="/" style="color: white;">Back to Home</a>
+                    </body>
+                    </html>
+                `);
+            }
+            
+            ticket = fallTicket;
         }
 
         // Get current event configuration for dynamic display
