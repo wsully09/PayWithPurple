@@ -2,8 +2,7 @@
 -- Run this SQL in your Supabase SQL editor
 
 CREATE TABLE IF NOT EXISTS fall_formal_orders (
-    id SERIAL PRIMARY KEY,
-    ticket_number TEXT UNIQUE NOT NULL,
+    ticket_number INT8 PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     status TEXT DEFAULT 'active',
     event TEXT,

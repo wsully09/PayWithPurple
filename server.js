@@ -22,7 +22,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Generate random 6-digit ticket ID
 function generateTicketId() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return Math.floor(100000 + Math.random() * 900000);
 }
 
 // Get event configuration from Supabase
