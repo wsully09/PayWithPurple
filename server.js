@@ -43,7 +43,7 @@ async function getEventConfig() {
                 event_location: 'Duncan Hall',
                 event_price: '$12',
                 event_address: '825 East Washington Street',
-                brand_name: 'Duncan Fall Formal'
+                brand_name: 'Duncan Winter Formal'
             };
         }
         
@@ -625,7 +625,7 @@ app.get('/ticket/:id', async (req, res) => {
                 
                 <!--image banner, width of container with proper aspect ratio-->
                 <div class="placeholder-image">
-                    <img src="/image-banner.png" alt="Banner Image" class="banner-image">
+                    <img src="/image-banner2.png" alt="Banner Image" class="banner-image">
                 </div>
                 
                 <div flex row class="info-section">
