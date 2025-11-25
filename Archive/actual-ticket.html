@@ -7,6 +7,7 @@
     <style>
         :root {
             --black: #000000;
+            --dark-blue: #0a1c2c;
         }
 
         * {
@@ -18,12 +19,21 @@
 
         body {
             height: 100vh;
-            background-color: black;#12271d; /* Dark green background */
+            background-color: var(--dark-blue);
+            position: relative;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background-image: url('../noise-light.png');
-            background-size: 200px 200px;
             background-repeat: repeat;
-            background-blend-mode: overlay;
-            opacity: 0.8;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
         }
 
         .container {
@@ -37,6 +47,7 @@
             border-radius: 10px;
             box-sizing: border-box;
             position: relative;
+            z-index: 10;
         }
 
         [flex] {
@@ -62,7 +73,7 @@
         .brand {
             font-weight: bold;
             font-size: 18px;
-            color: #2c5530;
+            color: var(--dark-blue);
         }
 
         .address {
@@ -154,6 +165,7 @@
     </style>
 </head>
 <body>
+    <div class="noise-overlay"></div>
     <div class="container">
         <div flex row class="header">
             <!--in top left corner-->
