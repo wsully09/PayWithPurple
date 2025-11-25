@@ -1623,10 +1623,10 @@
     <!-- Venmo Popup -->
     <div class="venmo-popup-overlay" id="venmoPopupOverlay">
         <div class="venmo-popup">
-            <button class="venmo-popup-close" id="venmoPopupClose">&times;</button>
+            <button class="venmo-popup-close" id="venmoPopupClose" onclick="closeVenmoPopup(); return false;">&times;</button>
             <div class="venmo-popup-title">IMPORTANT NOTE</div>
             <div class="venmo-popup-text">Click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number</div>
-            <button class="venmo-popup-button" id="venmoPopupButton">GOT IT. TAKE ME TO VENMO</button>
+            <button class="venmo-popup-button" id="venmoPopupButton" onclick="closeVenmoPopup(); launchVenmoApp(); return false;">GOT IT. TAKE ME TO VENMO</button>
         </div>
     </div>
 
@@ -2296,6 +2296,7 @@
 
         // Show Venmo popup
         function showVenmoPopup() {
+            console.log('showVenmoPopup called');
             const popup = document.getElementById('venmoPopupOverlay');
             if (popup) {
                 // Set all styles first
@@ -2309,38 +2310,80 @@
                     popupContent.style.pointerEvents = 'auto';
                     popupContent.style.zIndex = '2001';
                 }
-                // Ensure buttons are clickable
+                // Ensure buttons are clickable and re-attach event listeners
                 const popupButton = popup.querySelector('.venmo-popup-button');
                 const popupClose = popup.querySelector('.venmo-popup-close');
                 if (popupButton) {
                     popupButton.style.pointerEvents = 'auto';
                     popupButton.style.zIndex = '2002';
                     popupButton.style.cursor = 'pointer';
+                    // Remove existing listeners and re-attach to ensure they work
+                    const newButton = popupButton.cloneNode(true);
+                    popupButton.parentNode.replaceChild(newButton, popupButton);
+                    newButton.addEventListener('click', function(e) {
+                        console.log('Button click handler fired');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeVenmoPopup();
+                        launchVenmoApp();
+                    }, { passive: false });
+                    newButton.addEventListener('touchend', function(e) {
+                        console.log('Button touchend handler fired');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeVenmoPopup();
+                        launchVenmoApp();
+                    }, { passive: false });
                 }
                 if (popupClose) {
                     popupClose.style.pointerEvents = 'auto';
                     popupClose.style.zIndex = '2002';
                     popupClose.style.cursor = 'pointer';
+                    // Remove existing listeners and re-attach to ensure they work
+                    const newClose = popupClose.cloneNode(true);
+                    popupClose.parentNode.replaceChild(newClose, popupClose);
+                    newClose.addEventListener('click', function(e) {
+                        console.log('Close click handler fired');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeVenmoPopup();
+                    }, { passive: false });
+                    newClose.addEventListener('touchend', function(e) {
+                        console.log('Close touchend handler fired');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        closeVenmoPopup();
+                    }, { passive: false });
                 }
                 // Force a reflow to ensure the popup is rendered
                 popup.offsetHeight;
+                console.log('Popup shown');
+            } else {
+                console.error('Popup element not found');
             }
         }
 
-        // Close Venmo popup
-        function closeVenmoPopup() {
+        // Close Venmo popup - make it globally accessible
+        window.closeVenmoPopup = function closeVenmoPopup() {
+            console.log('closeVenmoPopup called');
             const popup = document.getElementById('venmoPopupOverlay');
             if (popup) {
                 popup.style.display = 'none';
+                console.log('Popup closed');
+            } else {
+                console.error('Popup element not found');
             }
-        }
+        };
 
-        // Launch Venmo with proper link
-        function launchVenmoApp() {
+        // Launch Venmo with proper link - make it globally accessible
+        window.launchVenmoApp = function launchVenmoApp() {
+            console.log('launchVenmoApp called');
             const ticketNumber = generatedTicketNumber || '42821';
             const venmoUrl = `venmo://paycharge?txn=pay&recipients=duncanoffcampus&amount=${ticketAmount}&note=Winter%20Formal%20(%23${ticketNumber})`;
+            console.log('Venmo URL:', venmoUrl);
+            console.log('ticketAmount:', ticketAmount);
             window.location.href = venmoUrl;
-        }
+        };
 
         // Show payment received screen
         async function showPaymentReceivedScreen() {
@@ -2640,24 +2683,42 @@
             if (venmoPopupButton) {
                 // Use both click and touchstart for better mobile support
                 const handleVenmoButtonClick = function(e) {
+                    console.log('Venmo button clicked');
                     e.preventDefault();
                     e.stopPropagation();
-                    closeVenmoPopup();
-                    launchVenmoApp();
+                    try {
+                        closeVenmoPopup();
+                        launchVenmoApp();
+                    } catch (error) {
+                        console.error('Error in venmo button handler:', error);
+                    }
                 };
-                venmoPopupButton.addEventListener('click', handleVenmoButtonClick);
-                venmoPopupButton.addEventListener('touchend', handleVenmoButtonClick);
+                venmoPopupButton.addEventListener('click', handleVenmoButtonClick, { passive: false });
+                venmoPopupButton.addEventListener('touchend', handleVenmoButtonClick, { passive: false });
+                // Also add mousedown as backup
+                venmoPopupButton.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                });
             }
             
             if (venmoPopupClose) {
                 // Use both click and touchstart for better mobile support
                 const handleCloseClick = function(e) {
+                    console.log('Close button clicked');
                     e.preventDefault();
                     e.stopPropagation();
-                    closeVenmoPopup();
+                    try {
+                        closeVenmoPopup();
+                    } catch (error) {
+                        console.error('Error in close button handler:', error);
+                    }
                 };
-                venmoPopupClose.addEventListener('click', handleCloseClick);
-                venmoPopupClose.addEventListener('touchend', handleCloseClick);
+                venmoPopupClose.addEventListener('click', handleCloseClick, { passive: false });
+                venmoPopupClose.addEventListener('touchend', handleCloseClick, { passive: false });
+                // Also add mousedown as backup
+                venmoPopupClose.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                });
             }
             
             if (venmoPopupOverlay) {
