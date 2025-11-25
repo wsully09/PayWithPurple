@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Scanner</title>
+    <style>
+        :root {
+            --black: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background-color: #1a2332; /* Dark blue background */
+            background-image: url('noise-light.png');
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            background-blend-mode: overlay;
+            opacity: 0.8;
+            font-family: "Inter", sans-serif;
+        }
+        
+        .container {
+            max-width: 450px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            padding-top: 40px;
+            position: relative;
+            margin-top: 30px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .container.ticket-used {
+            background-color: #d32f2f !important;
+            border: none !important;
+            box-shadow: 0 2px 10px rgba(211, 47, 47, 0.3) !important;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1976d2;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border: 1px solid #1976d2;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .result h3 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+            font-weight: bold;
+        }
+        
+        .result p {
+            margin: 5px 0;
+            word-break: break-all;
+            font-size: 14px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #1a2332;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+            min-width: 120px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #0f1419;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .ticket-used {
+            background-color: #d32f2f !important;
+            color: white !important;
+            cursor: not-allowed !important;
+            border: none !important;
+        }
+        
+        .ticket-used:hover {
+            background-color: #b71c1c !important;
+        }
+        
+        button.ticket-used {
+            background-color: #d32f2f !important;
+            color: white !important;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        
+        .error h3 {
+            color: #c62828;
+        }
+        
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .loading {
+            color: #1976d2;
+        }
+        
+        .success {
+            color: #1976d2;
+        }
+        
+        .error-text {
+            color: #d32f2f;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2196f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .ticket-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .ticket-info h4 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .ticket-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .ticket-info strong {
+            color: #1976d2;
+            font-weight: 600;
+        }
+        
+        .container.ticket-used .ticket-info p {
+            color: white !important;
+        }
+        
+        .container.ticket-used .ticket-info strong {
+            color: white !important;
+        }
+        
+        .container.ticket-used .ticket-info h4 {
+            color: white !important;
+        }
+        
+        .container.ticket-used .ticket-info {
+            background-color: transparent !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        .container.ticket-used .ticket-info .reason {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-left: 4px solid white !important;
+        }
+        
+        .ticket-info .reason {
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #ffebee;
+            border-radius: 4px;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .scan-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .scan-buttons button {
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .next-ticket-btn {
+            background-color: #1a2332;
+            margin-top: 10px;
+        }
+        
+        .next-ticket-btn:hover {
+            background-color: #0f1419;
+        }
+        
+        #cancelScanBtn {
+            background-color: transparent;
+            color: #1a2332;
+            border: 2px solid #1a2332;
+        }
+        
+        #cancelScanBtn:hover {
+            background-color: #1a2332;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ticket Scanner</h1>
+        
+        <div class="status" id="status">Loading ticket...</div>
+        
+        <div id="ticketInfo" class="ticket-info" style="display: none;">
+            <h4>Ticket Information</h4>
+            <p><strong>Ticket Number:</strong> <span id="ticketNumber"></span></p>
+            <p><strong>Name:</strong> <span id="ticketName"></span></p>
+            <p><strong>Type:</strong> <span id="ticketType"></span></p>
+            <p><strong>Status:</strong> <span id="ticketStatus"></span></p>
+            <p><strong>Scans:</strong> <span id="currentScans"></span></p>
+            <div id="ticketReason" class="reason" style="display: none;"></div>
+        </div>
+        
+        <div id="scanButtons" class="scan-buttons" style="display: none;">
+            <!-- Buttons will be dynamically added here -->
+        </div>
+        
+        <div id="cancelScanSection" style="display: none; text-align: center; margin: 10px 0;">
+            <button id="cancelScanBtn" onclick="cancelScan()">Cancel Scan</button>
+        </div>
+        
+        <div id="nextTicketSection" style="display: none; text-align: center;">
+            <button id="nextTicketBtn" class="next-ticket-btn" onclick="scanNextTicket()">Scan Next Ticket</button>
+        </div>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3>Scan Result:</h3>
+            <p><strong>Message:</strong> <span id="resultMessage"></span></p>
+            <p><strong>Timestamp:</strong> <span id="scannedTime"></span></p>
+        </div>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhenNya2N2ZWN5bXVqZm1yemV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTIwNzAzNCwiZXhwIjoyMDcwNzgzMDM0fQ.oP2KHilItRH1EZ53-eOY_Ihcyt0Kn-paa1U-jAZnUgo";
+        
+        let currentTicket = null;
+        
+        // Get ticket number from query parameter
+        function getTicketNumberFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('t');
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const ticketNumber = getTicketNumberFromURL();
+            
+            if (!ticketNumber) {
+                showError("No ticket number provided. Please include ?t=12345 in the URL");
+                updateStatus("Error: Missing ticket number", "error-text");
+                return;
+            }
+            
+            // Validate if it's a 5-digit number
+            if (!/^\d{5}$/.test(ticketNumber)) {
+                showError("Invalid Ticket Number - Must be exactly 5 digits");
+                updateStatus("Error: Invalid ticket number format", "error-text");
+                document.querySelector('.container').classList.add('ticket-used');
+                return;
+            }
+            
+            // Fetch and display ticket
+            loadTicket(ticketNumber);
+        });
+        
+        async function loadTicket(ticketNumber) {
+            try {
+                updateStatus("Loading ticket...", "loading");
+                
+                // Fetch ticket data from Supabase
+                const ticketData = await fetchTicketData(ticketNumber);
+                
+                if (ticketData) {
+                    currentTicket = ticketData;
+                    displayTicketInfo(ticketData);
+                    showScanButtons(ticketData);
+                    showCancelButton();
+                    updateStatus("Ticket loaded", "success");
+                } else {
+                    showError("Invalid Ticket - Ticket number not found in database");
+                    updateStatus("Error: Ticket not found", "error-text");
+                    document.querySelector('.container').classList.add('ticket-used');
+                }
+                
+            } catch (error) {
+                console.error("Error fetching ticket:", error);
+                showError("Error looking up ticket: " + error.message);
+                updateStatus("Error occurred", "error-text");
+            }
+        }
+        
+        async function fetchTicketData(ticketNumber) {
+            try {
+                const url = `${SUPABASE_URL}/rest/v1/winter_formal_orders?ticket_number=eq.${ticketNumber}&select=*`;
+                console.log('Fetching ticket data from:', url);
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Ticket fetch response status:', response.status);
+                console.log('Ticket fetch response headers:', Object.fromEntries(response.headers.entries()));
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Ticket fetch error response:', errorText);
+                    throw new Error(`Failed to fetch ticket data. Status: ${response.status}, Error: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Ticket data received:', data);
+                
+                if (data.length === 0) {
+                    console.log('No ticket found for number:', ticketNumber);
+                    return null;
+                }
+                
+                console.log('Found ticket:', data[0]);
+                return data[0];
+                
+            } catch (error) {
+                console.error("Detailed error fetching ticket:", {
+                    error: error,
+                    message: error.message,
+                    stack: error.stack,
+                    ticketNumber: ticketNumber,
+                    url: `${SUPABASE_URL}/rest/v1/winter_formal_orders?ticket_number=eq.${ticketNumber}&select=*`
+                });
+                throw error;
+            }
+        }
+        
+        function displayTicketInfo(ticket) {
+            document.getElementById('ticketNumber').textContent = ticket.ticket_number;
+            document.getElementById('ticketName').textContent = ticket.name || 'Not provided';
+            // Display ticket type with proper formatting
+            let typeDisplay = ticket.ticket_type;
+            if (ticket.ticket_type === 'couple') {
+                typeDisplay = 'Couple (2 people)';
+            } else if (ticket.ticket_type === 'single') {
+                typeDisplay = 'Single (1 person)';
+            } else {
+                // For other types like "Group (3x)", show the actual ticket_type value
+                typeDisplay = ticket.ticket_type;
+            }
+            document.getElementById('ticketType').textContent = typeDisplay;
+            document.getElementById('ticketStatus').textContent = ticket.payment_approved || 'Unknown';
+            document.getElementById('currentScans').textContent = ticket.ticket_scans || 0;
+            
+            // Check if ticket is already used and add red styling to container
+            const container = document.querySelector('.container');
+            const currentScans = ticket.ticket_scans || 0;
+            const isUsed = (ticket.ticket_type === 'single' && currentScans >= 1) || 
+                         (ticket.ticket_type === 'couple' && currentScans >= 2) ||
+                         (ticket.ticket_type !== 'single' && ticket.ticket_type !== 'couple' && 
+                          ticket.ticket_type.match(/\((\d+)x?\)/) && 
+                          currentScans >= parseInt(ticket.ticket_type.match(/\((\d+)x?\)/)[1]));
+            
+            if (isUsed) {
+                container.classList.add('ticket-used');
+                // Show reason for why ticket can't be used
+                const reasonDiv = document.getElementById('ticketReason');
+                let maxScans = '1';
+                if (ticket.ticket_type === 'couple') {
+                    maxScans = '2';
+                } else if (ticket.ticket_type === 'single') {
+                    maxScans = '1';
+                } else {
+                    // Extract max scans from parentheses for other ticket types
+                    const match = ticket.ticket_type.match(/\((\d+)x?\)/);
+                    if (match) {
+                        maxScans = match[1];
+                    }
+                }
+                reasonDiv.textContent = `Ticket already used (${currentScans}/${maxScans} scans)`;
+                reasonDiv.style.display = 'block';
+            } else {
+                container.classList.remove('ticket-used');
+                document.getElementById('ticketReason').style.display = 'none';
+            }
+            
+            document.getElementById('ticketInfo').style.display = 'block';
+        }
+        
+        function showScanButtons(ticket) {
+            const scanButtonsDiv = document.getElementById('scanButtons');
+            scanButtonsDiv.innerHTML = '';
+            
+            // Check if ticket is used and apply container styling
+            const container = document.querySelector('.container');
+            const currentScans = ticket.ticket_scans || 0;
+            
+            // Determine if ticket is used based on type
+            let isUsed = false;
+            if (ticket.ticket_type === 'single') {
+                isUsed = currentScans >= 1;
+            } else if (ticket.ticket_type === 'couple') {
+                isUsed = currentScans >= 2;
+            } else {
+                // For other ticket types, extract max scans from parentheses
+                const match = ticket.ticket_type.match(/\((\d+)x?\)/);
+                if (match) {
+                    const maxScans = parseInt(match[1]);
+                    isUsed = currentScans >= maxScans;
+                }
+            }
+            
+            console.log('Ticket type:', ticket.ticket_type, 'Current scans:', currentScans, 'Is used:', isUsed);
+            
+            if (isUsed) {
+                container.classList.add('ticket-used');
+            } else {
+                container.classList.remove('ticket-used');
+            }
+            
+            if (ticket.ticket_type === 'couple') {
+                const currentScans = ticket.ticket_scans || 0;
+                const remainingScans = 2 - currentScans;
+                
+                if (remainingScans <= 0) {
+                    // Ticket is fully used
+                    scanButtonsDiv.innerHTML = `
+                        <button onclick="scanNextTicket()" class="next-ticket-btn" style="background-color: white; color: #d32f2f; border: 2px solid #d32f2f;">
+                            Scan Another Ticket
+                        </button>
+                    `;
+                } else if (remainingScans === 1) {
+                    // Only 1 scan left, show only 1 person button
+                    scanButtonsDiv.innerHTML = `
+                        <button onclick="processScan(1)" id="scan1Btn">
+                            <span class="loading-spinner" style="display: none;"></span>1 Person Here
+                        </button>
+                    `;
+                } else {
+                    // 2 scans left, show both buttons
+                    scanButtonsDiv.innerHTML = `
+                        <button onclick="processScan(1)" id="scan1Btn">
+                            <span class="loading-spinner" style="display: none;"></span>1 Person Here
+                        </button>
+                        <button onclick="processScan(2)" id="scan2Btn">
+                            <span class="loading-spinner" style="display: none;"></span>2 People Here
+                        </button>
+                    `;
+                }
+            } else if (ticket.ticket_type === 'single') {
+                const currentScans = ticket.ticket_scans || 0;
+                
+                if (currentScans >= 1) {
+                    // Single ticket already used
+                    scanButtonsDiv.innerHTML = `
+                        <button onclick="scanNextTicket()" class="next-ticket-btn" style="background-color: white; color: #d32f2f; border: 2px solid #d32f2f;">
+                            Scan Another Ticket
+                        </button>
+                    `;
+                } else {
+                    // Show single button for single tickets
+                    scanButtonsDiv.innerHTML = `
+                        <button onclick="processScan(1)" id="scan1Btn">
+                            <span class="loading-spinner" style="display: none;"></span>Person Here
+                        </button>
+                    `;
+                }
+            } else {
+                // Extract number from parentheses for other ticket types
+                const match = ticket.ticket_type.match(/\((\d+)x?\)/);
+                const maxScans = match ? parseInt(match[1]) : 1;
+                const currentScans = ticket.ticket_scans || 0;
+                const remainingScans = maxScans - currentScans;
+                
+                if (remainingScans <= 0) {
+                    // Ticket is fully used
+                    scanButtonsDiv.innerHTML = `
+                        <button onclick="scanNextTicket()" class="next-ticket-btn" style="background-color: white; color: #d32f2f; border: 2px solid #d32f2f;">
+                            Scan Another Ticket
+                        </button>
+                    `;
+                } else {
+                    // Show buttons based on remaining scans
+                    let buttons = '';
+                    for (let i = 1; i <= Math.min(remainingScans, 3); i++) {
+                        buttons += `
+                            <button onclick="processScan(${i})" id="scan${i}Btn">
+                                <span class="loading-spinner" style="display: none;"></span>${i} Person${i > 1 ? 's' : ''} Here
+                            </button>
+                        `;
+                    }
+                    scanButtonsDiv.innerHTML = buttons;
+                }
+            }
+            
+            scanButtonsDiv.style.display = 'flex';
+        }
+        
+        async function processScan(scanCount) {
+            if (!currentTicket) return;
+            
+            // Show loading on the clicked button
+            const button = event.target;
+            const spinner = button.querySelector('.loading-spinner');
+            spinner.style.display = 'inline-block';
+            button.disabled = true;
+            
+            try {
+                // Calculate new scan count
+                const currentScans = currentTicket.ticket_scans || 0;
+                const newScanCount = currentScans + scanCount;
+                
+                console.log('Updating ticket:', {
+                    ticketNumber: currentTicket.ticket_number,
+                    currentScans: currentScans,
+                    scanCount: scanCount,
+                    newScanCount: newScanCount
+                });
+                
+                // Update ticket in database
+                const updateData = {
+                    ticket_scans: newScanCount
+                };
+                
+                console.log('Update data:', updateData);
+                console.log('API URL:', `${SUPABASE_URL}/rest/v1/winter_formal_orders?ticket_number=eq.${currentTicket.ticket_number}`);
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/winter_formal_orders?ticket_number=eq.${currentTicket.ticket_number}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    throw new Error(`Failed to update ticket. Status: ${response.status}, Error: ${errorText}`);
+                }
+                
+                // Update current ticket data
+                currentTicket.ticket_scans = newScanCount;
+                
+                // Show success message
+                showResult(`Successfully scanned ${scanCount} ${scanCount === 1 ? 'person' : 'people'}. Total scans: ${newScanCount}`, 'success');
+                
+                // Hide scan buttons and show next ticket button
+                document.getElementById('scanButtons').style.display = 'none';
+                document.getElementById('cancelScanSection').style.display = 'none';
+                document.getElementById('nextTicketSection').style.display = 'block';
+                
+                // Update current scans display
+                document.getElementById('currentScans').textContent = newScanCount;
+                
+                // Refresh ticket info display
+                displayTicketInfo(currentTicket);
+                
+            } catch (error) {
+                console.error("Detailed error processing scan:", {
+                    error: error,
+                    message: error.message,
+                    stack: error.stack,
+                    ticketNumber: currentTicket?.ticket_number,
+                    scanCount: scanCount
+                });
+                showError(`Error processing scan: ${error.message}`);
+            } finally {
+                // Hide loading spinner
+                spinner.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+        
+        function showCancelButton() {
+            document.getElementById('cancelScanSection').style.display = 'block';
+        }
+        
+        function scanNextTicket() {
+            // Reset the interface
+            document.getElementById('ticketInfo').style.display = 'none';
+            document.getElementById('scanButtons').style.display = 'none';
+            document.getElementById('cancelScanSection').style.display = 'none';
+            document.getElementById('nextTicketSection').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            
+            // Remove red styling from container
+            const container = document.querySelector('.container');
+            container.classList.remove('ticket-used');
+            
+            currentTicket = null;
+            
+            // Reload ticket from URL
+            const ticketNumber = getTicketNumberFromURL();
+            if (ticketNumber) {
+                loadTicket(ticketNumber);
+            }
+        }
+        
+        function cancelScan() {
+            // Reset the interface
+            document.getElementById('ticketInfo').style.display = 'none';
+            document.getElementById('scanButtons').style.display = 'none';
+            document.getElementById('cancelScanSection').style.display = 'none';
+            document.getElementById('nextTicketSection').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            
+            // Remove red styling from container
+            const container = document.querySelector('.container');
+            container.classList.remove('ticket-used');
+            
+            currentTicket = null;
+            
+            // Reload ticket from URL
+            const ticketNumber = getTicketNumberFromURL();
+            if (ticketNumber) {
+                loadTicket(ticketNumber);
+            }
+        }
+        
+        function showResult(message, type = 'success') {
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('scannedTime').textContent = new Date().toLocaleString();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result show';
+            
+            if (type === 'error') {
+                resultDiv.classList.add('error');
+            } else {
+                resultDiv.classList.remove('error');
+            }
+        }
+        
+        function showError(message) {
+            showResult(message, 'error');
+            updateStatus("Error occurred", "error-text");
+        }
+        
+        function updateStatus(message, className = '') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = 'status ' + className;
+        }
+    </script>
+</body>
+</html>
+
