@@ -7,7 +7,7 @@ const { createClient } = require('@supabase/supabase-js');
 const QRCode = require('qrcode');
 
 const app = express();
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors());
@@ -747,6 +747,10 @@ app.get('/all-ordered-tickets', (req, res) => {
     res.sendFile(path.join(__dirname, 'all-ordered-tickets.html'));
 });
 
+app.get('/formal', (req, res) => {
+    res.sendFile(path.join(__dirname, 'formal.html'));
+});
+
 // Serve static files for specific assets only (CSS, JS, images, etc.)
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
@@ -806,10 +810,11 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
     console.log(`Ticket generator: http://localhost:${PORT}/ticket-generator`);
     console.log(`Railway ticket generator: http://localhost:${PORT}/ticket-generator-railway`);
     console.log(`Send page: http://localhost:${PORT}/send`);
     console.log(`QR Scanner: http://localhost:${PORT}/qr-code-scanner`);
+    console.log(`Formal page: http://localhost:${PORT}/formal`);
 });
