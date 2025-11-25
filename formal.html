@@ -2691,13 +2691,14 @@
                 }
                 if (feedback) feedback.classList.add('show');
                 
-                // Reset after 2 seconds
+                // Reset after 2 seconds - explicitly set values for better mobile compatibility
                 setTimeout(() => {
                     if (feedback) feedback.classList.remove('show');
                     if (content) content.classList.remove('hidden');
                     if (label) {
-                        label.style.removeProperty('opacity');
-                        label.style.removeProperty('visibility');
+                        // Explicitly set back to original values for mobile compatibility
+                        label.style.opacity = copyBox.classList.contains('simple') ? '0.9' : '0.7';
+                        label.style.visibility = 'visible';
                     }
                 }, 2000);
             }).catch(function(err) {
@@ -2722,12 +2723,14 @@
                 }
                 if (feedback) feedback.classList.add('show');
                 
+                // Reset after 2 seconds - explicitly set values for better mobile compatibility
                 setTimeout(() => {
                     if (feedback) feedback.classList.remove('show');
                     if (content) content.classList.remove('hidden');
                     if (label) {
-                        label.style.removeProperty('opacity');
-                        label.style.removeProperty('visibility');
+                        // Explicitly set back to original values for mobile compatibility
+                        label.style.opacity = copyBox.classList.contains('simple') ? '0.9' : '0.7';
+                        label.style.visibility = 'visible';
                     }
                 }, 2000);
             });
