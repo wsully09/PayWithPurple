@@ -1039,7 +1039,8 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
+            pointer-events: auto;
         }
 
         .venmo-popup {
@@ -1054,6 +1055,8 @@
             line-height: 1.4;
             box-sizing: border-box;
             position: relative;
+            z-index: 2001;
+            pointer-events: auto;
         }
 
         .venmo-popup-title {
@@ -1069,7 +1072,7 @@
         }
 
         .venmo-popup-button {
-            background-color: black;
+            background-color: var(--dark-blue);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -1082,6 +1085,9 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             user-select: none;
+            pointer-events: auto;
+            position: relative;
+            z-index: 2001;
         }
 
         .venmo-popup-button:hover {
@@ -1113,6 +1119,8 @@
             touch-action: manipulation;
             user-select: none;
             transition: opacity 0.2s;
+            pointer-events: auto;
+            z-index: 2002;
         }
 
         .venmo-popup-close:hover {
@@ -2605,14 +2613,18 @@
             const venmoPopupOverlay = document.getElementById('venmoPopupOverlay');
             
             if (venmoPopupButton) {
-                venmoPopupButton.addEventListener('click', function() {
+                venmoPopupButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     closeVenmoPopup();
                     launchVenmoApp();
                 });
             }
             
             if (venmoPopupClose) {
-                venmoPopupClose.addEventListener('click', function() {
+                venmoPopupClose.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     closeVenmoPopup();
                 });
             }
@@ -2620,8 +2632,18 @@
             if (venmoPopupOverlay) {
                 venmoPopupOverlay.addEventListener('click', function(e) {
                     if (e.target === venmoPopupOverlay) {
+                        e.preventDefault();
+                        e.stopPropagation();
                         closeVenmoPopup();
                     }
+                });
+            }
+            
+            // Prevent clicks on popup content from closing the popup
+            const venmoPopup = document.querySelector('.venmo-popup');
+            if (venmoPopup) {
+                venmoPopup.addEventListener('click', function(e) {
+                    e.stopPropagation();
                 });
             }
 
