@@ -2678,27 +2678,32 @@
 
         // Copy to clipboard function
         function copyToClipboard(text, copyBox) {
+            // Store original label opacity before modifying
+            const label = copyBox.querySelector('.copy-label');
+            const originalOpacity = label ? (copyBox.classList.contains('simple') ? '0.9' : '0.7') : null;
+            
             navigator.clipboard.writeText(text).then(function() {
                 // Hide the original content and label, show "Text Copied"
                 const content = copyBox.querySelector('.copy-content');
-                const label = copyBox.querySelector('.copy-label');
                 const feedback = copyBox.querySelector('.copy-feedback');
                 
                 if (content) content.classList.add('hidden');
                 if (label) {
-                    label.style.opacity = '0';
-                    label.style.visibility = 'hidden';
+                    label.classList.add('hidden');
                 }
                 if (feedback) feedback.classList.add('show');
                 
-                // Reset after 2 seconds - explicitly set values for better mobile compatibility
+                // Reset after 2 seconds
                 setTimeout(() => {
                     if (feedback) feedback.classList.remove('show');
                     if (content) content.classList.remove('hidden');
                     if (label) {
-                        // Explicitly set back to original values for mobile compatibility
-                        label.style.opacity = copyBox.classList.contains('simple') ? '0.9' : '0.7';
-                        label.style.visibility = 'visible';
+                        label.classList.remove('hidden');
+                        // Force reflow and explicitly set opacity for mobile compatibility
+                        label.offsetHeight; // Trigger reflow
+                        if (originalOpacity) {
+                            label.style.opacity = originalOpacity;
+                        }
                     }
                 }, 2000);
             }).catch(function(err) {
@@ -2706,31 +2711,41 @@
                 // Fallback for older browsers
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
                 document.body.appendChild(textArea);
+                textArea.focus();
                 textArea.select();
-                document.execCommand('copy');
+                
+                try {
+                    document.execCommand('copy');
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed: ', fallbackErr);
+                }
+                
                 document.body.removeChild(textArea);
                 
                 // Show feedback even for fallback
                 const content = copyBox.querySelector('.copy-content');
-                const label = copyBox.querySelector('.copy-label');
                 const feedback = copyBox.querySelector('.copy-feedback');
                 
                 if (content) content.classList.add('hidden');
                 if (label) {
-                    label.style.opacity = '0';
-                    label.style.visibility = 'hidden';
+                    label.classList.add('hidden');
                 }
                 if (feedback) feedback.classList.add('show');
                 
-                // Reset after 2 seconds - explicitly set values for better mobile compatibility
+                // Reset after 2 seconds
                 setTimeout(() => {
                     if (feedback) feedback.classList.remove('show');
                     if (content) content.classList.remove('hidden');
                     if (label) {
-                        // Explicitly set back to original values for mobile compatibility
-                        label.style.opacity = copyBox.classList.contains('simple') ? '0.9' : '0.7';
-                        label.style.visibility = 'visible';
+                        label.classList.remove('hidden');
+                        // Force reflow and explicitly set opacity for mobile compatibility
+                        label.offsetHeight; // Trigger reflow
+                        if (originalOpacity) {
+                            label.style.opacity = originalOpacity;
+                        }
                     }
                 }, 2000);
             });
