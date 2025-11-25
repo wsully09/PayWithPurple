@@ -1494,14 +1494,14 @@
                  Use Venmo To Pay
                 </div>
                 <div class="how-to-pay-disclaimer">
-                    All tickets must be paid for via Venmo. No exceptions. If you do not have Venmo, you know at least one person who does who can pay for you.
+                    All tickets must be paid for through Venmo, with no exceptions. If you don’t have Venmo, please use someone you know who does to submit your payment.
                 </div>
                 <button class="how-to-pay-button" id="proceedToPayment">I'm Paying With Venmo</button>
                 <button class="how-to-pay-button secondary" id="someonePayingForMeButton" onclick="toggleSomeonePayingForMe()">
-                    Someone is Venmoing For Me
+                    Someone is Venmoing On My Behalf
                 </button>
                 <div class="fallback-section" id="someonePayingForMeSection" style="display: none;">
-                    <div class="fallback-title" style="margin-bottom: 12px; font-size: 14px;">Share this link with the person paying for you. Once you share the link, you're all done. Your ticket will be emailed to you once the person's Venmo payment is confirmed.</div>
+                    <div class="fallback-title" style="margin-bottom: 12px; font-size: 14px;">Share the link below with the person paying on your behalf. Once you share the link, you're all done. Your ticket will be emailed to you once the person's Venmo payment is confirmed.</div>
                     <div class="copy-box simple copy-box-share-link" onclick="copyToClipboard(getShareLink(), this)" id="copyLinkBox">
                         <div class="copy-label" style="line-height: 1.2;">Click to Copy Payment Link</div>
                         <div class="copy-feedback" style="line-height: 1.2;">Link Copied</div>
@@ -1546,7 +1546,7 @@
             <div class="noise-overlay"></div>
             <div class="complete-payment-container">
                 <div class="complete-payment-title">
-                    Complete Payment
+                    Complete Your Payment
                 </div>
                 <div class="complete-payment-description" id="completePaymentDescription">
                 </div>
@@ -1570,7 +1570,7 @@
                         <span class="how-to-pay-step-number">3</span>
                         <div class="how-to-pay-step-content">
                             <div class="how-to-pay-step-title">Receive your ticket via email</div>
-                            <div class="how-to-pay-step-description">We'll send the ticket once we confirm your Venmo payment. <strong><u>REMEMBER TO CHECK SPAM FOLDERS.</u></strong></div>
+                            <div class="how-to-pay-step-description">We'll send the ticket once we confirm your Venmo payment. <strong><u>REMEMBER TO CHECK YOUR SPAM.</u></strong></div>
                         </div>
                     </div>
                 </div>
@@ -1748,7 +1748,7 @@
                 // Update the subtitle with fetched dates
                 const subtitle = document.querySelector('.subtitle');
                 if (subtitle) {
-                    subtitle.innerHTML = `All Duncan seniors and juniors are welcome. The event will be held indoors on ${eventDate} (825 East Washington Street). Attire is short dresses and suits. Only select sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
+                    subtitle.innerHTML = `The event will be held indoors on ${eventDate} (825 East Washington Street). Attire is short dresses and suits. All Duncan seniors and juniors are welcome. Only select sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
                 }
                 
             } catch (error) {
@@ -1762,7 +1762,7 @@
             // Update pricing details text
             const pricingDetails = document.querySelector('.pricing-details');
             if (pricingDetails) {
-                pricingDetails.innerHTML = `Tickets were priced based on an expected number of drinks. If you're attending with a date, the cost is $${coupleTicketPrice}, and if you're attending solo, it's $${singleTicketPrice}. These prices apply whether or not you or your guest plan to drink or arrive late. <strong><u>There are no exceptions, so please do not request one.</u></strong> Tickets will be checked at the door.`;
+                pricingDetails.innerHTML = `Tickets are priced based on an expected number of drinks. The prices below apply whether or not you or your guest plan to drink or arrive late to the event. <strong><u>There are no ticket price exceptions, so please do not ask for one.</u></strong> Tickets will be checked at the door.`;
             }
             
             // Update button text with drinks count
@@ -2299,7 +2299,7 @@
         // Launch Venmo with proper link
         function launchVenmoApp() {
             const ticketNumber = generatedTicketNumber || '42821';
-            const venmoUrl = `venmo://paycharge?txn=pay&recipients=duncanoffcampus&amount=${ticketAmount}&note=Fall%20Formal%20(%23${ticketNumber})`;
+            const venmoUrl = `venmo://paycharge?txn=pay&recipients=duncanoffcampus&amount=${ticketAmount}&note=Winter%20Formal%20(%23${ticketNumber})`;
             window.location.href = venmoUrl;
         }
 
@@ -2417,12 +2417,7 @@
                 // Mark that user has reached payment screen
                 hasReachedPaymentScreen = true;
                 
-                // Update fallback text with correct amount and ticket number
-                const fallbackText = document.getElementById('fallbackText');
-                if (fallbackText) {
-                    const ticketNumber = generatedTicketNumber || '42821';
-                    fallbackText.innerHTML = `Simply Venmo $${ticketAmount} to @DuncanOffCampus <br>with message "Winter Formal (#${ticketNumber})". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.`;
-                }
+                // Fallback text is now hardcoded - no longer updating dynamically
                 
                 // Update copy content with correct amount and ticket number
                 const venmoMessageContent = document.getElementById('venmoMessageContent');
@@ -2458,12 +2453,7 @@
                     // Mark that user has reached payment screen
                     hasReachedPaymentScreen = true;
                     
-                    // Update fallback text with correct amount and ticket number
-                    const fallbackText = document.getElementById('fallbackText');
-                    if (fallbackText) {
-                        const ticketNumber = generatedTicketNumber || '42821';
-                        fallbackText.innerHTML = `Simply Venmo $${ticketAmount} to @DuncanOffCampus <br>with message "Winter Formal (#${ticketNumber})". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.`;
-                    }
+                    // Fallback text is now hardcoded - no longer updating dynamically
                     
                     // Update copy content with correct amount and ticket number
                     const venmoMessageContent = document.getElementById('venmoMessageContent');
@@ -2706,8 +2696,8 @@
                     if (feedback) feedback.classList.remove('show');
                     if (content) content.classList.remove('hidden');
                     if (label) {
-                        label.style.opacity = '';
-                        label.style.visibility = '';
+                        label.style.removeProperty('opacity');
+                        label.style.removeProperty('visibility');
                     }
                 }, 2000);
             }).catch(function(err) {
@@ -2736,8 +2726,8 @@
                     if (feedback) feedback.classList.remove('show');
                     if (content) content.classList.remove('hidden');
                     if (label) {
-                        label.style.opacity = '';
-                        label.style.visibility = '';
+                        label.style.removeProperty('opacity');
+                        label.style.removeProperty('visibility');
                     }
                 }, 2000);
             });
