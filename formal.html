@@ -2280,7 +2280,7 @@
         // Logout button - clear localStorage and reset button
         if (logoutButton) {
             logoutButton.addEventListener('click', function() {
-                // Clear localStorage
+                // Clear all localStorage values including approved_ticket_number and shareButton
                 localStorage.clear();
                 // Hide logout button
                 logoutButton.style.display = 'none';
@@ -2498,6 +2498,8 @@
             // Save ticket number to localStorage
             if (generatedTicketNumber) {
                 localStorage.setItem('approved_ticket_number', generatedTicketNumber.toString());
+                // Also set shareButton localStorage value
+                localStorage.setItem('shareButton', 'true');
             }
             
             // Only send SMS if SEND_TICKET_TEXT is enabled
@@ -2970,10 +2972,26 @@
             const urlParams = new URLSearchParams(window.location.search);
             const ls = urlParams.get('ls');
             const ticketNumber = urlParams.get('ticket_number');
+            // Check for shareButton query parameter (case-insensitive)
+            const shareButtonParam = urlParams.get('shareButton') || urlParams.get('sharebutton');
+            
+            // Check for shareButton query parameter
+            if (shareButtonParam === 'true') {
+                localStorage.setItem('shareButton', 'true');
+                // Remove shareButton parameter from URL (handle both cases)
+                urlParams.delete('shareButton');
+                urlParams.delete('sharebutton');
+                let newUrl = window.location.pathname;
+                if (urlParams.toString()) {
+                    newUrl += '?' + urlParams.toString();
+                }
+                window.history.replaceState({}, document.title, newUrl);
+            }
             
             if (ls === 'true' && ticketNumber) {
                 // Save ticket number to localStorage
                 localStorage.setItem('approved_ticket_number', ticketNumber);
+                // Note: shareButton is NOT set here - it's only set during payment approval
                 
                 // Clear URL parameters
                 const cleanUrl = window.location.pathname;

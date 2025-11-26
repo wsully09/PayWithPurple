@@ -720,40 +720,44 @@ app.get('/ticket/:id', async (req, res) => {
                 </div>
             </div>
             
-            ${ticket.ticket_type !== 'single' && req.query.showshare === 'true' ? `
-                <div class="share-section">
+            ${ticket.ticket_type !== 'single' ? `
+                <div class="share-section" style="display: none;">
                     <button class="share-button" id="shareDateButton" onclick="shareTicketWithDate()">Share Ticket With Date</button>
                 </div>
             ` : ''}
 
             <script>
-                // Check for share parameter and hide share buttons if present
-                var urlParams = new URLSearchParams(window.location.search);
-                var shareParam = urlParams.get('share');
-                
-                if (shareParam === 'true') {
-                    // Hide share buttons
-                    var shareDateButton = document.getElementById('shareDateButton');
-                    var shareButton = document.getElementById('shareButton');
-                    var shareSections = document.querySelectorAll('.share-section');
-                    
-                    if (shareDateButton) {
-                        shareDateButton.style.display = 'none';
+                // Function to check and show/hide share section based on localStorage
+                function updateShareSectionVisibility() {
+                    var shareButtonValue = localStorage.getItem('shareButton');
+                    var shareSection = document.querySelector('.share-section');
+                    if (shareSection) {
+                        if (shareButtonValue === 'true') {
+                            shareSection.style.display = 'block';
+                        } else {
+                            shareSection.style.display = 'none';
+                        }
                     }
-                    if (shareButton) {
-                        shareButton.style.display = 'none';
-                    }
-                    shareSections.forEach(function(section) {
-                        section.style.display = 'none';
-                    });
-                    
-                    // Remove share parameter from URL
-                    urlParams.delete('share');
                 }
                 
                 // Check for URL parameters and save ticket number to localStorage
+                var urlParams = new URLSearchParams(window.location.search);
                 var ls = urlParams.get('ls');
-                var showshare = urlParams.get('showshare');
+                // Check for shareButton query parameter (case-insensitive)
+                var shareButtonParam = urlParams.get('shareButton') || urlParams.get('sharebutton');
+                
+                // Check for shareButton query parameter
+                if (shareButtonParam === 'true') {
+                    localStorage.setItem('shareButton', 'true');
+                    // Remove shareButton parameter from URL (handle both cases)
+                    urlParams.delete('shareButton');
+                    urlParams.delete('sharebutton');
+                    var newUrl = window.location.pathname;
+                    if (urlParams.toString()) {
+                        newUrl += '?' + urlParams.toString();
+                    }
+                    window.history.replaceState({}, document.title, newUrl);
+                }
                 
                 if (ls === 'true') {
                     // Extract ticket number from URL path (/ticket/:id)
@@ -770,28 +774,30 @@ app.get('/ticket/:id', async (req, res) => {
                     if (ticketNumber) {
                         // Save ticket number to localStorage
                         localStorage.setItem('approved_ticket_number', ticketNumber);
+                        // Note: shareButton is NOT set here - it's only set during payment approval
+                        
+                        // Clear URL parameters (keep the path)
+                        var cleanUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, cleanUrl);
                     }
-                    
-                    // Remove ls parameter from URL
-                    urlParams.delete('ls');
                 }
                 
-                // Remove showshare parameter from URL if present
-                if (showshare === 'true') {
-                    urlParams.delete('showshare');
-                }
+                // Check localStorage for shareButton and show/hide share section accordingly
+                updateShareSectionVisibility();
                 
-                // Clean up URL by removing processed parameters
-                var newUrl = window.location.pathname;
-                if (urlParams.toString()) {
-                    newUrl += '?' + urlParams.toString();
+                // Also check after DOM is fully loaded (in case of timing issues)
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', updateShareSectionVisibility);
+                } else {
+                    // DOM already loaded, run immediately
+                    setTimeout(updateShareSectionVisibility, 0);
                 }
-                window.history.replaceState({}, document.title, newUrl);
                 
                 function shareTicketWithDate() {
                     // Get base URL without query params
                     var baseUrl = window.location.origin + window.location.pathname;
-                    var ticketUrl = baseUrl;
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var ticketUrl = baseUrl + (urlParams.toString() ? '?' + urlParams.toString() : '');
                     copyToClipboard(ticketUrl, 'shareDateButton');
                 }
                 
