@@ -529,7 +529,7 @@ app.get('/ticket/:id', async (req, res) => {
                 .brand {
                     font-weight: bold;
                     font-size: 18px;
-                    color: #2c5530;
+                    color: #08192c;
                 }
 
                 .address {
@@ -586,7 +586,7 @@ app.get('/ticket/:id', async (req, res) => {
 
                 .info-label {
                     font-size: 12px;
-                    color: #747474;
+                    color: #08192c;
                     font-weight: bold;
                     margin-bottom: 5px;
                 }
@@ -817,6 +817,10 @@ app.get('/all-ordered-tickets', (req, res) => {
 
 app.get('/formal', (req, res) => {
     res.sendFile(path.join(__dirname, 'formal.html'));
+});
+
+app.get('/scan', (req, res) => {
+    res.sendFile(path.join(__dirname, 'scan.html'));
 });
 
 // Serve static files for specific assets only (CSS, JS, images, etc.)

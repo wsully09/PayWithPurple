@@ -69,6 +69,25 @@
            
         }
 
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 0px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 12px;
+            font-family: "Inter", sans-serif;
+            cursor: pointer;
+            z-index: 100;
+            padding: 5px 10px;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            display: none; /* Hidden by default, shown only when logged in */
+        }
+
+     
+
         /* App container inside fixed screens should use height instead of min-height */
         [class*="-screen"] .app-container {
             min-height: 0;
@@ -1354,9 +1373,11 @@
     <div class="app-container" style="display: none;">
         <div class="noise-overlay"></div>
         
+        <button class="logout-button" id="logoutButton">Logout</button>
+        
         <div class="container">
-            <div class="invite-text">
-                You're invited to the Duncan Off-Campus Winter Formal ❄️
+            <div class="invite-text" id="inviteText">
+                You're Invited to Duncan Off-Campus Winter Formal ❄️
             </div>
             <div class="subtitle">
             </div>
@@ -1535,7 +1556,7 @@
             <div class="noise-overlay"></div>
             <div class="how-to-pay-container">
                 <div class="how-to-pay-title" id="payForOtherTitle">
-                    You're Paying for <br>[Name]'s Ticket
+                      Paying for <br>[Name]'s Ticket
                 </div>
                 <div class="verification-form-container" style="margin-top: 20px;">
                     <div class="input-group" style="margin-bottom: 15px;">
@@ -1600,7 +1621,7 @@
                 <div class="fallback-section fallback-section-venmo" id="fallbackSection" style="display: none;">
                     <div class="fallback-title">In the event Venmo does not open:</div>
                     <div class="fallback-text" id="fallbackText">
-                        Venmo $10 to @DuncanOffCampus <br>with message "Winter Formal (#42821)". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.
+                        Venmo $10 to @DuncanOffCampus <br>with message "Winter Formal (#<span id="fallbackTicketNumber">Loading...</span>)". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.
                     </div>
                     <div class="copy-section">
                         <div class="copy-box" onclick="copyToClipboard('duncanoffcampus', this)">
@@ -1610,7 +1631,7 @@
                         </div>
                         <div class="copy-box" onclick="copyToClipboard(getVenmoMessage(), this)">
                             <div class="copy-label">Venmo Message (click to copy)</div>
-                            <div class="copy-content" id="venmoMessageContent">Winter Formal (#42821)</div>
+                            <div class="copy-content" id="venmoMessageContent">Winter Formal (Loading...)</div>
                             <div class="copy-feedback">Venmo Message Copied</div>
                         </div>
                     </div>
@@ -1764,7 +1785,7 @@
                 // Update the subtitle with fetched dates
                 const subtitle = document.querySelector('.subtitle');
                 if (subtitle) {
-                    subtitle.innerHTML = `The event will be held indoors on ${eventDate} (825 East Washington Street). Attire is short dresses and suits. All Duncan seniors and juniors are welcome. Only select sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
+                    subtitle.innerHTML = `<strong><u>Event Details:</u></strong> The formal will be held indoors at the 825 East Washington Street house on ${eventDate}. Attire is short dresses and suits. All Duncan seniors and juniors are welcome. Only some sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
                 }
                 
             } catch (error) {
@@ -1984,6 +2005,18 @@
                     if (viewTicketButton) {
                         viewTicketButton.textContent = `View Your Ticket (#${generatedTicketNumber})`;
                     }
+                    
+                    // Update Venmo message content with the actual ticket number
+                    const venmoMessageContent = document.getElementById('venmoMessageContent');
+                    if (venmoMessageContent) {
+                        venmoMessageContent.textContent = `Winter Formal (#${generatedTicketNumber})`;
+                    }
+                    
+                    // Update fallback text ticket number
+                    const fallbackTicketNumber = document.getElementById('fallbackTicketNumber');
+                    if (fallbackTicketNumber) {
+                        fallbackTicketNumber.textContent = generatedTicketNumber;
+                    }
                 } else {
                     console.error('Failed to generate ticket number');
                 }
@@ -2100,6 +2133,7 @@
         const backFromVerification = document.getElementById('backFromVerification');
         const backFromCompletePayment = document.getElementById('backFromCompletePayment');
         const launchVenmo = document.getElementById('launchVenmo');
+        const logoutButton = document.getElementById('logoutButton');
         
         // Store data for pay for other flow
         let payForOtherData = null;
@@ -2243,6 +2277,36 @@
             pricingScreen.style.display = 'block';
         });
 
+        // Logout button - clear localStorage and reset button
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function() {
+                // Clear localStorage
+                localStorage.clear();
+                // Hide logout button
+                logoutButton.style.display = 'none';
+                // Reset the RSVP button if it was changed
+                const rsvpButton = document.getElementById('rsvpYes');
+                if (rsvpButton) {
+                    // Reset button text and functionality
+                    const newButton = rsvpButton.cloneNode(true);
+                    newButton.id = 'rsvpYes';
+                    newButton.textContent = 'RSVP: Yes, I will be attending';
+                    rsvpButton.parentNode.replaceChild(newButton, rsvpButton);
+                    // Re-attach the original event listener
+                    newButton.addEventListener('click', function() {
+                        pricingScreen.style.display = 'block';
+                    });
+                }
+                // Reset invite text to default
+                const inviteText = document.getElementById('inviteText');
+                if (inviteText) {
+                    inviteText.innerHTML = `You're Invited to Duncan Off-Campus Winter Formal ❄️`;
+                }
+                // Reload the page to reset everything
+                window.location.reload();
+            });
+        }
+
         // Hide Email Entry screen when back button is clicked
         backFromEmailEntry.addEventListener('click', function() {
             emailEntryScreen.style.display = 'none';
@@ -2380,25 +2444,22 @@
         // Launch Venmo with proper link - make it globally accessible
         window.launchVenmoApp = function launchVenmoApp() {
             console.log('launchVenmoApp called');
-            const ticketNumber = generatedTicketNumber || '42821';
+            if (!generatedTicketNumber) {
+                alert('Please wait for your ticket number to be generated.');
+                return;
+            }
+            const ticketNumber = generatedTicketNumber;
             const venmoUrl = `venmo://paycharge?txn=pay&recipients=duncanoffcampus&amount=${ticketAmount}&note=Winter%20Formal%20(%23${ticketNumber})`;
             console.log('Venmo URL:', venmoUrl);
             console.log('ticketAmount:', ticketAmount);
             window.location.href = venmoUrl;
         };
 
-        // Show payment received screen
+        // Show payment received screen - now redirects to home screen with button replacement
         async function showPaymentReceivedScreen() {
-            const completePaymentScreen = document.getElementById('completePaymentScreen');
-            const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
-            
-            completePaymentScreen.style.display = 'none';
-            paymentReceivedScreen.style.display = 'block';
-            
-            // Update the view ticket button with the actual ticket number
-            const viewTicketButton = document.getElementById('viewTicketButton');
-            if (viewTicketButton) {
-                viewTicketButton.textContent = `View Your Ticket (#${generatedTicketNumber})`;
+            // Save ticket number to localStorage
+            if (generatedTicketNumber) {
+                localStorage.setItem('approved_ticket_number', generatedTicketNumber.toString());
             }
             
             // Only send SMS if SEND_TICKET_TEXT is enabled
@@ -2427,7 +2488,197 @@
                 } catch (error) {
                     console.error('Error calling approve-payment API:', error);
                 }
-            } else {
+            }
+            
+            // Hide all screens and show home screen
+            const completePaymentScreen = document.getElementById('completePaymentScreen');
+            const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
+            const pricingScreen = document.getElementById('pricingScreen');
+            const nameEntryScreen = document.getElementById('nameEntryScreen');
+            const emailEntryScreen = document.getElementById('emailEntryScreen');
+            const verificationScreen = document.getElementById('verificationScreen');
+            const howToPayScreen = document.getElementById('howToPayScreen');
+            const appContainer = document.querySelector('.app-container');
+            
+            // Hide all screens
+            if (completePaymentScreen) completePaymentScreen.style.display = 'none';
+            if (paymentReceivedScreen) paymentReceivedScreen.style.display = 'none';
+            if (pricingScreen) pricingScreen.style.display = 'none';
+            if (nameEntryScreen) nameEntryScreen.style.display = 'none';
+            if (emailEntryScreen) emailEntryScreen.style.display = 'none';
+            if (verificationScreen) verificationScreen.style.display = 'none';
+            if (howToPayScreen) howToPayScreen.style.display = 'none';
+            
+            // Show home screen
+            if (appContainer) {
+                appContainer.style.display = 'block';
+            }
+            
+            // Show logout button since user is now logged in
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.style.display = 'block';
+            }
+            
+            // Replace RSVP Yes button with View Your Ticket button
+            replaceRSVPButtonWithViewTicket(generatedTicketNumber);
+            
+            // Update invite text with first name using the same format as checkApprovedTicketOnLoad
+            try {
+                // Fetch name from database
+                if (generatedTicketNumber) {
+                    let { data, error } = await supabase
+                        .from('winter_formal_orders')
+                        .select('name')
+                        .eq('ticket_number', generatedTicketNumber)
+                        .maybeSingle();
+                    
+                    // If not found in winter_formal_orders, try fall_formal_orders
+                    if (error || !data) {
+                        const { data: fallData, error: fallError } = await supabase
+                            .from('fall_formal_orders')
+                            .select('name')
+                            .eq('ticket_number', generatedTicketNumber)
+                            .maybeSingle();
+                        
+                        if (!fallError && fallData) {
+                            data = fallData;
+                        }
+                    }
+                    
+                    // Update invite text with first name if available
+                    if (data && data.name) {
+                        const nameParts = data.name.split(' ');
+                        const firstName = nameParts[0] || '';
+                        const inviteText = document.getElementById('inviteText');
+                        if (inviteText) {
+                            inviteText.innerHTML = getInviteTextWithFirstName(firstName);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating invite text:', error);
+            }
+        }
+        
+        // Function to get formatted invite text with first name
+        function getInviteTextWithFirstName(firstName) {
+            if (firstName) {
+                return `${firstName}, You're <strong><u>GOING</u></strong><br> to Duncan Winter Formal ❄️`;
+            }
+            return `You're Invited to Duncan <br>Off-Campus Winter Formal ❄️`;
+        }
+        
+        // Function to replace RSVP Yes button with View Your Ticket button
+        function replaceRSVPButtonWithViewTicket(ticketNumber) {
+            const rsvpButton = document.getElementById('rsvpYes');
+            if (rsvpButton && ticketNumber) {
+                // Remove existing event listeners by cloning and replacing the button
+                const newButton = rsvpButton.cloneNode(true);
+                newButton.id = 'rsvpYes'; // Preserve the ID
+                newButton.textContent = `View Your Ticket (#${ticketNumber})`;
+                rsvpButton.parentNode.replaceChild(newButton, rsvpButton);
+                // Add new click handler to open ticket in new tab
+                newButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.open(`/ticket/${ticketNumber}`, '_blank');
+                });
+            }
+        }
+        
+        // Function to update invite text with first name
+        function updateInviteTextWithFirstName() {
+            const inviteText = document.getElementById('inviteText');
+            const fullNameInput = document.getElementById('fullName');
+            
+            if (!inviteText) return;
+            
+            // Get first name from input field or use default
+            let firstName = '';
+            if (fullNameInput && fullNameInput.value.trim()) {
+                const fullName = fullNameInput.value.trim();
+                const nameParts = fullName.split(' ');
+                firstName = nameParts[0] || '';
+            }
+            
+       
+        }
+        
+        // Function to check if user has approved ticket and replace button on page load
+        async function checkApprovedTicketOnLoad() {
+            const savedTicketNumber = localStorage.getItem('approved_ticket_number');
+            
+            // Hide logout button by default
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.style.display = 'none';
+            }
+            
+            // Set default invite text if not logged in
+            if (!savedTicketNumber) {
+                const inviteText = document.getElementById('inviteText');
+                if (inviteText) {
+                    inviteText.innerHTML = `You're Invited to Duncan <br>Off-Campus Winter Formal ❄️`;
+                }
+                return; // No saved ticket number
+            }
+            
+            try {
+                // Check if ticket exists and is approved in winter_formal_orders
+                let { data, error } = await supabase
+                    .from('winter_formal_orders')
+                    .select('payment_approved, name')
+                    .eq('ticket_number', parseInt(savedTicketNumber))
+                    .maybeSingle();
+                
+                // If not found in winter_formal_orders, try fall_formal_orders
+                if (error || !data) {
+                    const { data: fallData, error: fallError } = await supabase
+                        .from('fall_formal_orders')
+                        .select('payment_approved, name')
+                        .eq('ticket_number', parseInt(savedTicketNumber))
+                        .maybeSingle();
+                    
+                    if (!fallError && fallData) {
+                        data = fallData;
+                    }
+                }
+                
+                // If ticket is found and approved, replace the button
+                if (data && data.payment_approved === 'approved') {
+                    replaceRSVPButtonWithViewTicket(parseInt(savedTicketNumber));
+                    
+                    // Show logout button since user is logged in
+                    const logoutButton = document.getElementById('logoutButton');
+                    if (logoutButton) {
+                        logoutButton.style.display = 'block';
+                    }
+                    
+                    // Update invite text with first name if available
+                    if (data.name) {
+                        const nameParts = data.name.split(' ');
+                        const firstName = nameParts[0] || '';
+                        const inviteText = document.getElementById('inviteText');
+                        if (inviteText) {
+                            inviteText.innerHTML = getInviteTextWithFirstName(firstName);
+                        }
+                    }
+                } else {
+                    // Ticket not approved or not found, remove from localStorage
+                    localStorage.removeItem('approved_ticket_number');
+                    // Hide logout button
+                    const logoutButton = document.getElementById('logoutButton');
+                    if (logoutButton) {
+                        logoutButton.style.display = 'none';
+                    }
+                    // Reset invite text to default
+                    const inviteText = document.getElementById('inviteText');
+                    if (inviteText) {
+                        inviteText.innerHTML = `You're Invited to Duncan Off-Campus Winter Formal ❄️`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking approved ticket:', error);
             }
         }
 
@@ -2475,6 +2726,9 @@
             const hasLastName = nameParts.length >= 2 && nameParts[nameParts.length - 1].length >= 2;
             
             if (hasLastName) {
+                // Update invite text with first name
+                updateInviteTextWithFirstName();
+                
                 // Store name (in a real app, this would be sent to a server)
                 
                 // Show email entry screen
@@ -2506,8 +2760,20 @@
                 // Update copy content with correct amount and ticket number
                 const venmoMessageContent = document.getElementById('venmoMessageContent');
                 if (venmoMessageContent) {
-                    const ticketNumber = generatedTicketNumber || '42821';
-                    venmoMessageContent.textContent = `Winter Formal (#${ticketNumber})`;
+                    if (generatedTicketNumber) {
+                        venmoMessageContent.textContent = `Winter Formal (#${generatedTicketNumber})`;
+                    } else {
+                        venmoMessageContent.textContent = `Winter Formal (Loading...)`;
+                    }
+                }
+                // Update fallback text ticket number
+                const fallbackTicketNumber = document.getElementById('fallbackTicketNumber');
+                if (fallbackTicketNumber) {
+                    if (generatedTicketNumber) {
+                        fallbackTicketNumber.textContent = generatedTicketNumber;
+                    } else {
+                        fallbackTicketNumber.textContent = 'Loading...';
+                    }
                 }
                 
                 // Update complete payment description with correct amount
@@ -2542,8 +2808,20 @@
                     // Update copy content with correct amount and ticket number
                     const venmoMessageContent = document.getElementById('venmoMessageContent');
                     if (venmoMessageContent) {
-                        const ticketNumber = generatedTicketNumber || '42821';
-                        venmoMessageContent.textContent = `Winter Formal (#${ticketNumber})`;
+                        if (generatedTicketNumber) {
+                            venmoMessageContent.textContent = `Winter Formal (#${generatedTicketNumber})`;
+                        } else {
+                            venmoMessageContent.textContent = `Winter Formal (Loading...)`;
+                        }
+                    }
+                    // Update fallback text ticket number
+                    const fallbackTicketNumber = document.getElementById('fallbackTicketNumber');
+                    if (fallbackTicketNumber) {
+                        if (generatedTicketNumber) {
+                            fallbackTicketNumber.textContent = generatedTicketNumber;
+                        } else {
+                            fallbackTicketNumber.textContent = 'Loading...';
+                        }
                     }
                     
                     // Update complete payment description with correct amount
@@ -2660,6 +2938,8 @@
             // Add a small delay to ensure loading screen is visible
             setTimeout(() => {
                 showAppropriateScreen();
+                // Check for approved ticket and replace button if needed
+                checkApprovedTicketOnLoad();
             }, 100);
             
             // Mobile override link removed - no longer using localStorage
@@ -2756,12 +3036,16 @@
             if (nameInput) {
                 nameInput.addEventListener('input', function() {
                     validateName();
+                    // Update invite text with first name as user types
+                    updateInviteTextWithFirstName();
                     // If user has reached payment screen before, mark that data needs updating
                     if (hasReachedPaymentScreen) {
                     }
                 });
                 // Validate pre-populated name on page load
                 validateName();
+                // Update invite text if name is already filled
+                updateInviteTextWithFirstName();
             }
 
             if (emailInput) {
@@ -2875,8 +3159,10 @@
 
         // Function to get the current Venmo message with dynamic ticket number
         function getVenmoMessage() {
-            const ticketNumber = generatedTicketNumber || '42821';
-            return `Winter Formal (#${ticketNumber})`;
+            if (!generatedTicketNumber) {
+                return 'Winter Formal (Loading...)';
+            }
+            return `Winter Formal (#${generatedTicketNumber})`;
         }
 
         // Function to generate share link for pay for other
