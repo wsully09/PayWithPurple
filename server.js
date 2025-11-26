@@ -788,10 +788,24 @@ app.get('/ticket/:id', async (req, res) => {
                 }
                 
                 function shareTicketWithDate() {
-                    var ticketUrl = window.location.href.split('?')[0]; // Get base URL without query params
-                    var urlParams = new URLSearchParams(window.location.search);
+                    // Get base URL without query params
+                    var baseUrl = window.location.origin + window.location.pathname;
+                    
+                    // Create URLSearchParams from existing search string (or empty string if none)
+                    var urlParams = new URLSearchParams(window.location.search || '');
+                    
+                    // Always set share to true
                     urlParams.set('share', 'true');
-                    ticketUrl += '?' + urlParams.toString();
+                    
+                    // Build query string - ensure it's not empty
+                    var queryString = urlParams.toString();
+                    var ticketUrl = queryString ? baseUrl + '?' + queryString : baseUrl + '?share=true';
+                    
+                    // Debug: log and show the URL
+                    console.log('Sharing URL:', ticketUrl);
+                    console.log('Has share=true?', ticketUrl.includes('share=true'));
+                    alert('URL to copy: ' + ticketUrl + ' - Check console for details.');
+                    
                     copyToClipboard(ticketUrl, 'shareDateButton');
                 }
                 
