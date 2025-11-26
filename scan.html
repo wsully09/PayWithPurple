@@ -802,7 +802,28 @@
                     currentTicket = ticketData;
                     displayTicketInfo(ticketData);
                     showScanButtons(ticketData);
-                    showCancelButton();
+                    
+                    // Only show cancel button if ticket is not already used
+                    const currentScans = ticketData.ticket_scans || 0;
+                    let isUsed = false;
+                    if (ticketData.ticket_type === 'single') {
+                        isUsed = currentScans >= 1;
+                    } else if (ticketData.ticket_type === 'couple') {
+                        isUsed = currentScans >= 2;
+                    } else {
+                        const match = ticketData.ticket_type.match(/\((\d+)x?\)/);
+                        if (match) {
+                            const maxScans = parseInt(match[1]);
+                            isUsed = currentScans >= maxScans;
+                        }
+                    }
+                    
+                    if (!isUsed) {
+                        showCancelButton();
+                    } else {
+                        document.getElementById('cancelScanSection').style.display = 'none';
+                    }
+                    
                     updateStatus("Ticket loaded", "success");
                     // Position logout button after content is loaded
                     setTimeout(positionLogoutButton, 0);
