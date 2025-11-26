@@ -1783,7 +1783,7 @@
                 // Update the subtitle with fetched dates
                 const subtitle = document.querySelector('.subtitle');
                 if (subtitle) {
-                    subtitle.innerHTML = `The event will be held indoors at the 825 East Washington Street house on ${eventDate}. Attire is short dresses and suits. All Duncan seniors and juniors are welcome. Only select sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
+                    subtitle.innerHTML = `The event will be held indoors at the 825 East Washington Street house on ${eventDate}. Attire is short dresses and suits. All Duncan seniors and juniors are welcome. Only some sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
                 }
                 
             } catch (error) {
@@ -2453,20 +2453,9 @@
             window.location.href = venmoUrl;
         };
 
-        // Show payment received screen
+        // Handle payment approval - redirect immediately without showing payment received screen
         async function showPaymentReceivedScreen() {
-            const completePaymentScreen = document.getElementById('completePaymentScreen');
-            const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
-            
-            completePaymentScreen.style.display = 'none';
-            paymentReceivedScreen.style.display = 'block';
-            
-            // Update the view ticket button with the actual ticket number
-            const viewTicketButton = document.getElementById('viewTicketButton');
-            if (viewTicketButton) {
-                viewTicketButton.textContent = `View Your Ticket (#${generatedTicketNumber})`;
-            }
-            
+            // Don't show the payment received screen - redirect immediately instead
             // Only send SMS if SEND_TICKET_TEXT is enabled
             if (SEND_TICKET_TEXT) {
                 // Get user data to access phone number
@@ -2480,7 +2469,8 @@
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            ticket_number: generatedTicketNumber
+                            ticket_number: generatedTicketNumber,
+                            phone_number: userData.phone_number
                         })
                     });
                     
@@ -2488,10 +2478,10 @@
                     
                     if (result.success) {
                         // If user is NOT a payment share person (they're paying themselves)
-                        // Add ticket to local storage and redirect to /formal
+                        // Add ticket to local storage and redirect to /formal immediately
                         if (!cameFromShareFlow && generatedTicketNumber) {
                             localStorage.setItem(`ticket_approved_${generatedTicketNumber}`, 'approved');
-                            // Redirect to /formal
+                            // Redirect to /formal immediately - don't show payment received screen
                             window.location.href = '/formal';
                         }
                     } else {
@@ -2517,10 +2507,10 @@
                     
                     if (result.success) {
                         // If user is NOT a payment share person (they're paying themselves)
-                        // Add ticket to local storage and redirect to /formal
+                        // Add ticket to local storage and redirect to /formal immediately
                         if (!cameFromShareFlow && generatedTicketNumber) {
                             localStorage.setItem(`ticket_approved_${generatedTicketNumber}`, 'approved');
-                            // Redirect to /formal
+                            // Redirect to /formal immediately - don't show payment received screen
                             window.location.href = '/formal';
                         }
                     } else {
@@ -2774,33 +2764,46 @@
             
             // If there's an approved ticket, show the first screen instead of payment received screen
             if (approvedTicketKeys.length > 0) {
-                // Hide payment received screen and all other screens
+                // Hide payment received screen and all other screens first
                 const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
                 if (paymentReceivedScreen) {
                     paymentReceivedScreen.style.display = 'none';
                 }
-                // Hide all other screens
+                
+                // Hide all other screen divs
                 const allScreens = document.querySelectorAll('[id$="Screen"]');
                 allScreens.forEach(screen => {
                     if (screen.id !== 'loadingScreen' && screen.id !== 'mobileDetectionScreen') {
                         screen.style.display = 'none';
                     }
                 });
-                // Ensure the first screen (app-container) is shown
-                const appContainer = document.querySelector('.app-container');
-                if (appContainer) {
-                    appContainer.style.display = 'block';
-                }
+                
                 // Hide loading screen
                 const loadingScreen = document.getElementById('loadingScreen');
                 if (loadingScreen) {
                     loadingScreen.style.display = 'none';
                 }
+                
                 // Hide mobile detection screen
                 const mobileDetectionScreen = document.getElementById('mobileDetectionScreen');
                 if (mobileDetectionScreen) {
                     mobileDetectionScreen.style.display = 'none';
                 }
+                
+                // Show the first screen (app-container that's a direct child of body, not inside any screen div)
+                // Find the app-container that's not inside any screen div
+                const allAppContainers = document.querySelectorAll('.app-container');
+                allAppContainers.forEach(container => {
+                    // Check if this app-container is inside a screen div
+                    const isInsideScreen = container.closest('[id$="Screen"]');
+                    if (!isInsideScreen) {
+                        // This is the first screen's app-container
+                        container.style.display = 'block';
+                    } else {
+                        // This is inside a screen, make sure it's hidden
+                        container.style.display = 'none';
+                    }
+                });
             }
             
             // Set up RSVP button based on approved tickets
@@ -2812,10 +2815,13 @@
                 return; // Don't show normal flow if pay for other is active
             }
             
-            // Add a small delay to ensure loading screen is visible
-            setTimeout(() => {
-                showAppropriateScreen();
-            }, 100);
+            // If there's an approved ticket, don't call showAppropriateScreen as we've already set up the display
+            if (approvedTicketKeys.length === 0) {
+                // Add a small delay to ensure loading screen is visible
+                setTimeout(() => {
+                    showAppropriateScreen();
+                }, 100);
+            }
             
             // Mobile override link removed - no longer using localStorage
             
