@@ -520,7 +520,7 @@
         
         <div id="result" class="result" style="display: none;">
             <p><span id="resultMessage"></span></p>
-            <button id="newTicketErrorBtn" class="new-ticket-error-btn" onclick="scanNextTicket()" style="display: none;">New Ticket</button>
+            <button id="newTicketErrorBtn" class="new-ticket-error-btn" onclick="scanNextTicket()" style="display: none;">Next Ticket</button>
         </div>
     </div>
     
@@ -967,7 +967,7 @@
                     // Ticket is fully used
                     scanButtonsDiv.innerHTML = `
                         <button onclick="scanNextTicket()" class="next-ticket-btn" style="background-color: white; color: #d32f2f; border: 2px solid #d32f2f;">
-                            New Ticket
+                            Next Ticket
                         </button>
                     `;
                 } else if (remainingScans === 1) {
@@ -1202,6 +1202,8 @@
             if (type === 'error') {
                 resultDiv.classList.add('error');
                 newTicketBtn.style.display = 'block';
+                // Hide cancel button when showing error (since Next Ticket button is shown)
+                document.getElementById('cancelScanSection').style.display = 'none';
             } else {
                 resultDiv.classList.remove('error');
                 newTicketBtn.style.display = 'none';
