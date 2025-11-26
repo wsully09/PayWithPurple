@@ -720,15 +720,9 @@ app.get('/ticket/:id', async (req, res) => {
                 </div>
             </div>
             
-            ${ticket.ticket_type !== 'single' && ticket.ticket_type !== 'couple' ? `
+            ${ticket.ticket_type !== 'single' ? `
                 <div class="share-section">
-                    <button class="share-button" id="shareDateButton" onclick="shareTicketWithDate()">Share Ticket Link With Date</button>
-                </div>
-            ` : ''}
-            
-            ${ticket.ticket_type === 'couple' ? `
-                <div class="share-section">
-                    <button class="share-button" id="shareButton" onclick="shareTicket()">Share Ticket With Date</button>
+                    <button class="share-button" id="shareDateButton" onclick="shareTicketWithDate()">Share Ticket With Date</button>
                 </div>
             ` : ''}
 

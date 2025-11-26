@@ -416,18 +416,17 @@
         
         .ticket-input-group {
             display: flex;
-            gap: 10px;
             justify-content: center;
-            align-items: center;
             margin: 20px 0;
         }
         
         .ticket-input {
-            width: 45px;
-            height: 60px;
-            font-size: 28px;
+            width: 100%;
+            max-width: 280px;
+            height: 70px;
+            font-size: 32px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             font-weight: bold;
             background-color: rgba(255, 255, 255, 0.1);
@@ -490,11 +489,7 @@
         <div id="ticketEntrySection" class="ticket-entry-section" style="display: none;">
             <h3>Enter Ticket Number</h3>
             <div class="ticket-input-group">
-                <input type="text" class="ticket-input" id="ticketInput1" maxlength="1" pattern="[0-9]">
-                <input type="text" class="ticket-input" id="ticketInput2" maxlength="1" pattern="[0-9]">
-                <input type="text" class="ticket-input" id="ticketInput3" maxlength="1" pattern="[0-9]">
-                <input type="text" class="ticket-input" id="ticketInput4" maxlength="1" pattern="[0-9]">
-                <input type="text" class="ticket-input" id="ticketInput5" maxlength="1" pattern="[0-9]">
+                <input type="text" class="ticket-input" id="ticketInput" maxlength="5" pattern="[0-9]{5}">
             </div>
             <div class="ticket-entry-error" id="ticketEntryError"></div>
             <button class="submit-ticket-btn" onclick="submitManualTicket()">Search Ticket</button>
@@ -666,65 +661,38 @@
         
         // Setup manual ticket input handlers
         function setupTicketInputs() {
-            const inputs = ['ticketInput1', 'ticketInput2', 'ticketInput3', 'ticketInput4', 'ticketInput5'];
+            const input = document.getElementById('ticketInput');
             
-            inputs.forEach((id, index) => {
-                const input = document.getElementById(id);
+            // Handle input - only allow numbers
+            input.addEventListener('input', function(e) {
+                // Only allow numbers
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
                 
-                // Handle input
-                input.addEventListener('input', function(e) {
-                    // Only allow numbers
-                    if (!/^\d$/.test(e.target.value)) {
-                        e.target.value = '';
-                        return;
-                    }
-                    
-                    // Clear error on input
-                    document.getElementById('ticketEntryError').textContent = '';
-                    
-                    // Move to next input
-                    if (e.target.value && index < inputs.length - 1) {
-                        document.getElementById(inputs[index + 1]).focus();
-                    }
-                });
-                
-                // Handle backspace
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                        document.getElementById(inputs[index - 1]).focus();
-                    }
-                    // Handle Enter key
-                    if (e.key === 'Enter' && index === inputs.length - 1) {
-                        submitManualTicket();
-                    }
-                });
-                
-                // Handle paste
-                input.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    const pastedData = (e.clipboardData || window.clipboardData).getData('text');
-                    const digits = pastedData.replace(/\D/g, '').slice(0, 5);
-                    
-                    if (digits.length === 5) {
-                        inputs.forEach((inputId, i) => {
-                            document.getElementById(inputId).value = digits[i] || '';
-                        });
-                        document.getElementById('ticketInput5').focus();
-                        setTimeout(submitManualTicket, 100);
-                    }
-                });
+                // Clear error on input
+                document.getElementById('ticketEntryError').textContent = '';
+            });
+            
+            // Handle Enter key to submit
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    submitManualTicket();
+                }
+            });
+            
+            // Handle paste
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = pastedData.replace(/\D/g, '').slice(0, 5);
+                e.target.value = digits;
+                // Clear error on paste
+                document.getElementById('ticketEntryError').textContent = '';
             });
         }
         
         // Submit manual ticket entry
         function submitManualTicket() {
-            const input1 = document.getElementById('ticketInput1').value;
-            const input2 = document.getElementById('ticketInput2').value;
-            const input3 = document.getElementById('ticketInput3').value;
-            const input4 = document.getElementById('ticketInput4').value;
-            const input5 = document.getElementById('ticketInput5').value;
-            
-            const ticketNumber = input1 + input2 + input3 + input4 + input5;
+            const ticketNumber = document.getElementById('ticketInput').value.trim();
             const errorDiv = document.getElementById('ticketEntryError');
             
             if (ticketNumber.length !== 5) {
@@ -761,8 +729,8 @@
                 document.getElementById('ticketInfo').style.display = 'none';
                 document.getElementById('scanButtons').style.display = 'none';
                 document.getElementById('result').style.display = 'none';
-                // Focus first input
-                document.getElementById('ticketInput1').focus();
+                // Focus input
+                document.getElementById('ticketInput').focus();
                 // Position logout button after showing manual entry
                 setTimeout(positionLogoutButton, 100);
                 return;
@@ -1000,7 +968,7 @@
                     // Ticket is fully used
                     scanButtonsDiv.innerHTML = `
                         <button onclick="scanNextTicket()" class="next-ticket-btn" style="background-color: white; color: #d32f2f; border: 2px solid #d32f2f;">
-                            Scan Another Ticket
+                            New Ticket
                         </button>
                     `;
                 } else if (remainingScans === 1) {
@@ -1174,12 +1142,8 @@
             
             currentTicket = null;
             
-            // Clear ticket inputs
-            document.getElementById('ticketInput1').value = '';
-            document.getElementById('ticketInput2').value = '';
-            document.getElementById('ticketInput3').value = '';
-            document.getElementById('ticketInput4').value = '';
-            document.getElementById('ticketInput5').value = '';
+            // Clear ticket input
+            document.getElementById('ticketInput').value = '';
             document.getElementById('ticketEntryError').textContent = '';
             
             // Reload ticket from URL
@@ -1192,7 +1156,7 @@
                 // Show manual entry
                 document.getElementById('ticketEntrySection').style.display = 'block';
                 document.getElementById('status').style.display = 'none';
-                document.getElementById('ticketInput1').focus();
+                document.getElementById('ticketInput').focus();
             }
         }
         
@@ -1215,12 +1179,8 @@
             
             currentTicket = null;
             
-            // Clear ticket inputs
-            document.getElementById('ticketInput1').value = '';
-            document.getElementById('ticketInput2').value = '';
-            document.getElementById('ticketInput3').value = '';
-            document.getElementById('ticketInput4').value = '';
-            document.getElementById('ticketInput5').value = '';
+            // Clear ticket input
+            document.getElementById('ticketInput').value = '';
             document.getElementById('ticketEntryError').textContent = '';
             
             // Remove query parameters from URL
@@ -1229,7 +1189,7 @@
             // Show manual entry
             document.getElementById('ticketEntrySection').style.display = 'block';
             document.getElementById('status').style.display = 'none';
-            document.getElementById('ticketInput1').focus();
+            document.getElementById('ticketInput').focus();
         }
         
         function showResult(message, type = 'success') {
