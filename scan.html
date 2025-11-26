@@ -7,6 +7,7 @@
     <style>
         :root {
             --black: #000000;
+            --dark-blue: #1a2332;
         }
 
         * {
@@ -18,7 +19,7 @@
 
         body {
             height: 100vh;
-            background-color: #1a2332; /* Dark blue background */
+            background-color: var(--dark-blue); /* Dark blue background */
             background-image: url('noise-light.png');
             background-size: 200px 200px;
             background-repeat: repeat;
@@ -29,14 +30,18 @@
         
         .container {
             max-width: 450px;
-            margin: 20px auto;
-            background: white;
+            width: calc(100% - 40px);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 20px;
-            padding-top: 40px;
-            position: relative;
-            margin-top: 30px;
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            margin-left: 0;
             transition: background-color 0.3s ease;
         }
         
@@ -48,14 +53,16 @@
         
         @media (max-width: 640px) {
             .container {
-                margin: 10px;
+                width: calc(100% - 20px);
                 padding: 15px;
+                left: 50%;
+                transform: translateX(-50%);
             }
         }
         
         h1 {
             text-align: center;
-            color: #1976d2;
+            color: white;
             margin-bottom: 30px;
             font-weight: bold;
             font-size: 24px;
@@ -64,10 +71,11 @@
         .result {
             margin-top: 20px;
             padding: 15px;
-            background-color: #e3f2fd;
-            border: 1px solid #1976d2;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             display: none;
+            text-align: center;
         }
         
         .result.show {
@@ -76,7 +84,7 @@
         
         .result h3 {
             margin: 0 0 10px 0;
-            color: #1976d2;
+            color: white;
             font-weight: bold;
         }
         
@@ -84,6 +92,11 @@
             margin: 5px 0;
             word-break: break-all;
             font-size: 14px;
+            color: white;
+        }
+        
+        .result.error p {
+            color: #c62828;
         }
         
         .controls {
@@ -92,8 +105,8 @@
         }
         
         button {
-            background-color: #1a2332;
-            color: white;
+            background-color: white;
+            color: var(--dark-blue);
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
@@ -106,7 +119,7 @@
         }
         
         button:hover {
-            background-color: #0f1419;
+            background-color: rgba(255, 255, 255, 0.9);
         }
         
         button:disabled {
@@ -117,13 +130,9 @@
         .ticket-used {
             background-color: #d32f2f !important;
             color: white !important;
-            cursor: not-allowed !important;
             border: none !important;
         }
-        
-        .ticket-used:hover {
-            background-color: #b71c1c !important;
-        }
+
         
         button.ticket-used {
             background-color: #d32f2f !important;
@@ -132,7 +141,7 @@
         
         .error {
             background-color: #ffebee;
-            border-color: #f44336;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #c62828;
         }
         
@@ -148,15 +157,15 @@
         }
         
         .loading {
-            color: #1976d2;
+            color: white;
         }
         
         .success {
-            color: #1976d2;
+            color: white;
         }
         
         .error-text {
-            color: #d32f2f;
+            color: #ffffff;
         }
         
         .loading-spinner {
@@ -176,8 +185,8 @@
         }
         
         .ticket-info {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 5px;
             padding: 15px;
             margin: 10px 0;
@@ -185,7 +194,7 @@
         
         .ticket-info h4 {
             margin: 0 0 10px 0;
-            color: #1976d2;
+            color: white;
             font-weight: bold;
             font-size: 18px;
         }
@@ -193,11 +202,11 @@
         .ticket-info p {
             margin: 5px 0;
             font-size: 14px;
-            color: #333;
+            color: white;
         }
         
         .ticket-info strong {
-            color: #1976d2;
+            color: white;
             font-weight: 600;
         }
         
@@ -234,6 +243,12 @@
             border-left: 4px solid #d32f2f;
         }
         
+        .ticket-info.success {
+            background-color: rgba(76, 175, 80, 0.2) !important;
+            border: 1px solid rgba(76, 175, 80, 0.5) !important;
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.2) !important;
+        }
+        
         .scan-buttons {
             display: flex;
             justify-content: center;
@@ -243,43 +258,260 @@
         
         .scan-buttons button {
             flex: 1;
-            max-width: 150px;
         }
         
         .next-ticket-btn {
-            background-color: #1a2332;
+            background-color: white;
+            color: var(--dark-blue);
             margin-top: 10px;
         }
         
         .next-ticket-btn:hover {
-            background-color: #0f1419;
+            background-color: rgba(255, 255, 255, 0.9);
         }
+        
+        .new-ticket-error-btn {
+            color: white;
+            background-color: var(--dark-blue);
+            margin-top: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .new-ticket-error-btn:hover {
+            background-color: var(--dark-blue);
+            color: white;
+        }
+        
+     
         
         #cancelScanBtn {
             background-color: transparent;
-            color: #1a2332;
-            border: 2px solid #1a2332;
+            color: white;
+            border: 2px solid white;
         }
         
         #cancelScanBtn:hover {
-            background-color: #1a2332;
+            background-color: rgba(255, 255, 255, 0.1);
             color: white;
+        }
+        
+        .code-entry-screen {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 0;
+            width: 100%;
+       
+            background-color: var(--dark-blue);
+            background-image: url('noise-light.png');
+            background-size: 200px 200px;
+            background-repeat: repeat;
+            background-blend-mode: overlay;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .code-entry-screen.show {
+            display: flex;
+        }
+        
+        .code-entry-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .code-entry-container h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .code-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .code-input {
+            width: 60px;
+            height: 70px;
+            font-size: 32px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+        
+        .code-error {
+            color: #d32f2f;
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        
+        .code-submit-btn {
+            background-color: white;
+            color: var(--dark-blue);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            min-width: 120px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        
+        .code-submit-btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .logout-btn {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            background: none;
+            color: white;
+            opacity: 0.5;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: normal;
+            z-index: 100;
+            text-decoration: none;
+        }
+        
+        .logout-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .ticket-entry-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .ticket-entry-section h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .ticket-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .ticket-input {
+            width: 45px;
+            height: 60px;
+            font-size: 28px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .ticket-input:focus {
+            outline: none;
+            border-color: white;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+        
+        .ticket-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .code-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .ticket-entry-error {
+            color: #d32f2f;
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        
+        .submit-ticket-btn {
+            margin-top: 15px;
+        }
+        
+        .ticket-entry-disclaimer {
+            margin-top: 15px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
+    <!-- Code Entry Screen -->
+    <div class="code-entry-screen" id="codeEntryScreen">
+        <div class="code-entry-container">
+            <h2>Enter Access Code</h2>
+            <div class="code-input-group">
+                <input type="text" class="code-input" id="codeInput1" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" id="codeInput2" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" id="codeInput3" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" id="codeInput4" maxlength="1" pattern="[0-9]">
+            </div>
+            <div class="code-error" id="codeError"></div>
+            <button class="code-submit-btn" onclick="validateCode()">Submit</button>
+        </div>
+    </div>
+    
+    <!-- Logout Button -->
+    <span class="logout-btn" id="logoutBtn" onclick="logout()" style="display: none;">Logout</span>
+    
     <div class="container">
-        <h1>Ticket Scanner</h1>
         
-        <div class="status" id="status">Loading ticket...</div>
+        <!-- Manual Ticket Entry Section -->
+        <div id="ticketEntrySection" class="ticket-entry-section" style="display: none;">
+            <h3>Enter Ticket Number</h3>
+            <div class="ticket-input-group">
+                <input type="text" class="ticket-input" id="ticketInput1" maxlength="1" pattern="[0-9]">
+                <input type="text" class="ticket-input" id="ticketInput2" maxlength="1" pattern="[0-9]">
+                <input type="text" class="ticket-input" id="ticketInput3" maxlength="1" pattern="[0-9]">
+                <input type="text" class="ticket-input" id="ticketInput4" maxlength="1" pattern="[0-9]">
+                <input type="text" class="ticket-input" id="ticketInput5" maxlength="1" pattern="[0-9]">
+            </div>
+            <div class="ticket-entry-error" id="ticketEntryError"></div>
+            <button class="submit-ticket-btn" onclick="submitManualTicket()">Search Ticket</button>
+            <div class="ticket-entry-disclaimer">Use phone camera to scan ticket.</div>
+        </div>
+        
+        <div class="status" id="status" style="display: none;">Loading ticket</div>
         
         <div id="ticketInfo" class="ticket-info" style="display: none;">
             <h4>Ticket Information</h4>
             <p><strong>Ticket Number:</strong> <span id="ticketNumber"></span></p>
             <p><strong>Name:</strong> <span id="ticketName"></span></p>
             <p><strong>Type:</strong> <span id="ticketType"></span></p>
-            <p><strong>Status:</strong> <span id="ticketStatus"></span></p>
-            <p><strong>Scans:</strong> <span id="currentScans"></span></p>
+            <p><strong>Times Scanned:</strong> <span id="currentScans"></span></p>
             <div id="ticketReason" class="reason" style="display: none;"></div>
         </div>
         
@@ -288,17 +520,16 @@
         </div>
         
         <div id="cancelScanSection" style="display: none; text-align: center; margin: 10px 0;">
-            <button id="cancelScanBtn" onclick="cancelScan()">Cancel Scan</button>
+            <button id="cancelScanBtn" onclick="cancelScan()">Cancel</button>
         </div>
         
         <div id="nextTicketSection" style="display: none; text-align: center;">
-            <button id="nextTicketBtn" class="next-ticket-btn" onclick="scanNextTicket()">Scan Next Ticket</button>
+            <button id="nextTicketBtn" class="next-ticket-btn" onclick="scanNextTicket()">Done</button>
         </div>
         
         <div id="result" class="result" style="display: none;">
-            <h3>Scan Result:</h3>
-            <p><strong>Message:</strong> <span id="resultMessage"></span></p>
-            <p><strong>Timestamp:</strong> <span id="scannedTime"></span></p>
+            <p><span id="resultMessage"></span></p>
+            <button id="newTicketErrorBtn" class="new-ticket-error-btn" onclick="scanNextTicket()" style="display: none;">New Ticket</button>
         </div>
     </div>
     
@@ -306,7 +537,158 @@
         const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhenNya2N2ZWN5bXVqZm1yemV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTIwNzAzNCwiZXhwIjoyMDcwNzgzMDM0fQ.oP2KHilItRH1EZ53-eOY_Ihcyt0Kn-paa1U-jAZnUgo";
         
+        const CODE = "1234";
+        const STORAGE_KEY = "scan_access_code";
+
         let currentTicket = null;
+        
+        // Check if user is authenticated
+        function isAuthenticated() {
+            const savedCode = localStorage.getItem(STORAGE_KEY);
+            return savedCode === CODE;
+        }
+        
+        // Show code entry screen
+        function showCodeEntryScreen() {
+            document.getElementById('codeEntryScreen').classList.add('show');
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            
+            // Focus first input
+            document.getElementById('codeInput1').focus();
+        }
+        
+        // Position logout button below container
+        function positionLogoutButton() {
+            const container = document.querySelector('.container');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (container && logoutBtn) {
+                // Use requestAnimationFrame to ensure DOM is updated
+                requestAnimationFrame(() => {
+                    const containerStyle = window.getComputedStyle(container);
+                    if (containerStyle.display !== 'none') {
+                        // Get container's actual height
+                        const containerHeight = container.offsetHeight || container.getBoundingClientRect().height;
+                        // Container is fixed at top: 30px, so logout button should be at:
+                        // 30px (container top) + containerHeight + 20px (margin)
+                        const logoutTop = 30 + containerHeight + 20;
+                        logoutBtn.style.top = logoutTop + 'px';
+                        logoutBtn.style.left = '50%';
+                        logoutBtn.style.transform = 'translateX(-50%)';
+                    }
+                });
+            }
+        }
+        
+        // Hide code entry screen
+        function hideCodeEntryScreen() {
+            document.getElementById('codeEntryScreen').classList.remove('show');
+            document.querySelector('.container').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+            // Position logout button after container is shown
+            setTimeout(positionLogoutButton, 50);
+            setTimeout(positionLogoutButton, 200);
+        }
+        
+        // Validate and save code
+        function validateCode() {
+            const input1 = document.getElementById('codeInput1').value;
+            const input2 = document.getElementById('codeInput2').value;
+            const input3 = document.getElementById('codeInput3').value;
+            const input4 = document.getElementById('codeInput4').value;
+            
+            const enteredCode = input1 + input2 + input3 + input4;
+            const errorDiv = document.getElementById('codeError');
+            
+            if (enteredCode.length !== 4) {
+                errorDiv.textContent = 'Please enter all 4 digits';
+                return;
+            }
+            
+            if (enteredCode === CODE) {
+                // Save to local storage
+                localStorage.setItem(STORAGE_KEY, CODE);
+                errorDiv.textContent = '';
+                hideCodeEntryScreen();
+                // Initialize main app
+                initializeApp();
+            } else {
+                errorDiv.textContent = 'Incorrect code. Please try again.';
+                // Clear inputs
+                document.getElementById('codeInput1').value = '';
+                document.getElementById('codeInput2').value = '';
+                document.getElementById('codeInput3').value = '';
+                document.getElementById('codeInput4').value = '';
+                document.getElementById('codeInput1').focus();
+            }
+        }
+        
+        // Setup code input handlers
+        function setupCodeInputs() {
+            const inputs = ['codeInput1', 'codeInput2', 'codeInput3', 'codeInput4'];
+            
+            inputs.forEach((id, index) => {
+                const input = document.getElementById(id);
+                
+                // Handle input
+                input.addEventListener('input', function(e) {
+                    // Only allow numbers
+                    if (!/^\d$/.test(e.target.value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    // Clear error on input
+                    document.getElementById('codeError').textContent = '';
+                    
+                    // Move to next input
+                    if (e.target.value && index < inputs.length - 1) {
+                        document.getElementById(inputs[index + 1]).focus();
+                    }
+                });
+                
+                // Handle backspace
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        document.getElementById(inputs[index - 1]).focus();
+                    }
+                });
+                
+                // Handle paste
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                    const digits = pastedData.replace(/\D/g, '').slice(0, 4);
+                    
+                    if (digits.length === 4) {
+                        inputs.forEach((inputId, i) => {
+                            document.getElementById(inputId).value = digits[i] || '';
+                        });
+                        document.getElementById('codeInput4').focus();
+                        // Clear error on paste
+                        document.getElementById('codeError').textContent = '';
+                    }
+                });
+            });
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem(STORAGE_KEY);
+            // Clear current state
+            currentTicket = null;
+            // Show code entry screen
+            showCodeEntryScreen();
+            // Clear inputs
+            document.getElementById('codeInput1').value = '';
+            document.getElementById('codeInput2').value = '';
+            document.getElementById('codeInput3').value = '';
+            document.getElementById('codeInput4').value = '';
+            document.getElementById('codeError').textContent = '';
+            // Reset URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
         
         // Get ticket number from query parameter
         function getTicketNumberFromURL() {
@@ -314,30 +696,172 @@
             return urlParams.get('t');
         }
         
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        // Setup manual ticket input handlers
+        function setupTicketInputs() {
+            const inputs = ['ticketInput1', 'ticketInput2', 'ticketInput3', 'ticketInput4', 'ticketInput5'];
+            
+            inputs.forEach((id, index) => {
+                const input = document.getElementById(id);
+                
+                // Handle input
+                input.addEventListener('input', function(e) {
+                    // Only allow numbers
+                    if (!/^\d$/.test(e.target.value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    // Clear error on input
+                    document.getElementById('ticketEntryError').textContent = '';
+                    
+                    // Move to next input
+                    if (e.target.value && index < inputs.length - 1) {
+                        document.getElementById(inputs[index + 1]).focus();
+                    }
+                });
+                
+                // Handle backspace
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        document.getElementById(inputs[index - 1]).focus();
+                    }
+                    // Handle Enter key
+                    if (e.key === 'Enter' && index === inputs.length - 1) {
+                        submitManualTicket();
+                    }
+                });
+                
+                // Handle paste
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                    const digits = pastedData.replace(/\D/g, '').slice(0, 5);
+                    
+                    if (digits.length === 5) {
+                        inputs.forEach((inputId, i) => {
+                            document.getElementById(inputId).value = digits[i] || '';
+                        });
+                        document.getElementById('ticketInput5').focus();
+                        setTimeout(submitManualTicket, 100);
+                    }
+                });
+            });
+        }
+        
+        // Submit manual ticket entry
+        function submitManualTicket() {
+            const input1 = document.getElementById('ticketInput1').value;
+            const input2 = document.getElementById('ticketInput2').value;
+            const input3 = document.getElementById('ticketInput3').value;
+            const input4 = document.getElementById('ticketInput4').value;
+            const input5 = document.getElementById('ticketInput5').value;
+            
+            const ticketNumber = input1 + input2 + input3 + input4 + input5;
+            const errorDiv = document.getElementById('ticketEntryError');
+            
+            if (ticketNumber.length !== 5) {
+                errorDiv.textContent = 'Please enter all 5 digits';
+                return;
+            }
+            
+            if (!/^\d{5}$/.test(ticketNumber)) {
+                errorDiv.textContent = 'Invalid ticket number format';
+                return;
+            }
+            
+            // Hide manual entry section
+            document.getElementById('ticketEntrySection').style.display = 'none';
+            document.getElementById('status').style.display = 'block';
+            
+            // Load the ticket
+            loadTicket(ticketNumber);
+        }
+        
+        // Initialize main app
+        function initializeApp() {
             const ticketNumber = getTicketNumberFromURL();
             
+            // Remove query parameter from URL after reading it
+            if (ticketNumber) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
             if (!ticketNumber) {
-                showError("No ticket number provided. Please include ?t=12345 in the URL");
-                updateStatus("Error: Missing ticket number", "error-text");
+                // Show manual entry instead of error
+                document.getElementById('ticketEntrySection').style.display = 'block';
+                document.getElementById('status').style.display = 'none';
+                document.getElementById('ticketInfo').style.display = 'none';
+                document.getElementById('scanButtons').style.display = 'none';
+                document.getElementById('result').style.display = 'none';
+                // Focus first input
+                document.getElementById('ticketInput1').focus();
+                // Position logout button after showing manual entry
+                setTimeout(positionLogoutButton, 100);
                 return;
             }
             
             // Validate if it's a 5-digit number
             if (!/^\d{5}$/.test(ticketNumber)) {
-                showError("Invalid Ticket Number - Must be exactly 5 digits");
-                updateStatus("Error: Invalid ticket number format", "error-text");
-                document.querySelector('.container').classList.add('ticket-used');
+                // Show manual entry with error
+                document.getElementById('ticketEntrySection').style.display = 'block';
+                document.getElementById('status').style.display = 'none';
+                document.getElementById('ticketEntryError').textContent = 'Invalid ticket number format';
+                // Position logout button after showing manual entry
+                setTimeout(positionLogoutButton, 100);
                 return;
             }
             
+            // Hide manual entry section
+            document.getElementById('ticketEntrySection').style.display = 'none';
+            document.getElementById('status').style.display = 'block';
+            
             // Fetch and display ticket
             loadTicket(ticketNumber);
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup code input handlers
+            setupCodeInputs();
+            // Setup ticket input handlers
+            setupTicketInputs();
+            
+            // Add resize listener to reposition logout button
+            window.addEventListener('resize', positionLogoutButton);
+            
+            // Use MutationObserver to watch for container changes
+            const container = document.querySelector('.container');
+            if (container) {
+                const observer = new MutationObserver(() => {
+                    if (document.getElementById('logoutBtn').style.display !== 'none') {
+                        positionLogoutButton();
+                    }
+                });
+                observer.observe(container, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+            }
+            
+            // Check authentication
+            if (isAuthenticated()) {
+                // User is authenticated, show main app
+                hideCodeEntryScreen();
+                initializeApp();
+            } else {
+                // User not authenticated, show code entry screen
+                showCodeEntryScreen();
+            }
         });
         
         async function loadTicket(ticketNumber) {
             try {
+                // Hide manual entry section
+                document.getElementById('ticketEntrySection').style.display = 'none';
+                document.getElementById('status').style.display = 'block';
+                
                 updateStatus("Loading ticket...", "loading");
                 
                 // Fetch ticket data from Supabase
@@ -349,9 +873,11 @@
                     showScanButtons(ticketData);
                     showCancelButton();
                     updateStatus("Ticket loaded", "success");
+                    // Position logout button after content is loaded
+                    setTimeout(positionLogoutButton, 0);
                 } else {
                     showError("Invalid Ticket - Ticket number not found in database");
-                    updateStatus("Error: Ticket not found", "error-text");
+                    updateStatus("Error: Ticket Not Found", "error-text");
                     document.querySelector('.container').classList.add('ticket-used');
                 }
                 
@@ -365,7 +891,6 @@
         async function fetchTicketData(ticketNumber) {
             try {
                 const url = `${SUPABASE_URL}/rest/v1/winter_formal_orders?ticket_number=eq.${ticketNumber}&select=*`;
-                console.log('Fetching ticket data from:', url);
                 
                 const response = await fetch(url, {
                     headers: {
@@ -375,9 +900,7 @@
                     }
                 });
                 
-                console.log('Ticket fetch response status:', response.status);
-                console.log('Ticket fetch response headers:', Object.fromEntries(response.headers.entries()));
-                
+             
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Ticket fetch error response:', errorText);
@@ -385,14 +908,11 @@
                 }
                 
                 const data = await response.json();
-                console.log('Ticket data received:', data);
                 
                 if (data.length === 0) {
-                    console.log('No ticket found for number:', ticketNumber);
                     return null;
                 }
                 
-                console.log('Found ticket:', data[0]);
                 return data[0];
                 
             } catch (error) {
@@ -407,7 +927,23 @@
             }
         }
         
-        function displayTicketInfo(ticket) {
+        // Get max scans for a ticket type
+        function getMaxScans(ticketType) {
+            if (ticketType === 'single') {
+                return 1;
+            } else if (ticketType === 'couple') {
+                return 2;
+            } else {
+                // For other types like "Group (3x)", extract number from parentheses
+                const match = ticketType.match(/\((\d+)x?\)/);
+                if (match) {
+                    return parseInt(match[1]);
+                }
+                return 1; // Default to 1 if pattern doesn't match
+            }
+        }
+        
+        function displayTicketInfo(ticket, showUsedMessage = true, applyUsedStyling = true) {
             document.getElementById('ticketNumber').textContent = ticket.ticket_number;
             document.getElementById('ticketName').textContent = ticket.name || 'Not provided';
             // Display ticket type with proper formatting
@@ -421,12 +957,14 @@
                 typeDisplay = ticket.ticket_type;
             }
             document.getElementById('ticketType').textContent = typeDisplay;
-            document.getElementById('ticketStatus').textContent = ticket.payment_approved || 'Unknown';
-            document.getElementById('currentScans').textContent = ticket.ticket_scans || 0;
+            
+            // Display scans as fraction (current/max)
+            const currentScans = ticket.ticket_scans || 0;
+            const maxScans = getMaxScans(ticket.ticket_type);
+            document.getElementById('currentScans').textContent = `${currentScans}/${maxScans}`;
             
             // Check if ticket is already used and add red styling to container
             const container = document.querySelector('.container');
-            const currentScans = ticket.ticket_scans || 0;
             const isUsed = (ticket.ticket_type === 'single' && currentScans >= 1) || 
                          (ticket.ticket_type === 'couple' && currentScans >= 2) ||
                          (ticket.ticket_type !== 'single' && ticket.ticket_type !== 'couple' && 
@@ -434,23 +972,20 @@
                           currentScans >= parseInt(ticket.ticket_type.match(/\((\d+)x?\)/)[1]));
             
             if (isUsed) {
-                container.classList.add('ticket-used');
-                // Show reason for why ticket can't be used
-                const reasonDiv = document.getElementById('ticketReason');
-                let maxScans = '1';
-                if (ticket.ticket_type === 'couple') {
-                    maxScans = '2';
-                } else if (ticket.ticket_type === 'single') {
-                    maxScans = '1';
+                // Only apply red styling if applyUsedStyling is true (i.e., when initially loading, not after a successful scan)
+                if (applyUsedStyling) {
+                    container.classList.add('ticket-used');
                 } else {
-                    // Extract max scans from parentheses for other ticket types
-                    const match = ticket.ticket_type.match(/\((\d+)x?\)/);
-                    if (match) {
-                        maxScans = match[1];
-                    }
+                    container.classList.remove('ticket-used');
                 }
-                reasonDiv.textContent = `Ticket already used (${currentScans}/${maxScans} scans)`;
-                reasonDiv.style.display = 'block';
+                // Only show reason message if showUsedMessage is true (i.e., when initially loading, not after a successful scan)
+                if (showUsedMessage) {
+                    const reasonDiv = document.getElementById('ticketReason');
+                    reasonDiv.textContent = `Ticket already used (${currentScans}/${maxScans} scans)`;
+                    reasonDiv.style.display = 'block';
+                } else {
+                    document.getElementById('ticketReason').style.display = 'none';
+                }
             } else {
                 container.classList.remove('ticket-used');
                 document.getElementById('ticketReason').style.display = 'none';
@@ -482,7 +1017,6 @@
                 }
             }
             
-            console.log('Ticket type:', ticket.ticket_type, 'Current scans:', currentScans, 'Is used:', isUsed);
             
             if (isUsed) {
                 container.classList.add('ticket-used');
@@ -582,20 +1116,13 @@
                 const currentScans = currentTicket.ticket_scans || 0;
                 const newScanCount = currentScans + scanCount;
                 
-                console.log('Updating ticket:', {
-                    ticketNumber: currentTicket.ticket_number,
-                    currentScans: currentScans,
-                    scanCount: scanCount,
-                    newScanCount: newScanCount
-                });
+           
                 
                 // Update ticket in database
                 const updateData = {
                     ticket_scans: newScanCount
                 };
                 
-                console.log('Update data:', updateData);
-                console.log('API URL:', `${SUPABASE_URL}/rest/v1/winter_formal_orders?ticket_number=eq.${currentTicket.ticket_number}`);
                 
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/winter_formal_orders?ticket_number=eq.${currentTicket.ticket_number}`, {
                     method: 'PATCH',
@@ -608,9 +1135,7 @@
                     body: JSON.stringify(updateData)
                 });
                 
-                console.log('Response status:', response.status);
-                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-                
+              
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Response error:', errorText);
@@ -620,19 +1145,27 @@
                 // Update current ticket data
                 currentTicket.ticket_scans = newScanCount;
                 
-                // Show success message
-                showResult(`Successfully scanned ${scanCount} ${scanCount === 1 ? 'person' : 'people'}. Total scans: ${newScanCount}`, 'success');
+                // Hide scan result div (don't show it on success)
+                document.getElementById('result').style.display = 'none';
                 
                 // Hide scan buttons and show next ticket button
                 document.getElementById('scanButtons').style.display = 'none';
                 document.getElementById('cancelScanSection').style.display = 'none';
                 document.getElementById('nextTicketSection').style.display = 'block';
                 
-                // Update current scans display
-                document.getElementById('currentScans').textContent = newScanCount;
+                // Update current scans display as fraction
+                const maxScans = getMaxScans(currentTicket.ticket_type);
+                document.getElementById('currentScans').textContent = `${newScanCount}/${maxScans}`;
                 
-                // Refresh ticket info display
-                displayTicketInfo(currentTicket);
+                // Refresh ticket info display (don't show "already used" message or red styling after successful scan)
+                displayTicketInfo(currentTicket, false, false);
+                
+                // Turn ticket info container green on successful scan
+                const ticketInfo = document.getElementById('ticketInfo');
+                ticketInfo.classList.add('success');
+                
+                // Reposition logout button after content update
+                setTimeout(positionLogoutButton, 0);
                 
             } catch (error) {
                 console.error("Detailed error processing scan:", {
@@ -661,17 +1194,37 @@
             document.getElementById('cancelScanSection').style.display = 'none';
             document.getElementById('nextTicketSection').style.display = 'none';
             document.getElementById('result').style.display = 'none';
+            document.getElementById('newTicketErrorBtn').style.display = 'none';
             
             // Remove red styling from container
             const container = document.querySelector('.container');
             container.classList.remove('ticket-used');
             
+            // Remove green success styling from ticket info
+            const ticketInfo = document.getElementById('ticketInfo');
+            ticketInfo.classList.remove('success');
+            
             currentTicket = null;
+            
+            // Clear ticket inputs
+            document.getElementById('ticketInput1').value = '';
+            document.getElementById('ticketInput2').value = '';
+            document.getElementById('ticketInput3').value = '';
+            document.getElementById('ticketInput4').value = '';
+            document.getElementById('ticketInput5').value = '';
+            document.getElementById('ticketEntryError').textContent = '';
             
             // Reload ticket from URL
             const ticketNumber = getTicketNumberFromURL();
             if (ticketNumber) {
+                document.getElementById('ticketEntrySection').style.display = 'none';
+                document.getElementById('status').style.display = 'block';
                 loadTicket(ticketNumber);
+            } else {
+                // Show manual entry
+                document.getElementById('ticketEntrySection').style.display = 'block';
+                document.getElementById('status').style.display = 'none';
+                document.getElementById('ticketInput1').focus();
             }
         }
         
@@ -682,32 +1235,49 @@
             document.getElementById('cancelScanSection').style.display = 'none';
             document.getElementById('nextTicketSection').style.display = 'none';
             document.getElementById('result').style.display = 'none';
+            document.getElementById('newTicketErrorBtn').style.display = 'none';
             
             // Remove red styling from container
             const container = document.querySelector('.container');
             container.classList.remove('ticket-used');
             
+            // Remove green success styling from ticket info
+            const ticketInfo = document.getElementById('ticketInfo');
+            ticketInfo.classList.remove('success');
+            
             currentTicket = null;
             
-            // Reload ticket from URL
-            const ticketNumber = getTicketNumberFromURL();
-            if (ticketNumber) {
-                loadTicket(ticketNumber);
-            }
+            // Clear ticket inputs
+            document.getElementById('ticketInput1').value = '';
+            document.getElementById('ticketInput2').value = '';
+            document.getElementById('ticketInput3').value = '';
+            document.getElementById('ticketInput4').value = '';
+            document.getElementById('ticketInput5').value = '';
+            document.getElementById('ticketEntryError').textContent = '';
+            
+            // Remove query parameters from URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Show manual entry
+            document.getElementById('ticketEntrySection').style.display = 'block';
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('ticketInput1').focus();
         }
         
         function showResult(message, type = 'success') {
             document.getElementById('resultMessage').textContent = message;
-            document.getElementById('scannedTime').textContent = new Date().toLocaleString();
             
             const resultDiv = document.getElementById('result');
+            const newTicketBtn = document.getElementById('newTicketErrorBtn');
             resultDiv.style.display = 'block';
             resultDiv.className = 'result show';
             
             if (type === 'error') {
                 resultDiv.classList.add('error');
+                newTicketBtn.style.display = 'block';
             } else {
                 resultDiv.classList.remove('error');
+                newTicketBtn.style.display = 'none';
             }
         }
         
@@ -718,8 +1288,14 @@
         
         function updateStatus(message, className = '') {
             const statusElement = document.getElementById('status');
-            statusElement.textContent = message;
-            statusElement.className = 'status ' + className;
+            if (className === 'success') {
+                // Hide status when it's success
+                statusElement.style.display = 'none';
+            } else {
+                statusElement.textContent = message;
+                statusElement.className = 'status ' + className;
+                statusElement.style.display = 'block';
+            }
         }
     </script>
 </body>

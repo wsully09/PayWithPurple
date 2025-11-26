@@ -268,6 +268,25 @@
             opacity: 1;
         }
 
+        /* Approved ticket indicator */
+        .approved-ticket-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            text-decoration: underline;
+            font-family: "Inter", sans-serif;
+            transition: opacity 0.3s ease;
+        }
+
+        .approved-ticket-indicator:hover {
+            opacity: 0.8;
+        }
+
         /* How To Pay Screen Styles */
         .how-to-pay-screen {
             display: none;
@@ -1510,7 +1529,7 @@
                  Use Venmo To Pay
                 </div>
                 <div class="how-to-pay-disclaimer">
-                    All tickets must be paid for through Venmo, with no exceptions. If you don’t have Venmo, please use someone you know who does to submit your payment.
+                    All tickets must be paid for through Venmo. No exceptions. If you don’t have Venmo, please use someone you know who does to submit your payment.
                 </div>
                 <button class="how-to-pay-button" id="proceedToPayment">I'm Paying With Venmo</button>
                 <button class="how-to-pay-button secondary" id="someonePayingForMeButton" onclick="toggleSomeonePayingForMe()">
@@ -1593,14 +1612,14 @@
                 
                 <div class="venmo-dropdown-container">
                     <button class="venmo-dropdown-button" id="venmoFallbackLink" onclick="toggleVenmoFallback()">
-                        <span>If the Venmo app doesn't open or gets popup blocked, come back and click here for additional instructions.</span>
+                        <span>If the Venmo app does not open or gets popup blocked, come back and click here for additional instructions.</span>
                         <span class="dropdown-arrow">▼</span>
                     </button>
                 </div>
                 <div class="fallback-section fallback-section-venmo" id="fallbackSection" style="display: none;">
                     <div class="fallback-title">In the event Venmo does not open:</div>
                     <div class="fallback-text" id="fallbackText">
-                        Venmo $10 to @DuncanOffCampus <br>with message "Winter Formal (#42821)". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.
+                        Venmo $<span id="fallbackAmount">10</span> to @DuncanOffCampus <br>with message "<span id="fallbackVenmoMessage">Winter Formal (#...)</span>". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.
                     </div>
                     <div class="copy-section">
                         <div class="copy-box" onclick="copyToClipboard('duncanoffcampus', this)">
@@ -1610,7 +1629,7 @@
                         </div>
                         <div class="copy-box" onclick="copyToClipboard(getVenmoMessage(), this)">
                             <div class="copy-label">Venmo Message (click to copy)</div>
-                            <div class="copy-content" id="venmoMessageContent">Winter Formal (#42821)</div>
+                            <div class="copy-content" id="venmoMessageContent">Winter Formal (#...)</div>
                             <div class="copy-feedback">Venmo Message Copied</div>
                         </div>
                     </div>
@@ -1778,7 +1797,7 @@
             // Update pricing details text
             const pricingDetails = document.querySelector('.pricing-details');
             if (pricingDetails) {
-                pricingDetails.innerHTML = `Tickets are priced based on an expected number of drinks. The prices below apply whether or not you or your guest plan to drink or arrive late to the event. <strong><u>There are no ticket price exceptions, so please do not ask for one.</u></strong> Tickets will be checked at the door.`;
+                pricingDetails.innerHTML = `Tickets are priced based on an expected number of drinks. The prices below apply whether or not you or your guest plan to drink or arrive late to the event. <strong><u>There are no ticket price exceptions, so please do not ask for one.</u></strong> There are also no refunds after the RSVP deadline since the drinks will be purchased in advance. Tickets will be checked at the door.`;
             }
             
             // Update button text with drinks count
@@ -1984,6 +2003,18 @@
                     if (viewTicketButton) {
                         viewTicketButton.textContent = `View Your Ticket (#${generatedTicketNumber})`;
                     }
+                    
+                    // Update venmo message content
+                    const venmoMessageContent = document.getElementById('venmoMessageContent');
+                    if (venmoMessageContent) {
+                        venmoMessageContent.textContent = `Winter Formal (#${generatedTicketNumber})`;
+                    }
+                    
+                    // Update fallback text
+                    const fallbackAmount = document.getElementById('fallbackAmount');
+                    const fallbackVenmoMessage = document.getElementById('fallbackVenmoMessage');
+                    if (fallbackAmount) fallbackAmount.textContent = ticketAmount;
+                    if (fallbackVenmoMessage) fallbackVenmoMessage.textContent = `Winter Formal (#${generatedTicketNumber})`;
                 } else {
                     console.error('Failed to generate ticket number');
                 }
@@ -2105,10 +2136,41 @@
         let payForOtherData = null;
         let cameFromShareFlow = false; // Track if user came from share flow
 
-        // Show pricing screen when "Yes" button is clicked
-        continueBtn.addEventListener('click', function() {
-            pricingScreen.style.display = 'block';
-        });
+        // Check for approved tickets and set up button accordingly
+        function setupRSVPButton() {
+            if (!continueBtn) return; // Make sure button exists
+            
+            const approvedTicketKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('ticket_approved_') && localStorage.getItem(key) === 'approved') {
+                    approvedTicketKeys.push(key);
+                }
+            }
+            
+            if (approvedTicketKeys.length > 0) {
+                const firstKey = approvedTicketKeys[0];
+                const ticketNumber = firstKey.replace('ticket_approved_', '');
+                
+                // Update button text
+                continueBtn.textContent = 'View Your Ticket';
+                
+                // Remove any existing event listeners and add new one
+                const newContinueBtn = continueBtn.cloneNode(true);
+                continueBtn.parentNode.replaceChild(newContinueBtn, continueBtn);
+                
+                // Add click handler to navigate to ticket
+                newContinueBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = `/ticket/${ticketNumber}`;
+                });
+            } else {
+                // Show pricing screen when "Yes" button is clicked (normal flow)
+                continueBtn.addEventListener('click', function() {
+                    pricingScreen.style.display = 'block';
+                });
+            }
+        }
 
         // Hide pricing screen when back button is clicked
         backButton.addEventListener('click', function() {
@@ -2380,8 +2442,12 @@
         // Launch Venmo with proper link - make it globally accessible
         window.launchVenmoApp = function launchVenmoApp() {
             console.log('launchVenmoApp called');
-            const ticketNumber = generatedTicketNumber || '42821';
-            const venmoUrl = `venmo://paycharge?txn=pay&recipients=duncanoffcampus&amount=${ticketAmount}&note=Winter%20Formal%20(%23${ticketNumber})`;
+            if (!generatedTicketNumber) {
+                console.error('Ticket number not generated yet');
+                alert('Please wait for ticket number to be generated');
+                return;
+            }
+            const venmoUrl = `venmo://paycharge?txn=pay&recipients=duncanoffcampus&amount=${ticketAmount}&note=Winter%20Formal%20(%23${generatedTicketNumber})`;
             console.log('Venmo URL:', venmoUrl);
             console.log('ticketAmount:', ticketAmount);
             window.location.href = venmoUrl;
@@ -2421,6 +2487,13 @@
                     const result = await response.json();
                     
                     if (result.success) {
+                        // If user is NOT a payment share person (they're paying themselves)
+                        // Add ticket to local storage and redirect to /formal
+                        if (!cameFromShareFlow && generatedTicketNumber) {
+                            localStorage.setItem(`ticket_approved_${generatedTicketNumber}`, 'approved');
+                            // Redirect to /formal
+                            window.location.href = '/formal';
+                        }
                     } else {
                         console.error('Failed to approve payment:', result.error);
                     }
@@ -2428,6 +2501,34 @@
                     console.error('Error calling approve-payment API:', error);
                 }
             } else {
+                // Even if SMS is disabled, still need to approve payment in database
+                try {
+                    const response = await fetch('/api/approve-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ticket_number: generatedTicketNumber
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // If user is NOT a payment share person (they're paying themselves)
+                        // Add ticket to local storage and redirect to /formal
+                        if (!cameFromShareFlow && generatedTicketNumber) {
+                            localStorage.setItem(`ticket_approved_${generatedTicketNumber}`, 'approved');
+                            // Redirect to /formal
+                            window.location.href = '/formal';
+                        }
+                    } else {
+                        console.error('Failed to approve payment:', result.error);
+                    }
+                } catch (error) {
+                    console.error('Error calling approve-payment API:', error);
+                }
             }
         }
 
@@ -2505,10 +2606,14 @@
                 
                 // Update copy content with correct amount and ticket number
                 const venmoMessageContent = document.getElementById('venmoMessageContent');
-                if (venmoMessageContent) {
-                    const ticketNumber = generatedTicketNumber || '42821';
-                    venmoMessageContent.textContent = `Winter Formal (#${ticketNumber})`;
+                if (venmoMessageContent && generatedTicketNumber) {
+                    venmoMessageContent.textContent = `Winter Formal (#${generatedTicketNumber})`;
                 }
+                // Update fallback text
+                const fallbackAmount = document.getElementById('fallbackAmount');
+                const fallbackVenmoMessage = document.getElementById('fallbackVenmoMessage');
+                if (fallbackAmount && generatedTicketNumber) fallbackAmount.textContent = ticketAmount;
+                if (fallbackVenmoMessage && generatedTicketNumber) fallbackVenmoMessage.textContent = `Winter Formal (#${generatedTicketNumber})`;
                 
                 // Update complete payment description with correct amount
                 const completePaymentDescription = document.getElementById('completePaymentDescription');
@@ -2541,9 +2646,16 @@
                     
                     // Update copy content with correct amount and ticket number
                     const venmoMessageContent = document.getElementById('venmoMessageContent');
-                    if (venmoMessageContent) {
-                        const ticketNumber = generatedTicketNumber || '42821';
-                        venmoMessageContent.textContent = `Winter Formal (#${ticketNumber})`;
+                    if (venmoMessageContent && generatedTicketNumber) {
+                        venmoMessageContent.textContent = `Winter Formal (#${generatedTicketNumber})`;
+                    }
+                    // Update fallback text
+                    const fallbackText = document.getElementById('fallbackText');
+                    if (fallbackText && generatedTicketNumber) {
+                        const fallbackAmount = document.getElementById('fallbackAmount');
+                        const fallbackVenmoMessage = document.getElementById('fallbackVenmoMessage');
+                        if (fallbackAmount) fallbackAmount.textContent = ticketAmount;
+                        if (fallbackVenmoMessage) fallbackVenmoMessage.textContent = `Winter Formal (#${generatedTicketNumber})`;
                     }
                     
                     // Update complete payment description with correct amount
@@ -2651,6 +2763,49 @@
 
         // Add event listeners when the page loads
         document.addEventListener('DOMContentLoaded', async function() {
+            // Check for approved tickets first
+            const approvedTicketKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('ticket_approved_') && localStorage.getItem(key) === 'approved') {
+                    approvedTicketKeys.push(key);
+                }
+            }
+            
+            // If there's an approved ticket, show the first screen instead of payment received screen
+            if (approvedTicketKeys.length > 0) {
+                // Hide payment received screen and all other screens
+                const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
+                if (paymentReceivedScreen) {
+                    paymentReceivedScreen.style.display = 'none';
+                }
+                // Hide all other screens
+                const allScreens = document.querySelectorAll('[id$="Screen"]');
+                allScreens.forEach(screen => {
+                    if (screen.id !== 'loadingScreen' && screen.id !== 'mobileDetectionScreen') {
+                        screen.style.display = 'none';
+                    }
+                });
+                // Ensure the first screen (app-container) is shown
+                const appContainer = document.querySelector('.app-container');
+                if (appContainer) {
+                    appContainer.style.display = 'block';
+                }
+                // Hide loading screen
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                }
+                // Hide mobile detection screen
+                const mobileDetectionScreen = document.getElementById('mobileDetectionScreen');
+                if (mobileDetectionScreen) {
+                    mobileDetectionScreen.style.display = 'none';
+                }
+            }
+            
+            // Set up RSVP button based on approved tickets
+            setupRSVPButton();
+            
             // Check for pay for other parameters first
             const isPayForOther = await checkPayForOtherParams();
             if (isPayForOther) {
@@ -2875,8 +3030,10 @@
 
         // Function to get the current Venmo message with dynamic ticket number
         function getVenmoMessage() {
-            const ticketNumber = generatedTicketNumber || '42821';
-            return `Winter Formal (#${ticketNumber})`;
+            if (!generatedTicketNumber) {
+                return 'Winter Formal (#...)';
+            }
+            return `Winter Formal (#${generatedTicketNumber})`;
         }
 
         // Function to generate share link for pay for other
@@ -2960,6 +3117,61 @@
                 dropdownButton.classList.remove('active');
             }
         }
+
+        // Check for approved tickets in local storage and display indicator
+        function checkApprovedTickets() {
+            const approvedTicketKeys = [];
+            
+            // Check all local storage keys for approved tickets
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('ticket_approved_') && localStorage.getItem(key) === 'approved') {
+                    approvedTicketKeys.push(key);
+                }
+            }
+            
+            // If there are approved tickets, show the indicator
+            if (approvedTicketKeys.length > 0) {
+                // Get the first approved ticket number
+                const firstKey = approvedTicketKeys[0];
+                const ticketNumber = firstKey.replace('ticket_approved_', '');
+                
+                // Create or update the indicator
+                let indicator = document.getElementById('approvedTicketIndicator');
+                if (!indicator) {
+                    indicator = document.createElement('div');
+                    indicator.id = 'approvedTicketIndicator';
+                    indicator.className = 'approved-ticket-indicator';
+                    indicator.textContent = `Ticket #${ticketNumber} approved`;
+                    indicator.onclick = function() {
+                        // Remove the approved ticket from local storage
+                        localStorage.removeItem(firstKey);
+                        // Hide the indicator
+                        indicator.style.display = 'none';
+                    };
+                    document.body.appendChild(indicator);
+                } else {
+                    indicator.textContent = `Ticket #${ticketNumber} approved`;
+                    indicator.style.display = 'block';
+                    // Update onclick handler
+                    indicator.onclick = function() {
+                        localStorage.removeItem(firstKey);
+                        indicator.style.display = 'none';
+                    };
+                }
+            } else {
+                // Hide indicator if no approved tickets
+                const indicator = document.getElementById('approvedTicketIndicator');
+                if (indicator) {
+                    indicator.style.display = 'none';
+                }
+            }
+        }
+
+        // Check for approved tickets when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApprovedTickets();
+        });
     </script>
 </body>
 </html>

@@ -533,6 +533,11 @@ app.get('/ticket/:id', async (req, res) => {
                     width: 100%;
                     height: auto;
                     display: block;
+                    pointer-events: none;
+                    user-select: none;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
                 }
 
                 .info-section {
@@ -570,6 +575,11 @@ app.get('/ticket/:id', async (req, res) => {
                     width: 140px;
                     height: 140px;
                     border-radius: 8px;
+                    pointer-events: none;
+                    user-select: none;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
                 }
 
                 .qr-placeholder {
