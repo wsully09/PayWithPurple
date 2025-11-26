@@ -282,27 +282,60 @@ app.post('/api/approve-payment', async (req, res) => {
             });
         }
         
-        // Update payment status to approved
-        const { data, error } = await supabase
-            .from('fall_formal_orders')
+        // Try to update payment status in winter_formal_orders first
+        let { data, error } = await supabase
+            .from('winter_formal_orders')
             .update({ payment_approved: 'approved' })
             .eq('ticket_number', ticket_number)
             .select()
             .single();
         
-        if (error) {
-            console.error('Supabase error:', error);
-            return res.status(500).json({
-                success: false,
-                error: 'Failed to approve payment'
-            });
-        }
-        
-        if (!data) {
-            return res.status(404).json({
-                success: false,
-                error: 'Ticket not found'
-            });
+        // If not found in winter_formal_orders, try fall_formal_orders
+        if (error || !data) {
+            // Check if it's a "not found" error (PGRST116) or if data is null
+            const isNotFoundError = error?.code === 'PGRST116' || error?.message?.includes('No rows found') || !data;
+            
+            if (isNotFoundError) {
+                // Try fall_formal_orders
+                const { data: fallData, error: fallError } = await supabase
+                    .from('fall_formal_orders')
+                    .update({ payment_approved: 'approved' })
+                    .eq('ticket_number', ticket_number)
+                    .select()
+                    .single();
+                
+                if (fallError) {
+                    // If it's also a "not found" error, return 404
+                    if (fallError.code === 'PGRST116' || fallError.message?.includes('No rows found')) {
+                        return res.status(404).json({
+                            success: false,
+                            error: 'Ticket not found'
+                        });
+                    }
+                    // Otherwise, it's a real error
+                    console.error('Supabase error:', fallError);
+                    return res.status(500).json({
+                        success: false,
+                        error: 'Failed to approve payment'
+                    });
+                }
+                
+                if (!fallData) {
+                    return res.status(404).json({
+                        success: false,
+                        error: 'Ticket not found'
+                    });
+                }
+                
+                data = fallData;
+            } else {
+                // It's a real error from winter_formal_orders, not just "not found"
+                console.error('Supabase error:', error);
+                return res.status(500).json({
+                    success: false,
+                    error: 'Failed to approve payment'
+                });
+            }
         }
         
         // Get the base URL for the ticket
