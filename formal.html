@@ -287,6 +287,28 @@
             opacity: 1;
         }
 
+        /* Guest List Styles */
+        .guest-list-header {
+            transition: opacity 0.3s ease;
+        }
+
+     
+
+        #guestListContent {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #guestListNames {
+            color: white;
+        }
+
+        .guest-name {
+            padding: 4px 0;
+        }
+
         /* How To Pay Screen Styles */
         .how-to-pay-screen {
             display: none;
@@ -1382,6 +1404,34 @@
             <div class="subtitle">
             </div>
             <button class="first-page-button primary-button" id="rsvpYes">RSVP: Yes, I will be attending</button>
+            
+            <!-- Guest List Section -->
+            <div id="guestListSection" style="display: block; margin-top: 20px;">
+                <div id="guestListContent" style="display: block; margin-top: 15px; overflow-y: auto;">
+                    <div class="guest-list-header" id="guestListHeader" style="cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; padding-bottom: 0; margin-bottom: 0; position: relative;">
+                        <div style="display: flex; align-items: center; justify-content: center;">
+                            <span style="color: white; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600;">
+                        Guest List
+                            </span>
+                            <span id="guestListCount" style="color: white; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; margin-left: 8px; display: none;">
+                            </span>
+                        </div>
+                        <span id="guestListToggle" style="color: white; font-family: 'Inter', sans-serif; font-size: 14px; opacity: 0.8; position: absolute; right: 3px; top: 3px;">
+                            ▼
+                        </span>
+                    </div>
+                    <div id="guestListBody" style="display: none;">
+                        <div id="guestListNames" style="color: white; font-family: 'Inter', sans-serif; font-size: 14px; text-align: center; line-height: 1.8;">
+                            <!-- Guest names will be populated here -->
+                        </div>
+                        <div id="guestListMessage" style="display: none; text-align: center;">
+                            <p style="color: white; font-family: 'Inter', sans-serif; font-size: 13px; opacity: 0.8; font-style: italic; margin-bottom: 5px;margin-top: 15px;">
+                                RSVP yes to view guest list
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
           
         </div>
     </div>
@@ -2703,6 +2753,9 @@
                             inviteText.innerHTML = getInviteTextWithFirstName(firstName);
                         }
                     }
+                    
+                    // Load and display guest list
+                    loadGuestList();
                 } else {
                     // Ticket not approved or not found, remove from localStorage
                     localStorage.removeItem('approved_ticket_number');
@@ -2720,6 +2773,204 @@
             } catch (error) {
                 console.error('Error checking approved ticket:', error);
             }
+        }
+
+        // Function to fetch and display guest list
+        async function loadGuestList() {
+            const savedTicketNumber = localStorage.getItem('approved_ticket_number');
+            
+            // Check if user has approved ticket
+            if (!savedTicketNumber) {
+                showGuestListMessage();
+                return;
+            }
+            
+            try {
+                // Verify ticket is approved
+                let { data: userTicket, error: userError } = await supabase
+                    .from('winter_formal_orders')
+                    .select('payment_approved')
+                    .eq('ticket_number', parseInt(savedTicketNumber))
+                    .maybeSingle();
+                
+                // If not found in winter_formal_orders, try fall_formal_orders
+                if (userError || !userTicket) {
+                    const { data: fallUserTicket, error: fallUserError } = await supabase
+                        .from('fall_formal_orders')
+                        .select('payment_approved')
+                        .eq('ticket_number', parseInt(savedTicketNumber))
+                        .maybeSingle();
+                    
+                    if (!fallUserError && fallUserTicket) {
+                        userTicket = fallUserTicket;
+                    }
+                }
+                
+                // If user ticket is not approved, show message
+                if (!userTicket || userTicket.payment_approved !== 'approved') {
+                    showGuestListMessage();
+                    return;
+                }
+                
+                // Fetch all approved tickets from winter_formal_orders
+                let { data: winterTickets, error: winterError } = await supabase
+                    .from('winter_formal_orders')
+                    .select('name, ticket_type, created_at')
+                    .eq('payment_approved', 'approved')
+                    .order('created_at', { ascending: false });
+                
+                // Fetch all approved tickets from fall_formal_orders
+                let { data: fallTickets, error: fallError } = await supabase
+                    .from('fall_formal_orders')
+                    .select('name, ticket_type, created_at')
+                    .eq('payment_approved', 'approved')
+                    .order('created_at', { ascending: false });
+                
+                // Combine tickets from both tables and sort by created_at descending
+                let allTickets = [];
+                if (winterTickets) {
+                    allTickets = allTickets.concat(winterTickets);
+                }
+                if (fallTickets) {
+                    allTickets = allTickets.concat(fallTickets);
+                }
+                
+                // Sort combined list by created_at descending (most recent first)
+                allTickets.sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0);
+                    const dateB = new Date(b.created_at || 0);
+                    return dateB - dateA; // Descending order
+                });
+                
+                // Display guest list
+                displayGuestList(allTickets);
+                
+            } catch (error) {
+                console.error('Error loading guest list:', error);
+                showGuestListMessage();
+            }
+        }
+        
+        // Function to display guest list
+        function displayGuestList(tickets) {
+            const guestListSection = document.getElementById('guestListSection');
+            const guestListMessage = document.getElementById('guestListMessage');
+            const guestListContent = document.getElementById('guestListContent');
+            const guestListBody = document.getElementById('guestListBody');
+            const guestListNames = document.getElementById('guestListNames');
+            const guestListCount = document.getElementById('guestListCount');
+            const guestListHeader = document.getElementById('guestListHeader');
+            const guestListToggle = document.getElementById('guestListToggle');
+            
+            if (!guestListSection) return;
+            
+            // Hide message
+            if (guestListMessage) {
+                guestListMessage.style.display = 'none';
+            }
+            
+            // Show names container
+            if (guestListNames) {
+                guestListNames.style.display = 'block';
+            }
+            
+            // Calculate total count (single = +1, couple = +2)
+            let totalCount = 0;
+            tickets.forEach(ticket => {
+                if (ticket.ticket_type === 'couple') {
+                    totalCount += 2;
+                } else {
+                    totalCount += 1;
+                }
+            });
+            
+            // Update count and show it
+            if (guestListCount) {
+                guestListCount.textContent = `(${totalCount})`;
+                guestListCount.style.display = 'inline';
+            }
+            
+            // Show toggle arrow
+            if (guestListToggle) {
+                guestListToggle.style.display = 'inline';
+            }
+            
+            // Enable header click
+            if (guestListHeader) {
+                guestListHeader.style.cursor = 'pointer';
+            }
+            
+            // Display names
+            if (guestListNames) {
+                guestListNames.innerHTML = '';
+                tickets.forEach(ticket => {
+                    if (ticket.name) {
+                        const nameDiv = document.createElement('div');
+                        nameDiv.className = 'guest-name';
+                        let displayName = ticket.name;
+                        if (ticket.ticket_type === 'couple') {
+                            displayName += ' (and 1 more)';
+                        }
+                        nameDiv.textContent = displayName;
+                        guestListNames.appendChild(nameDiv);
+                    }
+                });
+            }
+            
+            // Show content box
+            if (guestListContent) {
+                guestListContent.style.display = 'block';
+            }
+            
+            // Show guest list section
+            guestListSection.style.display = 'block';
+        }
+        
+        // Function to show "RSVP yes to view guest list" message
+        function showGuestListMessage() {
+            const guestListSection = document.getElementById('guestListSection');
+            const guestListMessage = document.getElementById('guestListMessage');
+            const guestListContent = document.getElementById('guestListContent');
+            const guestListBody = document.getElementById('guestListBody');
+            const guestListCount = document.getElementById('guestListCount');
+            const guestListHeader = document.getElementById('guestListHeader');
+            const guestListNames = document.getElementById('guestListNames');
+            const guestListToggle = document.getElementById('guestListToggle');
+            
+            if (!guestListSection) return;
+            
+            // Hide names container
+            if (guestListNames) {
+                guestListNames.style.display = 'none';
+            }
+            
+            // Hide count
+            if (guestListCount) {
+                guestListCount.style.display = 'none';
+            }
+            
+            // Show toggle arrow
+            if (guestListToggle) {
+                guestListToggle.style.display = 'inline';
+            }
+            
+            // Enable header click (dropdown should work)
+            if (guestListHeader) {
+                guestListHeader.style.cursor = 'pointer';
+            }
+            
+            // Show message
+            if (guestListMessage) {
+                guestListMessage.style.display = 'block';
+            }
+            
+            // Show content box
+            if (guestListContent) {
+                guestListContent.style.display = 'block';
+            }
+            
+            // Show guest list section
+            guestListSection.style.display = 'block';
         }
 
         // Start monitoring payment status
@@ -2748,6 +2999,8 @@
                         if (data && data.payment_approved === 'approved') {
                             clearInterval(interval);
                             showPaymentReceivedScreen();
+                            // Load guest list when payment is approved
+                            loadGuestList();
                         }
                     } catch (error) {
                         console.error('Error in payment status monitoring:', error);
@@ -3024,6 +3277,76 @@
             
             // Generate ticket number in the background
             generateTicketNumberInBackground();
+            
+            // Add guest list toggle functionality
+            const guestListHeader = document.getElementById('guestListHeader');
+            if (guestListHeader) {
+                guestListHeader.addEventListener('click', function() {
+                    const guestListBody = document.getElementById('guestListBody');
+                    const guestListToggle = document.getElementById('guestListToggle');
+                    if (guestListBody && guestListToggle) {
+                        if (guestListBody.style.display === 'none') {
+                            guestListBody.style.display = 'block';
+                            guestListToggle.textContent = '▲';
+                            // Show border, add margin and padding when expanded
+                            guestListHeader.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+                            guestListHeader.style.marginBottom = '15px';
+                            guestListHeader.style.paddingBottom = '15px';
+                            // Move toggle button to top: 0px when open
+                            guestListToggle.style.top = '0px';
+                        } else {
+                            guestListBody.style.display = 'none';
+                            guestListToggle.textContent = '▼';
+                            // Hide border, remove margin and padding when collapsed
+                            guestListHeader.style.borderBottom = 'none';
+                            guestListHeader.style.marginBottom = '0';
+                            guestListHeader.style.paddingBottom = '0';
+                            // Move toggle button to top: 3px when closed
+                            guestListToggle.style.top = '3px';
+                        }
+                    }
+                });
+            }
+            
+            // Check if user has approved ticket and show/hide guest list accordingly
+            // This will be handled by checkApprovedTicketOnLoad which calls loadGuestList()
+            // If user doesn't have approved ticket, show message after a delay
+            setTimeout(async () => {
+                const savedTicketNumber = localStorage.getItem('approved_ticket_number');
+                if (!savedTicketNumber) {
+                    // Show guest list section with message if no ticket
+                    showGuestListMessage();
+                } else {
+                    // Check if ticket is actually approved (in case checkApprovedTicketOnLoad hasn't run yet)
+                    // loadGuestList will handle this, but we can also check here
+                    try {
+                        let { data: userTicket, error: userError } = await supabase
+                            .from('winter_formal_orders')
+                            .select('payment_approved')
+                            .eq('ticket_number', parseInt(savedTicketNumber))
+                            .maybeSingle();
+                        
+                        if (userError || !userTicket) {
+                            const { data: fallUserTicket, error: fallUserError } = await supabase
+                                .from('fall_formal_orders')
+                                .select('payment_approved')
+                                .eq('ticket_number', parseInt(savedTicketNumber))
+                                .maybeSingle();
+                            
+                            if (!fallUserError && fallUserTicket) {
+                                userTicket = fallUserTicket;
+                            }
+                        }
+                        
+                        if (!userTicket || userTicket.payment_approved !== 'approved') {
+                            showGuestListMessage();
+                        }
+                    } catch (error) {
+                        console.error('Error checking ticket status for guest list:', error);
+                        showGuestListMessage();
+                    }
+                }
+            }, 800); // Wait a bit for checkApprovedTicketOnLoad to complete
             
             const nameInput = document.getElementById('fullName');
             const emailInput = document.getElementById('emailAddress');
