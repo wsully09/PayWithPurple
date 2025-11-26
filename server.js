@@ -577,6 +577,8 @@ app.get('/ticket/:id', async (req, res) => {
                     display: flex;
                     justify-content: space-between;
                     margin-bottom: 20px;
+                    position: relative;
+                    z-index: 10;
                 }
 
                 .info-group {
@@ -602,11 +604,12 @@ app.get('/ticket/:id', async (req, res) => {
                     bottom: 5px;
                     left: 50%;
                     transform: translateX(-50%);
+                    z-index: 1;
                 }
 
                 .qr-code {
-                    width: 140px;
-                    height: 140px;
+                    width: 150px;
+                    height: 150px;
                     border-radius: 8px;
                     pointer-events: none;
                     user-select: none;
@@ -616,8 +619,8 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .qr-placeholder {
-                    width: 170px;
-                    height: 170px;
+                    width: 150px;
+                    height: 150px;
                     background-color: white;
                     border-radius: 8px;
                     display: flex;
