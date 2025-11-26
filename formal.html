@@ -840,7 +840,6 @@
             text-align: center;
             margin: 15px 0;
             padding: 10px 15px;
-            padding-top: 0;
             margin-top: 10px;
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 6px;
@@ -1741,7 +1740,7 @@
         const IS_MOBILE_DEVICE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         // Override mobile device popup - set to true to bypass the "continue on mobile device" popup
-        const OVERRIDE_MOBILE_POPUP = true;
+        const OVERRIDE_MOBILE_POPUP = false;
         
         // Initialize Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
