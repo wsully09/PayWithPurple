@@ -145,7 +145,7 @@ app.post('/api/tickets', async (req, res) => {
         
         // Save to Supabase database
         const { data, error } = await supabase
-            .from('fall_formal_orders')
+            .from('winter_formal_orders')
             .insert([ticketData]);
         
         if (error) {
@@ -500,7 +500,7 @@ app.get('/ticket/:id', async (req, res) => {
                     padding: 20px 20px 0px 20px;
                     max-width: 400px;
                     width: calc(100% - 40px);
-                    height: 520px;
+                    height: 550px;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                     border-radius: 10px;
                     box-sizing: border-box;
@@ -601,15 +601,15 @@ app.get('/ticket/:id', async (req, res) => {
 
                 .qr-section {
                     position: absolute;
-                    bottom: 5px;
+                    bottom: 55px;
                     left: 50%;
                     transform: translateX(-50%);
                     z-index: 1;
                 }
 
                 .qr-code {
-                    width: 150px;
-                    height: 150px;
+                    width: 140px;
+                    height: 140px;
                     border-radius: 8px;
                     pointer-events: none;
                     user-select: none;
@@ -619,8 +619,8 @@ app.get('/ticket/:id', async (req, res) => {
                 }
 
                 .qr-placeholder {
-                    width: 150px;
-                    height: 150px;
+                    width: 140px;
+                    height: 140px;
                     background-color: white;
                     border-radius: 8px;
                     display: flex;
@@ -631,6 +631,24 @@ app.get('/ticket/:id', async (req, res) => {
                     user-select: none;
                     
                 }
+
+                .event-details-link {
+                    position: absolute;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    text-align: center;
+                    z-index: 10;
+                   
+                }
+
+                .event-details-link a {
+                    color: #747474;
+                    font-size: 12px;
+                    font-style: italic;
+                   
+                }
+
 
                 .share-section {
                     margin-top: 20px;
@@ -692,6 +710,10 @@ app.get('/ticket/:id', async (req, res) => {
                     <div class="qr-placeholder">
                         <img src="${qrCodeDataURL}" alt="QR Code" class="qr-code">
                     </div>
+                </div>
+                
+                <div class="event-details-link">
+                    <a href="/formal">View guest list and event details</a>
                 </div>
             </div>
             
