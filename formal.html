@@ -2457,6 +2457,44 @@
 
         // Show payment received screen - now redirects to home screen with button replacement
         async function showPaymentReceivedScreen() {
+            // Check if this is a shared payment link (pay for other)
+            if (payForOtherData) {
+                // For shared payment links, show payment received screen with email message
+                const completePaymentScreen = document.getElementById('completePaymentScreen');
+                const paymentReceivedScreen = document.getElementById('paymentReceivedScreen');
+                const payForOtherScreen = document.getElementById('payForOtherScreen');
+                
+                // Hide all screens
+                if (completePaymentScreen) completePaymentScreen.style.display = 'none';
+                if (payForOtherScreen) payForOtherScreen.style.display = 'none';
+                
+                // Update payment received screen for shared payment link
+                const paymentReceivedTitle = document.querySelector('#paymentReceivedScreen .payment-received-title');
+                const paymentReceivedDescription = document.querySelector('#paymentReceivedScreen .payment-received-description');
+                const viewTicketButton = document.getElementById('viewTicketButton');
+                
+                if (paymentReceivedTitle) {
+                    paymentReceivedTitle.textContent = 'Venmo Received';
+                }
+                
+                if (paymentReceivedDescription) {
+                    paymentReceivedDescription.textContent = `The ticket was emailed to ${payForOtherData.email}.`;
+                }
+                
+                // Hide the view ticket button for shared payment links
+                if (viewTicketButton) {
+                    viewTicketButton.style.display = 'none';
+                }
+                
+                // Show payment received screen
+                if (paymentReceivedScreen) {
+                    paymentReceivedScreen.style.display = 'block';
+                }
+                
+                return; // Don't continue with normal flow
+            }
+            
+            // Normal flow (not shared payment link)
             // Save ticket number to localStorage
             if (generatedTicketNumber) {
                 localStorage.setItem('approved_ticket_number', generatedTicketNumber.toString());
