@@ -34,7 +34,10 @@ async function getEventConfig() {
             .single();
         
         if (error) {
-            console.error('Error fetching event config:', error);
+            // Only log error if it's not a "table not found" error
+            if (error.code !== 'PGRST116' && !error.message?.includes('relation "event_config" does not exist')) {
+                console.error('Error fetching event config:', error);
+            }
             // Return default config if table doesn't exist or has no data
             return {
                 event_name: 'Winter Formal',
@@ -500,7 +503,7 @@ app.get('/ticket/:id', async (req, res) => {
                     padding: 20px 20px 0px 20px;
                     max-width: 400px;
                     width: calc(100% - 40px);
-                    height: 540px;
+                    height: 530px;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                     border-radius: 10px;
                     box-sizing: border-box;
@@ -601,7 +604,7 @@ app.get('/ticket/:id', async (req, res) => {
 
                 .qr-section {
                     position: absolute;
-                    bottom: 55px;
+                    bottom: 50px;
                     left: 50%;
                     transform: translateX(-50%);
                     z-index: 1;
@@ -651,7 +654,7 @@ app.get('/ticket/:id', async (req, res) => {
 
 
                 .share-section {
-                    margin-top: 20px;
+                    margin-top: 15px;
                     text-align: center;
                 }
 
@@ -713,8 +716,12 @@ app.get('/ticket/:id', async (req, res) => {
                 </div>
                 
                 <div class="event-details-link">
-                    <a href="/formal">View guest list and event details</a>
+                    <a href="/formal?ls=true&ticket_number=${ticketId}">View guest list and event details</a>
                 </div>
+            </div>
+            
+            <div class="share-section">
+                <button class="share-button" id="shareDateButton" onclick="shareTicketWithDate()">Share Ticket Link With Date</button>
             </div>
             
             ${ticket.ticket_type === 'couple' ? `
@@ -724,6 +731,37 @@ app.get('/ticket/:id', async (req, res) => {
             ` : ''}
 
             <script>
+                // Check for URL parameters and save ticket number to localStorage
+                var urlParams = new URLSearchParams(window.location.search);
+                var ls = urlParams.get('ls');
+                
+                if (ls === 'true') {
+                    // Extract ticket number from URL path (/ticket/:id)
+                    var pathParts = window.location.pathname.split('/');
+                    var ticketNumber = null;
+                    var ticketIndex = pathParts.indexOf('ticket');
+                    if (ticketIndex !== -1 && ticketIndex < pathParts.length - 1) {
+                        ticketNumber = pathParts[ticketIndex + 1];
+                    }
+                    if (!ticketNumber) {
+                        ticketNumber = urlParams.get('ticket_number');
+                    }
+                    
+                    if (ticketNumber) {
+                        // Save ticket number to localStorage
+                        localStorage.setItem('approved_ticket_number', ticketNumber);
+                        
+                        // Clear URL parameters (keep the path)
+                        var cleanUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, cleanUrl);
+                    }
+                }
+                
+                function shareTicketWithDate() {
+                    const ticketUrl = window.location.href;
+                    copyToClipboard(ticketUrl, 'shareDateButton');
+                }
+                
                 function shareTicket() {
                     const ticketUrl = window.location.href;
                     
@@ -735,22 +773,22 @@ app.get('/ticket/:id', async (req, res) => {
                                 url: ticketUrl
                             }).catch(err => {
                                 console.log('Error sharing:', err);
-                                copyToClipboard(ticketUrl);
+                                copyToClipboard(ticketUrl, 'shareButton');
                             });
                         } else {
-                            copyToClipboard(ticketUrl);
+                            copyToClipboard(ticketUrl, 'shareButton');
                         }
                     } else {
                         // Desktop or iPhone - copy to clipboard
-                        copyToClipboard(ticketUrl);
+                        copyToClipboard(ticketUrl, 'shareButton');
                     }
                 }
                 
-                function copyToClipboard(text) {
+                function copyToClipboard(text, buttonId) {
                     navigator.clipboard.writeText(text).then(() => {
-                        const button = document.getElementById('shareButton');
+                        const button = document.getElementById(buttonId);
                         const originalText = button.textContent;
-                        button.textContent = 'Ticket Link Copied!';
+                        button.textContent = 'Ticket Link Copied';
                         setTimeout(() => {
                             button.textContent = originalText;
                         }, 2000);
@@ -764,7 +802,7 @@ app.get('/ticket/:id', async (req, res) => {
                         document.execCommand('copy');
                         document.body.removeChild(textArea);
                         
-                        const button = document.getElementById('shareButton');
+                        const button = document.getElementById(buttonId);
                         const originalText = button.textContent;
                         button.textContent = 'Ticket Link Copied!';
                         setTimeout(() => {

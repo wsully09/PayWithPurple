@@ -2578,10 +2578,10 @@
                 newButton.id = 'rsvpYes'; // Preserve the ID
                 newButton.textContent = `View Your Ticket (#${ticketNumber})`;
                 rsvpButton.parentNode.replaceChild(newButton, rsvpButton);
-                // Add new click handler to open ticket in new tab
+                // Add new click handler to open ticket in current window
                 newButton.addEventListener('click', function(e) {
                     e.preventDefault();
-                    window.open(`/ticket/${ticketNumber}`, '_blank');
+                    window.location.href = `/ticket/${ticketNumber}`;
                 });
             }
         }
@@ -2927,6 +2927,22 @@
             }
         }
 
+        // Check for URL parameters and save ticket number to localStorage
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ls = urlParams.get('ls');
+            const ticketNumber = urlParams.get('ticket_number');
+            
+            if (ls === 'true' && ticketNumber) {
+                // Save ticket number to localStorage
+                localStorage.setItem('approved_ticket_number', ticketNumber);
+                
+                // Clear URL parameters
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        })();
+        
         // Add event listeners when the page loads
         document.addEventListener('DOMContentLoaded', async function() {
             // Check for pay for other parameters first
