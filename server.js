@@ -470,11 +470,11 @@ app.get('/ticket/:id', async (req, res) => {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Winter Formal Ticket #${ticketId}</title>
-            <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico">
-            <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
-            <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
-            <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-            <link rel="manifest" href="/favicons/site.webmanifest">
+            <link rel="icon" type="image/x-icon" href="/favicons5/favicon.ico">
+            <link rel="icon" type="image/png" sizes="32x32" href="/favicons5/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/favicons5/favicon-16x16.png">
+            <link rel="apple-touch-icon" sizes="180x180" href="/favicons5/apple-touch-icon.png">
+            <link rel="manifest" href="/favicons5/site.webmanifest">
             <style>
                 :root {
                     --black: #000000;
@@ -930,6 +930,7 @@ app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/favicons', express.static(path.join(__dirname, 'favicons5')));
+app.use('/favicons5', express.static(path.join(__dirname, 'favicons5')));
 app.use(express.static(path.join(__dirname, '.'), {
     // Only serve files with these extensions as static files
     setHeaders: (res, path) => {
