@@ -720,9 +720,11 @@ app.get('/ticket/:id', async (req, res) => {
                 </div>
             </div>
             
-            <div class="share-section">
-                <button class="share-button" id="shareDateButton" onclick="shareTicketWithDate()">Share Ticket Link With Date</button>
-            </div>
+            ${ticket.ticket_type !== 'single' && ticket.ticket_type !== 'couple' ? `
+                <div class="share-section">
+                    <button class="share-button" id="shareDateButton" onclick="shareTicketWithDate()">Share Ticket Link With Date</button>
+                </div>
+            ` : ''}
             
             ${ticket.ticket_type === 'couple' ? `
                 <div class="share-section">
@@ -731,8 +733,36 @@ app.get('/ticket/:id', async (req, res) => {
             ` : ''}
 
             <script>
-                // Check for URL parameters and save ticket number to localStorage
+                // Check for share parameter and hide share buttons if present
                 var urlParams = new URLSearchParams(window.location.search);
+                var shareParam = urlParams.get('share');
+                
+                if (shareParam === 'true') {
+                    // Hide share buttons
+                    var shareDateButton = document.getElementById('shareDateButton');
+                    var shareButton = document.getElementById('shareButton');
+                    var shareSections = document.querySelectorAll('.share-section');
+                    
+                    if (shareDateButton) {
+                        shareDateButton.style.display = 'none';
+                    }
+                    if (shareButton) {
+                        shareButton.style.display = 'none';
+                    }
+                    shareSections.forEach(function(section) {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Remove share parameter from URL
+                    urlParams.delete('share');
+                    var newUrl = window.location.pathname;
+                    if (urlParams.toString()) {
+                        newUrl += '?' + urlParams.toString();
+                    }
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+                
+                // Check for URL parameters and save ticket number to localStorage
                 var ls = urlParams.get('ls');
                 
                 if (ls === 'true') {
@@ -758,7 +788,10 @@ app.get('/ticket/:id', async (req, res) => {
                 }
                 
                 function shareTicketWithDate() {
-                    const ticketUrl = window.location.href;
+                    var ticketUrl = window.location.href.split('?')[0]; // Get base URL without query params
+                    var urlParams = new URLSearchParams(window.location.search);
+                    urlParams.set('share', 'true');
+                    ticketUrl += '?' + urlParams.toString();
                     copyToClipboard(ticketUrl, 'shareDateButton');
                 }
                 
