@@ -749,15 +749,11 @@ app.get('/ticket/:id', async (req, res) => {
                     
                     // Remove share parameter from URL
                     urlParams.delete('share');
-                    var newUrl = window.location.pathname;
-                    if (urlParams.toString()) {
-                        newUrl += '?' + urlParams.toString();
-                    }
-                    window.history.replaceState({}, document.title, newUrl);
                 }
                 
                 // Check for URL parameters and save ticket number to localStorage
                 var ls = urlParams.get('ls');
+                var showshare = urlParams.get('showshare');
                 
                 if (ls === 'true') {
                     // Extract ticket number from URL path (/ticket/:id)
@@ -774,12 +770,23 @@ app.get('/ticket/:id', async (req, res) => {
                     if (ticketNumber) {
                         // Save ticket number to localStorage
                         localStorage.setItem('approved_ticket_number', ticketNumber);
-                        
-                        // Clear URL parameters (keep the path)
-                        var cleanUrl = window.location.pathname;
-                        window.history.replaceState({}, document.title, cleanUrl);
                     }
+                    
+                    // Remove ls parameter from URL
+                    urlParams.delete('ls');
                 }
+                
+                // Remove showshare parameter from URL if present
+                if (showshare === 'true') {
+                    urlParams.delete('showshare');
+                }
+                
+                // Clean up URL by removing processed parameters
+                var newUrl = window.location.pathname;
+                if (urlParams.toString()) {
+                    newUrl += '?' + urlParams.toString();
+                }
+                window.history.replaceState({}, document.title, newUrl);
                 
                 function shareTicketWithDate() {
                     // Get base URL without query params
