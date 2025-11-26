@@ -24,7 +24,7 @@
             background-size: 200px 200px;
             background-repeat: repeat;
             background-blend-mode: overlay;
-            opacity: 0.8;
+            opacity: 0.6;
             font-family: "Inter", sans-serif;
         }
         
@@ -335,13 +335,13 @@
         
         .code-input-group {
             display: flex;
-            gap: 10px;
             justify-content: center;
             margin: 20px 0;
         }
         
         .code-input {
-            width: 60px;
+            width: 100%;
+            max-width: 280px;
             height: 70px;
             font-size: 32px;
             text-align: center;
@@ -474,10 +474,7 @@
         <div class="code-entry-container">
             <h2>Enter Access Code</h2>
             <div class="code-input-group">
-                <input type="text" class="code-input" id="codeInput1" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" id="codeInput2" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" id="codeInput3" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" id="codeInput4" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" id="codeInput" maxlength="4" pattern="[0-9]{4}">
             </div>
             <div class="code-error" id="codeError"></div>
             <button class="code-submit-btn" onclick="validateCode()">Submit</button>
@@ -554,8 +551,8 @@
             document.querySelector('.container').style.display = 'none';
             document.getElementById('logoutBtn').style.display = 'none';
             
-            // Focus first input
-            document.getElementById('codeInput1').focus();
+            // Focus input
+            document.getElementById('codeInput').focus();
         }
         
         // Position logout button below container
@@ -593,12 +590,7 @@
         
         // Validate and save code
         function validateCode() {
-            const input1 = document.getElementById('codeInput1').value;
-            const input2 = document.getElementById('codeInput2').value;
-            const input3 = document.getElementById('codeInput3').value;
-            const input4 = document.getElementById('codeInput4').value;
-            
-            const enteredCode = input1 + input2 + input3 + input4;
+            const enteredCode = document.getElementById('codeInput').value;
             const errorDiv = document.getElementById('codeError');
             
             if (enteredCode.length !== 4) {
@@ -615,61 +607,40 @@
                 initializeApp();
             } else {
                 errorDiv.textContent = 'Incorrect code. Please try again.';
-                // Clear inputs
-                document.getElementById('codeInput1').value = '';
-                document.getElementById('codeInput2').value = '';
-                document.getElementById('codeInput3').value = '';
-                document.getElementById('codeInput4').value = '';
-                document.getElementById('codeInput1').focus();
+                // Clear input
+                document.getElementById('codeInput').value = '';
+                document.getElementById('codeInput').focus();
             }
         }
         
         // Setup code input handlers
         function setupCodeInputs() {
-            const inputs = ['codeInput1', 'codeInput2', 'codeInput3', 'codeInput4'];
+            const input = document.getElementById('codeInput');
             
-            inputs.forEach((id, index) => {
-                const input = document.getElementById(id);
+            // Handle input - only allow numbers
+            input.addEventListener('input', function(e) {
+                // Only allow numbers
+                e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
                 
-                // Handle input
-                input.addEventListener('input', function(e) {
-                    // Only allow numbers
-                    if (!/^\d$/.test(e.target.value)) {
-                        e.target.value = '';
-                        return;
-                    }
-                    
-                    // Clear error on input
-                    document.getElementById('codeError').textContent = '';
-                    
-                    // Move to next input
-                    if (e.target.value && index < inputs.length - 1) {
-                        document.getElementById(inputs[index + 1]).focus();
-                    }
-                });
-                
-                // Handle backspace
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                        document.getElementById(inputs[index - 1]).focus();
-                    }
-                });
-                
-                // Handle paste
-                input.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    const pastedData = (e.clipboardData || window.clipboardData).getData('text');
-                    const digits = pastedData.replace(/\D/g, '').slice(0, 4);
-                    
-                    if (digits.length === 4) {
-                        inputs.forEach((inputId, i) => {
-                            document.getElementById(inputId).value = digits[i] || '';
-                        });
-                        document.getElementById('codeInput4').focus();
-                        // Clear error on paste
-                        document.getElementById('codeError').textContent = '';
-                    }
-                });
+                // Clear error on input
+                document.getElementById('codeError').textContent = '';
+            });
+            
+            // Handle Enter key to submit
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    validateCode();
+                }
+            });
+            
+            // Handle paste
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = pastedData.replace(/\D/g, '').slice(0, 4);
+                e.target.value = digits;
+                // Clear error on paste
+                document.getElementById('codeError').textContent = '';
             });
         }
         
@@ -680,11 +651,8 @@
             currentTicket = null;
             // Show code entry screen
             showCodeEntryScreen();
-            // Clear inputs
-            document.getElementById('codeInput1').value = '';
-            document.getElementById('codeInput2').value = '';
-            document.getElementById('codeInput3').value = '';
-            document.getElementById('codeInput4').value = '';
+            // Clear input
+            document.getElementById('codeInput').value = '';
             document.getElementById('codeError').textContent = '';
             // Reset URL
             window.history.replaceState({}, document.title, window.location.pathname);

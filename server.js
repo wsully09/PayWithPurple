@@ -500,7 +500,7 @@ app.get('/ticket/:id', async (req, res) => {
                     padding: 20px 20px 0px 20px;
                     max-width: 400px;
                     width: calc(100% - 40px);
-                    height: 550px;
+                    height: 540px;
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
                     border-radius: 10px;
                     box-sizing: border-box;
