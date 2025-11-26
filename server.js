@@ -419,15 +419,15 @@ app.get('/ticket/:id', async (req, res) => {
                                 font-family: Arial, sans-serif; 
                                 text-align: center; 
                                 padding: 50px;
-                                background-color: #0e140b;
+                                background-color: black;
                                 color: white;
                             }
                         </style>
                     </head>
                     <body>
                         <h1>Ticket Not Found</h1>
-                        <p>This ticket ID is not valid or has expired.</p>
-                        <a href="/" style="color: white;">Back to Home</a>
+                        <p>This ticket number is not valid or has expired.</p>
+                        <a href="/formal" style="color: white;">Back to Home</a>
                     </body>
                     </html>
                 `);
