@@ -906,7 +906,7 @@ app.get('/qr-code-scanner', (req, res) => {
 });
 
 app.get('/ticket', (req, res) => {
-    res.sendFile(path.join(__dirname, 'ticket.html'));
+    res.redirect('/formal');
 });
 
 app.get('/admin', (req, res) => {
