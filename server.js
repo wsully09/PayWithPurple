@@ -584,7 +584,7 @@ app.get('/ticket/:id', async (req, res) => {
                 .info-group {
                     display: flex;
                     flex-direction: column;
-                }
+                } 
 
                 .info-label {
                     font-size: 12px;
