@@ -211,7 +211,7 @@
 
         .pricing-details {
             font-family: "Inter", sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             color: white;
             line-height: 1.4;
             margin-bottom: 30px;
@@ -1741,7 +1741,7 @@
         const IS_MOBILE_DEVICE = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         // Override mobile device popup - set to true to bypass the "continue on mobile device" popup
-        const OVERRIDE_MOBILE_POPUP = false;
+        const OVERRIDE_MOBILE_POPUP = true;
         
         // Initialize Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1849,18 +1849,18 @@
             // Update pricing details text
             const pricingDetails = document.querySelector('.pricing-details');
             if (pricingDetails) {
-                pricingDetails.innerHTML = `We're using prepaid tickets to cover the cost of drinks and other miscellaneous event expenses. Each ticket gives you access to the event and about 4 holiday-themed drinks per person at the open bar. The prices below apply whether or not you or your guest plan to drink or arrive late to the event. <strong><u>There are no ticket price exceptions, so please do not ask for one.</u></strong> There are also no refunds after the RSVP deadline since the drinks will be purchased in advance. Tickets will be checked at the door.`;
+                pricingDetails.innerHTML = `Each ticket gives you access to the event and an <strong><u>open holiday-themed bar</u></strong>. The ticket prices below apply whether or not you or your guest plan to drink or arrive late to the formal. <strong><u>There are no ticket price exceptions, so please do not ask for one.</u></strong> There are also no refunds after the RSVP deadline since the drinks will be purchased in advance. Tickets will be checked at the door.`;
             }
             
             // Update button text with drinks count
             const coupleButton = document.getElementById('coupleTicketBtn');
             if (coupleButton) {
-                coupleButton.textContent = `Couple - ${coupleTicketDrinks} Drinks ($${coupleTicketPrice})`;
+                coupleButton.textContent = `Couple Ticket ($${coupleTicketPrice})`;
             }
             
             const singleButton = document.getElementById('singleTicketBtn');
             if (singleButton) {
-                singleButton.textContent = `Single - ${singleTicketDrinks} Drinks ($${singleTicketPrice})`;
+                singleButton.textContent = `Single Ticket ($${singleTicketPrice})`;
             }
         }
         
