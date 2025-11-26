@@ -720,7 +720,7 @@ app.get('/ticket/:id', async (req, res) => {
                 </div>
             </div>
             
-            ${ticket.ticket_type !== 'single' ? `
+            ${ticket.ticket_type !== 'single' && req.query.showshare === 'true' ? `
                 <div class="share-section">
                     <button class="share-button" id="shareDateButton" onclick="shareTicketWithDate()">Share Ticket With Date</button>
                 </div>
@@ -784,9 +784,7 @@ app.get('/ticket/:id', async (req, res) => {
                 function shareTicketWithDate() {
                     // Get base URL without query params
                     var baseUrl = window.location.origin + window.location.pathname;
-                    var urlParams = new URLSearchParams(window.location.search);
-                    urlParams.set('share', 'true');
-                    var ticketUrl = baseUrl + '?' + urlParams.toString();
+                    var ticketUrl = baseUrl;
                     copyToClipboard(ticketUrl, 'shareDateButton');
                 }
                 
