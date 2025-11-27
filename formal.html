@@ -1838,7 +1838,7 @@
                 // Update the subtitle with fetched dates
                 const subtitle = document.querySelector('.subtitle');
                 if (subtitle) {
-                    subtitle.innerHTML = `<strong><u>Event Details:</u></strong> The formal will be held indoors at the 825 East Washington Street house on ${eventDate}. Attire is (short) dresses and suits. All Duncan seniors and juniors are welcome. Only some sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
+                    subtitle.innerHTML = `<strong><u>Event Details:</u></strong> The formal will be held on ${eventDate} inside the <a href="https://m.uber.com/looking/?pickup=my_location&drop[0]=%7B%22latitude%22%3A41.676667%2C%22longitude%22%3A-86.238611%2C%22addressLine1%22%3A%22825%20E%20Washington%20St%22%2C%22addressLine2%22%3A%22South%20Bend%2C%20IN%2046617%22%7D" target="_blank" style="text-decoration: underline; color: white;">825 East Washington Street</a> house. Attire is (short) dresses and suits. All Duncan seniors and juniors are welcome. Only some sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
                 }
                 
             } catch (error) {
