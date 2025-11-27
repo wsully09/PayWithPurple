@@ -1327,6 +1327,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
 
         .qr-code-image {
@@ -2814,18 +2818,16 @@
                 // Fetch all approved tickets from winter_formal_orders
                 let { data: winterTickets, error: winterError } = await supabase
                     .from('winter_formal_orders')
-                    .select('name, ticket_type, created_at')
-                    .eq('payment_approved', 'approved')
-                    .order('created_at', { ascending: false });
+                    .select('name, ticket_type, venmo_timestamp')
+                    .eq('payment_approved', 'approved');
                 
                 // Fetch all approved tickets from fall_formal_orders
                 let { data: fallTickets, error: fallError } = await supabase
                     .from('fall_formal_orders')
-                    .select('name, ticket_type, created_at')
-                    .eq('payment_approved', 'approved')
-                    .order('created_at', { ascending: false });
+                    .select('name, ticket_type, venmo_timestamp')
+                    .eq('payment_approved', 'approved');
                 
-                // Combine tickets from both tables and sort by created_at descending
+                // Combine tickets from both tables and sort by venmo_timestamp descending
                 let allTickets = [];
                 if (winterTickets) {
                     allTickets = allTickets.concat(winterTickets);
@@ -2834,11 +2836,39 @@
                     allTickets = allTickets.concat(fallTickets);
                 }
                 
-                // Sort combined list by created_at descending (most recent first)
+                // Sort combined list by venmo_timestamp descending (most recent first)
+                // Handle custom format "7:04:27 PM (11/26)" or "2:04:45 AM (10/7)"
                 allTickets.sort((a, b) => {
-                    const dateA = new Date(a.created_at || 0);
-                    const dateB = new Date(b.created_at || 0);
-                    return dateB - dateA; // Descending order
+                    const timestampA = a.venmo_timestamp;
+                    const timestampB = b.venmo_timestamp;
+                    
+                    const parseCustomTimestamp = (timestamp) => {
+                        if (!timestamp) return new Date(0); // Fallback for missing timestamps
+                        
+                        if (typeof timestamp === 'string' && (timestamp.includes('PM') || timestamp.includes('AM')) && timestamp.includes('(')) {
+                            try {
+                                const timeMatch = timestamp.match(/(\d+:\d+:\d+ [AP]M)/);
+                                const dateMatch = timestamp.match(/\((\d+\/\d+)\)/);
+                                
+                                if (timeMatch && dateMatch) {
+                                    const timePart = timeMatch[1];
+                                    const datePart = dateMatch[1];
+                                    const currentYear = new Date().getFullYear();
+                                    const [month, day] = datePart.split('/');
+                                    const dateString = `${month}/${day}/${currentYear} ${timePart}`;
+                                    return new Date(dateString);
+                                }
+                            } catch (error) {
+                                // Fallback to original timestamp parsing
+                            }
+                        }
+                        return new Date(timestamp || 0);
+                    };
+                    
+                    const dateA = parseCustomTimestamp(timestampA);
+                    const dateB = parseCustomTimestamp(timestampB);
+                    
+                    return dateB - dateA; // Descending order (most recent first)
                 });
                 
                 // Display guest list
