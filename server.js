@@ -273,6 +273,54 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
+// Get all orders from winter_formal_orders table
+app.get('/api/winter-orders', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('winter_formal_orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('Supabase error details:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
+            
+            // If table doesn't exist, return empty array instead of error
+            if (error.code === 'PGRST116' || error.message.includes('relation "winter_formal_orders" does not exist')) {
+                return res.json({
+                    success: true,
+                    orders: []
+                });
+            }
+            
+            return res.status(500).json({
+                success: false,
+                error: 'Failed to fetch orders',
+                details: error.message
+            });
+        }
+        
+        res.json({
+            success: true,
+            orders: data || []
+        });
+    } catch (error) {
+        console.error('Server error in /api/winter-orders:', {
+            message: error.message,
+            stack: error.stack
+        });
+        res.status(500).json({
+            success: false,
+            error: 'Failed to retrieve orders',
+            details: error.message
+        });
+    }
+});
+
 // Approve payment and send ticket
 app.post('/api/approve-payment', async (req, res) => {
     try {
@@ -915,6 +963,10 @@ app.get('/admin', (req, res) => {
 
 app.get('/all-ordered-tickets', (req, res) => {
     res.sendFile(path.join(__dirname, 'all-ordered-tickets.html'));
+});
+
+app.get('/winter-formal-orders', (req, res) => {
+    res.sendFile(path.join(__dirname, 'winter-formal-orders.html'));
 });
 
 app.get('/formal', (req, res) => {
