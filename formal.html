@@ -1588,12 +1588,12 @@
                 </div>
                 <button class="how-to-pay-button" id="proceedToPayment">I'm Paying With Venmo</button>
                 <button class="how-to-pay-button secondary" id="someonePayingForMeButton" onclick="toggleSomeonePayingForMe()">
-                    Someone is Venmoing On My Behalf
+                    Someone Is Venmoing On My Behalf
                 </button>
                 <div class="fallback-section" id="someonePayingForMeSection" style="display: none;">
-                    <div class="fallback-title" style="margin-bottom: 12px; font-size: 14px;">Share the link below with the person paying on your behalf. Once you share the link, you're all done. Your ticket will be emailed to you once the person's Venmo payment is confirmed.</div>
+                    <div class="fallback-title" style="margin-bottom: 12px; font-size: 14px;">Share the link below with the person paying on your behalf. Once you share the link, YOU are all done. Your ticket will be emailed to you once the person's Venmo payment is confirmed.</div>
                     <div class="copy-box simple copy-box-share-link" onclick="copyToClipboard(getShareLink(), this)" id="copyLinkBox">
-                        <div class="copy-label" style="line-height: 1.2;">Click to Copy Payment Link</div>
+                        <div class="copy-label" style="line-height: 1.2;">Click To Copy Payment Link</div>
                         <div class="copy-feedback" style="line-height: 1.2;">Link Copied</div>
                     </div>
                 </div>
@@ -1674,7 +1674,7 @@
                 <div class="fallback-section fallback-section-venmo" id="fallbackSection" style="display: none;">
                     <div class="fallback-title">In the event Venmo does not open:</div>
                     <div class="fallback-text" id="fallbackText">
-                        Venmo $10 to @DuncanOffCampus <br>with message "Winter Formal (#<span id="fallbackTicketNumber">Loading...</span>)". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.
+                        Venmo $<span id="fallbackAmount">Loading...</span> to @DuncanOffCampus <br>with message "Winter Formal (#<span id="fallbackTicketNumber">Loading...</span>)". Remember to click "Pay Without Confirming" or enter "6796" if Venmo asks you for the last 4 digits of the phone number.
                     </div>
                     <div class="copy-section">
                         <div class="copy-box" onclick="copyToClipboard('duncanoffcampus', this)">
@@ -2069,6 +2069,12 @@
                     const fallbackTicketNumber = document.getElementById('fallbackTicketNumber');
                     if (fallbackTicketNumber) {
                         fallbackTicketNumber.textContent = generatedTicketNumber;
+                    }
+                    
+                    // Update fallback text amount
+                    const fallbackAmount = document.getElementById('fallbackAmount');
+                    if (fallbackAmount) {
+                        fallbackAmount.textContent = ticketAmount;
                     }
                 } else {
                     console.error('Failed to generate ticket number');
@@ -3096,6 +3102,12 @@
                     } else {
                         fallbackTicketNumber.textContent = 'Loading...';
                     }
+                }
+                
+                // Update fallback text amount
+                const fallbackAmount = document.getElementById('fallbackAmount');
+                if (fallbackAmount) {
+                    fallbackAmount.textContent = ticketAmount;
                 }
                 
                 // Update complete payment description with correct amount
