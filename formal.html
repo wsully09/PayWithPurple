@@ -3316,9 +3316,13 @@
                 loadingScreen.style.display = 'none';
             }
             
+            // Check if user is logged in (has approved_ticket_number)
+            const isLoggedIn = localStorage.getItem('approved_ticket_number') !== null;
+            
             // Check if override is enabled
-            if (OVERRIDE_MOBILE_POPUP) {
+            if (OVERRIDE_MOBILE_POPUP || isLoggedIn) {
                 // Override: show app container and hide mobile detection screen
+                // Also skip mobile detection if user is logged in
                 if (mobileDetectionScreen) {
                     mobileDetectionScreen.style.display = 'none';
                 }
