@@ -2886,6 +2886,56 @@
             }
         }
         
+        // Auto-refresh guest list functionality
+        let guestListRefreshInterval = null;
+        
+        // Start auto-refreshing guest list every 5 minutes
+        function startGuestListAutoRefresh() {
+            // Clear any existing interval
+            if (guestListRefreshInterval) {
+                clearInterval(guestListRefreshInterval);
+            }
+            
+            // Refresh every 5 minutes (300000 ms)
+            guestListRefreshInterval = setInterval(() => {
+                const savedTicketNumber = localStorage.getItem('approved_ticket_number');
+                // Only refresh if user has an approved ticket
+                if (savedTicketNumber) {
+                    loadGuestList();
+                }
+            }, 300000); // 5 minutes = 300000 milliseconds
+        }
+        
+        // Stop auto-refreshing guest list
+        function stopGuestListAutoRefresh() {
+            if (guestListRefreshInterval) {
+                clearInterval(guestListRefreshInterval);
+                guestListRefreshInterval = null;
+            }
+        }
+        
+        // Refresh guest list when page becomes visible again
+        function setupGuestListVisibilityRefresh() {
+            // Use Page Visibility API to detect when user returns to the page
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    // Page became visible, refresh guest list
+                    const savedTicketNumber = localStorage.getItem('approved_ticket_number');
+                    if (savedTicketNumber) {
+                        loadGuestList();
+                    }
+                }
+            });
+            
+            // Also listen for window focus as a backup (for older browsers)
+            window.addEventListener('focus', () => {
+                const savedTicketNumber = localStorage.getItem('approved_ticket_number');
+                if (savedTicketNumber) {
+                    loadGuestList();
+                }
+            });
+        }
+        
         // Function to display guest list
         function displayGuestList(tickets) {
             const guestListSection = document.getElementById('guestListSection');
@@ -3318,6 +3368,13 @@
             
             // Generate ticket number in the background
             generateTicketNumberInBackground();
+            
+            // Setup guest list auto-refresh (every 5 minutes and on page visibility)
+            setupGuestListVisibilityRefresh();
+            // Start auto-refresh after a short delay to ensure initial load completes
+            setTimeout(() => {
+                startGuestListAutoRefresh();
+            }, 2000);
             
             // Add guest list toggle functionality
             const guestListHeader = document.getElementById('guestListHeader');
