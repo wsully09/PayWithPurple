@@ -2824,13 +2824,13 @@
                 // Fetch all approved tickets from winter_formal_orders
                 let { data: winterTickets, error: winterError } = await supabase
                     .from('winter_formal_orders')
-                    .select('name, ticket_type, venmo_timestamp')
+                    .select('name, ticket_type, venmo_timestamp, created_at')
                     .eq('payment_approved', 'approved');
                 
                 // Fetch all approved tickets from fall_formal_orders
                 let { data: fallTickets, error: fallError } = await supabase
                     .from('fall_formal_orders')
-                    .select('name, ticket_type, venmo_timestamp')
+                    .select('name, ticket_type, venmo_timestamp, created_at')
                     .eq('payment_approved', 'approved');
                 
                 // Combine tickets from both tables and sort by venmo_timestamp descending
@@ -2843,36 +2843,69 @@
                 }
                 
                 // Sort combined list by venmo_timestamp descending (most recent first)
+                // If venmo_timestamp is missing, use created_at for approved orders
                 // Handle custom format "7:04:27 PM (11/26)" or "2:04:45 AM (10/7)"
+                // Venmo timestamps are EST, created_at is UTC
                 allTickets.sort((a, b) => {
-                    const timestampA = a.venmo_timestamp;
-                    const timestampB = b.venmo_timestamp;
+                    // Use venmo_timestamp if available, otherwise fallback to created_at
+                    const timestampA = a.venmo_timestamp || a.created_at;
+                    const timestampB = b.venmo_timestamp || b.created_at;
                     
-                    const parseCustomTimestamp = (timestamp) => {
+                    const parseCustomTimestamp = (timestamp, isVenmo = false) => {
                         if (!timestamp) return new Date(0); // Fallback for missing timestamps
                         
+                        // Handle custom venmo format "7:04:27 PM (11/26)" - these are EST
                         if (typeof timestamp === 'string' && (timestamp.includes('PM') || timestamp.includes('AM')) && timestamp.includes('(')) {
                             try {
-                                const timeMatch = timestamp.match(/(\d+:\d+:\d+ [AP]M)/);
-                                const dateMatch = timestamp.match(/\((\d+\/\d+)\)/);
+                                const timeMatch = timestamp.match(/(\d+):(\d+):(\d+) ([AP]M)/);
+                                const dateMatch = timestamp.match(/\((\d+)\/(\d+)\)/);
                                 
                                 if (timeMatch && dateMatch) {
-                                    const timePart = timeMatch[1];
-                                    const datePart = dateMatch[1];
+                                    let hours = parseInt(timeMatch[1]);
+                                    const minutes = parseInt(timeMatch[2]);
+                                    const seconds = parseInt(timeMatch[3]);
+                                    const ampm = timeMatch[4];
+                                    const month = parseInt(dateMatch[1]) - 1; // Month is 0-indexed
+                                    const day = parseInt(dateMatch[2]);
                                     const currentYear = new Date().getFullYear();
-                                    const [month, day] = datePart.split('/');
-                                    const dateString = `${month}/${day}/${currentYear} ${timePart}`;
-                                    return new Date(dateString);
+                                    
+                                    // Convert to 24-hour format
+                                    if (ampm === 'PM' && hours !== 12) hours += 12;
+                                    if (ampm === 'AM' && hours === 12) hours = 0;
+                                    
+                                    // Create date assuming EST (UTC-5)
+                                    // EST is UTC-5, meaning EST time is 5 hours behind UTC
+                                    // So to convert EST to UTC, we add 5 hours
+                                    const utcDate = new Date(Date.UTC(currentYear, month, day, hours, minutes, seconds));
+                                    const estOffsetMs = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+                                    // Add offset to convert EST to UTC
+                                    return new Date(utcDate.getTime() + estOffsetMs);
                                 }
                             } catch (error) {
                                 // Fallback to original timestamp parsing
                             }
                         }
-                        return new Date(timestamp || 0);
+                        
+                        // For venmo timestamps in ISO or other formats, parse directly
+                        // JavaScript Date will handle ISO strings with timezone info correctly
+                        // If no timezone info, we'll parse as-is (may need adjustment)
+                        const parsedDate = new Date(timestamp);
+                        if (!isNaN(parsedDate.getTime())) {
+                            // If it's a venmo timestamp without timezone and not custom format,
+                            // we might need to treat as EST, but for now parse directly
+                            return parsedDate;
+                        }
+                        
+                        // Fallback
+                        return new Date(0);
                     };
                     
-                    const dateA = parseCustomTimestamp(timestampA);
-                    const dateB = parseCustomTimestamp(timestampB);
+                    // Determine if timestamp is venmo (has venmo_timestamp) or created_at
+                    const isVenmoA = !!a.venmo_timestamp;
+                    const isVenmoB = !!b.venmo_timestamp;
+                    
+                    const dateA = parseCustomTimestamp(timestampA, isVenmoA);
+                    const dateB = parseCustomTimestamp(timestampB, isVenmoB);
                     
                     return dateB - dateA; // Descending order (most recent first)
                 });
