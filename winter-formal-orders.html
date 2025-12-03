@@ -463,7 +463,7 @@
                 const typeClass = order.ticket_type === 'couple' ? 'couple' : 'single';
                 
                 // Format venmo_timestamp
-                let venmoTimestamp = 'N/A';
+                let venmoTimestamp = '--';
                 if (order.venmo_timestamp) {
                     const parsedDate = new Date(order.venmo_timestamp);
                     if (!isNaN(parsedDate.getTime())) {
@@ -477,14 +477,14 @@
                 const ticketScans = order.ticket_scans || 0;
                 
                 // Get modified venmo message, default to empty if not present
-                const modifiedVenmoMessage = order.modified_venmo_message || order.venmo_message || 'N/A';
+                const modifiedVenmoMessage = order.modified_venmo_message || order.venmo_message || '--';
                 
                 row.innerHTML = `
-                    <td><span class="ticket-number">${order.ticket_number || 'N/A'}</span></td>
-                    <td><span class="name">${order.name || 'N/A'}</span></td>
+                    <td><span class="ticket-number">${order.ticket_number || '--'}</span></td>
+                    <td><span class="name">${order.name || '--'}</span></td>
                     <td><span class="ticket-type ${typeClass}">${order.ticket_type || 'single'}</span></td>
                     <td><span class="status ${statusClass}">${order.payment_approved || 'pending'}</span></td>
-                    <td><span class="email">${order.email || 'N/A'}</span></td>
+                    <td><span class="email">${order.email || '--'}</span></td>
                     <td><span class="amount">$${order.venmo_amount || '0.00'}</span></td>
                     <td><span class="timestamp">${venmoTimestamp}</span></td>
                     <td><span class="venmo-message" title="${modifiedVenmoMessage}">${modifiedVenmoMessage}</span></td>
