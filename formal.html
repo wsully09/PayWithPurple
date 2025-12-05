@@ -2992,11 +2992,13 @@
                 guestListNames.style.display = 'block';
             }
             
-            // Calculate total count (single = +1, couple = +2)
+            // Calculate total count (single = +1, couple = +2, three = +3)
             let totalCount = 0;
             tickets.forEach(ticket => {
                 if (ticket.ticket_type === 'couple') {
                     totalCount += 2;
+                } else if (ticket.ticket_type === 'three') {
+                    totalCount += 3;
                 } else {
                     totalCount += 1;
                 }
@@ -3028,6 +3030,8 @@
                         let displayName = ticket.name;
                         if (ticket.ticket_type === 'couple') {
                             displayName += ' (and 1 more)';
+                        } else if (ticket.ticket_type === 'three') {
+                            displayName += ' (and 2 more)';
                         }
                         nameDiv.textContent = displayName;
                         guestListNames.appendChild(nameDiv);
