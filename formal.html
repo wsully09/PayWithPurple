@@ -3739,8 +3739,19 @@
                     document.getElementById('payForOtherEmail').textContent = payForOtherData.email;
                     
                     const amount = ticketType === 'couple' ? coupleTicketPrice : singleTicketPrice;
-                    const ticketTypeText = ticketType === 'couple' ? `Couple Ticket ($${amount})` : `Single Ticket ($${amount})`;
-                    document.getElementById('payForOtherTicketType').textContent = ticketTypeText;
+                    const ticketTypeElement = document.getElementById('payForOtherTicketType');
+                    let ticketTypeText;
+                    if (ticketType === 'couple') {
+                        ticketTypeText = `Couple Ticket ($${amount})`;
+                        ticketTypeElement.style.color = 'white';
+                    } else if (ticketType === 'three') {
+                        ticketTypeText = `and two more`;
+                        ticketTypeElement.style.color = 'red';
+                    } else {
+                        ticketTypeText = `Single Ticket ($${amount})`;
+                        ticketTypeElement.style.color = 'white';
+                    }
+                    ticketTypeElement.textContent = ticketTypeText;
                     
                     document.getElementById('payForOtherNow').textContent = `Pay Now With Venmo`;
                     

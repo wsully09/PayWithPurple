@@ -496,6 +496,8 @@ const SUPABASE_URL = "https://razsrkcvecymujfmrzev.supabase.co";
                 typeDisplay = 'Couple (2 people)';
             } else if (ticket.ticket_type === 'single') {
                 typeDisplay = 'Single (1 person)';
+            } else if (ticket.ticket_type === 'three') {
+                typeDisplay = 'Group of Three';
             } else {
                 // For other types like "Group (3x)", show the actual ticket_type value
                 typeDisplay = ticket.ticket_type;
