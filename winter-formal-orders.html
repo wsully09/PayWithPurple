@@ -52,12 +52,15 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
+            align-items: stretch;
         }
 
         .stat-card {
+            width: 100%;
+            box-sizing: border-box;
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 10px;
@@ -316,7 +319,11 @@
         <div class="stats" id="statsContainer">
             <div class="stat-card">
                 <div class="stat-number" id="approvedOrders">-</div>
-                <div class="stat-label">Paid Orders</div>
+                <div class="stat-label" id="partiesLabel">Parties Attending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="guestsAttending">-</div>
+                <div class="stat-label" id="guestsLabel">Guests Attending</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="totalRevenue">-</div>
@@ -496,9 +503,27 @@
         }
 
         function updateStats(orders) {
-            const approvedOrders = orders.filter(order => order.payment_approved === 'approved').length;
+            // Calculate total parties (all orders)
+            const totalParties = orders.length;
             
-            // Calculate total revenue from approved orders
+            // Calculate paid parties count
+            const paidParties = orders.filter(order => order.payment_approved === 'approved').length;
+            
+            // Calculate total guests from all orders (single = 1 guest, couple = 2 guests)
+            const totalGuests = orders.reduce((sum, order) => {
+                const guestCount = order.ticket_type === 'couple' ? 2 : 1;
+                return sum + guestCount;
+            }, 0);
+            
+            // Calculate paid guests count
+            const paidGuests = orders
+                .filter(order => order.payment_approved === 'approved')
+                .reduce((sum, order) => {
+                    const guestCount = order.ticket_type === 'couple' ? 2 : 1;
+                    return sum + guestCount;
+                }, 0);
+            
+            // Calculate total revenue from approved orders only
             const totalRevenue = orders
                 .filter(order => order.payment_approved === 'approved')
                 .reduce((sum, order) => {
@@ -506,7 +531,10 @@
                     return sum + amount;
                 }, 0);
 
-            document.getElementById('approvedOrders').textContent = approvedOrders;
+            document.getElementById('approvedOrders').textContent = totalParties;
+            document.getElementById('guestsAttending').textContent = totalGuests;
+            document.getElementById('partiesLabel').textContent = `Parties Attending (${paidParties} Paid)`;
+            document.getElementById('guestsLabel').textContent = `Guests Attending (${paidGuests} Paid)`;
             document.getElementById('totalRevenue').textContent = `$${Math.round(totalRevenue)}`;
         }
 
