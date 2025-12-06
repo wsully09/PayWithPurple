@@ -3365,12 +3365,13 @@
             // Check for shareButton query parameter (case-insensitive)
             const shareButtonParam = urlParams.get('shareButton') || urlParams.get('sharebutton');
             
-            // Check for mobileOverride query parameter
-            const mobileOverrideParam = urlParams.get('mobileOverride');
+            // Check for mobileOverride query parameter (case-insensitive)
+            const mobileOverrideParam = urlParams.get('mobileOverride') || urlParams.get('mobileoverride');
             if (mobileOverrideParam === 'true') {
                 MOBILE_OVERRIDE_FROM_QUERY = true;
-                // Remove mobileOverride parameter from URL
+                // Remove mobileOverride parameter from URL (handle both cases)
                 urlParams.delete('mobileOverride');
+                urlParams.delete('mobileoverride');
                 let newUrl = window.location.pathname;
                 if (urlParams.toString()) {
                     newUrl += '?' + urlParams.toString();
