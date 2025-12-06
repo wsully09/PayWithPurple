@@ -1746,6 +1746,9 @@
         // Override mobile device popup - set to true to bypass the "continue on mobile device" popup
         const OVERRIDE_MOBILE_POPUP = false;
         
+        // Mobile override from query parameter - will be set by query parameter handler
+        let MOBILE_OVERRIDE_FROM_QUERY = false;
+        
         // Initialize Supabase client
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
@@ -1838,7 +1841,9 @@
                 // Update the subtitle with fetched dates
                 const subtitle = document.querySelector('.subtitle');
                 if (subtitle) {
-                    subtitle.innerHTML = `<strong><u>Event Details:</u></strong> The formal will be held on ${eventDate} inside the <a href="https://m.uber.com/looking/?pickup=my_location&drop[0]=%7B%22latitude%22%3A41.676667%2C%22longitude%22%3A-86.238611%2C%22addressLine1%22%3A%22825%20E%20Washington%20St%22%2C%22addressLine2%22%3A%22South%20Bend%2C%20IN%2046617%22%7D" target="_blank" style="text-decoration: underline; color: white;">825 East Washington Street</a> house. Attire is (short) dresses and suits. All Duncan seniors and juniors are welcome. Only some sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
+                    //subtitle.innerHTML = `<strong><u>Event Details:</u></strong> The formal will be held on ${eventDate} inside the <a href="https://m.uber.com/looking/?pickup=my_location&drop[0]=%7B%22latitude%22%3A41.676667%2C%22longitude%22%3A-86.238611%2C%22addressLine1%22%3A%22825%20E%20Washington%20St%22%2C%22addressLine2%22%3A%22South%20Bend%2C%20IN%2046617%22%7D" target="_blank" style="text-decoration: underline; color: white;">825 East Washington Street</a> house. Attire is (short) dresses and suits. All Duncan seniors and juniors are welcome. Only some sophomores have been invited due to limited indoor capacity. <strong><u>RSVP by ${rspDate}</u></strong> before your spot is given to someone else.`;
+                    subtitle.innerHTML = `<strong><u>Event Details:</u></strong> The formal will be held on ${eventDate} inside the <a href="https://m.uber.com/looking/?pickup=my_location&drop[0]=%7B%22latitude%22%3A41.676667%2C%22longitude%22%3A-86.238611%2C%22addressLine1%22%3A%22825%20E%20Washington%20St%22%2C%22addressLine2%22%3A%22South%20Bend%2C%20IN%2046617%22%7D" target="_blank" style="text-decoration: underline; color: white;">825 East Washington Street</a> house. Attire is (short) dresses and suits. All Duncan seniors and juniors are welcome. Only some sophomores have been invited due to limited indoor capacity.`;
+
                 }
                 
             } catch (error) {
@@ -3323,8 +3328,8 @@
             // Check if user is logged in (has approved_ticket_number)
             const isLoggedIn = localStorage.getItem('approved_ticket_number') !== null;
             
-            // Check if override is enabled
-            if (OVERRIDE_MOBILE_POPUP || isLoggedIn) {
+            // Check if override is enabled (from constant, query parameter, or login)
+            if (OVERRIDE_MOBILE_POPUP || MOBILE_OVERRIDE_FROM_QUERY || isLoggedIn) {
                 // Override: show app container and hide mobile detection screen
                 // Also skip mobile detection if user is logged in
                 if (mobileDetectionScreen) {
@@ -3359,6 +3364,21 @@
             const ticketNumber = urlParams.get('ticket_number');
             // Check for shareButton query parameter (case-insensitive)
             const shareButtonParam = urlParams.get('shareButton') || urlParams.get('sharebutton');
+            
+            // Check for mobileOverride query parameter
+            const mobileOverrideParam = urlParams.get('mobileOverride');
+            if (mobileOverrideParam === 'true') {
+                MOBILE_OVERRIDE_FROM_QUERY = true;
+                // Remove mobileOverride parameter from URL
+                urlParams.delete('mobileOverride');
+                let newUrl = window.location.pathname;
+                if (urlParams.toString()) {
+                    newUrl += '?' + urlParams.toString();
+                } else {
+                    newUrl = window.location.pathname;
+                }
+                window.history.replaceState({}, document.title, newUrl);
+            }
             
             // Check for shareButton query parameter
             if (shareButtonParam === 'true') {

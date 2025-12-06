@@ -318,15 +318,15 @@
 
         <div class="stats" id="statsContainer">
             <div class="stat-card">
-                <div class="stat-number" id="approvedOrders">-</div>
+                <div class="stat-number" id="approvedOrders"></div>
                 <div class="stat-label" id="partiesLabel">Parties Attending</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="guestsAttending">-</div>
+                <div class="stat-number" id="guestsAttending"></div>
                 <div class="stat-label" id="guestsLabel">Guests Attending</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="totalRevenue">-</div>
+                <div class="stat-number" id="totalRevenue"></div>
                 <div class="stat-label">Total Revenue</div>
             </div>
         </div>
@@ -360,7 +360,7 @@
                         <th>Email</th>
                         <th>Venmo Amount</th>
                         <th>Venmo Timestamp</th>
-                        <th>Venmo Message</th>
+                        <th>Custom Venmo Message</th>
                         <th>Ticket Scans</th>
                     </tr>
                 </thead>
@@ -492,7 +492,7 @@
                     <td><span class="ticket-type ${typeClass}">${order.ticket_type || 'single'}</span></td>
                     <td><span class="status ${statusClass}">${order.payment_approved || 'pending'}</span></td>
                     <td><span class="email">${order.email || '--'}</span></td>
-                    <td><span class="amount">$${order.venmo_amount || '0.00'}</span></td>
+                    <td><span class="amount">${order.venmo_amount != null ? '$' + order.venmo_amount : '--'}</span></td>
                     <td><span class="timestamp">${venmoTimestamp}</span></td>
                     <td><span class="venmo-message" title="${modifiedVenmoMessage}">${modifiedVenmoMessage}</span></td>
                     <td><span class="scans">${ticketScans}</span></td>
